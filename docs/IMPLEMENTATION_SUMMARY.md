@@ -400,7 +400,7 @@ Newtonsoft.Json               13.0.3
 - [ModelContextProtocol](https://github.com/modelcontextprotocol) - MCP 协议官方实现
 - [Roslyn](https://github.com/dotnet/roslyn) - .NET Compiler Platform
 - [.NET](https://github.com/dotnet) - .NET 开发框架
-- [OpenSpec](https://github.com/yourusername/openspec) - 变更管理工具
+- [OpenSpec](https://github.com/open-spec-dev/openspec) - 变更管理工具
 
 ---
 

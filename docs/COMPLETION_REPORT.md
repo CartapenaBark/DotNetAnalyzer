@@ -335,7 +335,7 @@ DotNetAnalyzer/
 - 查看 [CONTRIBUTING.md](CONTRIBUTING.md) 了解贡献流程
 
 ### 报告问题
-- GitHub Issues: [创建问题](https://github.com/yourusername/DotNetAnalyzer/issues)
+- GitHub Issues: [创建问题](https://github.com/CartapenaBark/DotNetAnalyzer/issues)
 
 ---
 

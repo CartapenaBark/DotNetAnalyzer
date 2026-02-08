@@ -14,19 +14,20 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-analyzer</ToolCommandName>
     <PackageId>DotNetAnalyzer</PackageId>
-    <Version>0.1.0-alpha</Version>
-    <Authors>Your Name</Authors>
+    <Version>0.2.0</Version>
+    <Authors>CartapenaBark</Authors>
     <Description>MCP server for .NET code analysis with Roslyn</Description>
     <PackageTags>mcp;roslyn;code-analysis;claude;dotnet</PackageTags>
-    <PackageProjectUrl>https://github.com/yourusername/DotNetAnalyzer</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/yourusername/DotNetAnalyzer</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/CartapenaBark/DotNetAnalyzer</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/CartapenaBark/DotNetAnalyzer</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      Initial alpha release with MCP server foundation
-      - Core MCP protocol implementation (stdio transport)
-      - Roslyn integration with MSBuildWorkspace
-      - Tools: get_diagnostics
+      v0.2.0 - Symbol Query Features
+      - ✅ Complete symbol query tools (find_references, find_declarations, get_symbol_info)
+      - ✅ Enhanced code analysis with syntax tree parsing
+      - ✅ Full Roslyn integration for semantic analysis
+      - ✅ XML documentation extraction
     </PackageReleaseNotes>
   </PropertyGroup>
 

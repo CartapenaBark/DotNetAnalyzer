@@ -3,9 +3,8 @@
 > 一个强大的 MCP (Model Context Protocol) 服务器工具，将 Roslyn 的代码分析能力引入 Claude Code
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/8.0)
-[![Version](https://img.shields.io/badge/version-0.1.0--alpha-orange.svg)](https://github.com/yourusername/DotNetAnalyzer)
+[![Version](https://img.shields.io/badge/version-0.2.0-brightgreen.svg)](https://github.com/CartapenaBark/DotNetAnalyzer)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Phase](https://img.shields.io/badge/phase-Phase%201%20Foundation-yellow.svg)]()
 
 ## 📖 简介
 
@@ -30,7 +29,7 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 ## 🎯 核心功能
 
-**当前版本 (v0.1.0-alpha)** 提供 **8 个核心 MCP 工具**：
+**当前版本 (v0.2.0)** 提供 **8 个核心 MCP 工具**，支持强命名：
 
 ### ✅ 已实现的工具
 
@@ -52,20 +51,32 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
   - 解决方案配置
   - 项目列表和总数
 
-**代码分析** (基础实现):
+**代码分析** (✨ 完整实现):
 - `analyze_code` - 分析代码的语法和语义结构
-  - 当前支持基础文件信息（行数、大小、扩展名）
-  - 完整语法树分析功能开发中
+  - ✅ 语法树解析和层次结构
+  - ✅ 命名空间、类型、方法提取
+  - ✅ 类型信息分析（基类、接口、可访问性）
+  - ✅ Using 指令和依赖关系
+  - ✅ 语义模型集成
 
-**符号查询** (占位符实现):
+**符号查询** (✨ 完整实现):
 - `find_references` - 查找符号的所有引用
+  - ✅ 跨文件引用查找
+  - ✅ 区分声明和引用位置
+  - ✅ 提取引用上下文
 - `find_declarations` - 查找符号的声明位置
+  - ✅ 重写方法的基类声明
+  - ✅ 接口实现的声明
+  - ✅ 扩展方法识别
 - `get_symbol_info` - 获取符号的详细信息
+  - ✅ 符号元数据（名称、类型、可访问性）
+  - ✅ 方法签名和参数
+  - ✅ XML 文档注释提取
+  - ✅ 特性（Attributes）信息
 
 ### 🚧 计划中的功能
 
 后续版本将添加：
-- 完整的符号查询实现（使用 Roslyn SymbolFinder）
 - 代码导航工具（跳转到定义、类型层次等）
 - 代码重构功能（提取方法、重命名等）
 - 代码生成工具（实现接口、生成构造函数等）
@@ -161,7 +172,7 @@ dotnet-analyzer --version
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/DotNetAnalyzer.git
+git clone https://github.com/CartapenaBark/DotNetAnalyzer.git
 cd DotNetAnalyzer
 
 # 还原依赖
@@ -444,8 +455,8 @@ dotnet tool uninstall --global DotNetAnalyzer
 
 ## 📞 联系方式
 
-- 问题反馈: [GitHub Issues](https://github.com/yourusername/DotNetAnalyzer/issues)
-- 功能建议: [GitHub Discussions](https://github.com/yourusername/DotNetAnalyzer/discussions)
+- 问题反馈: [GitHub Issues](https://github.com/CartapenaBark/DotNetAnalyzer/issues)
+- 功能建议: [GitHub Discussions](https://github.com/CartapenaBark/DotNetAnalyzer/discussions)
 - NuGet 包: [DotNetAnalyzer on NuGet.org](https://www.nuget.org/packages/DotNetAnalyzer/)
 
 ---

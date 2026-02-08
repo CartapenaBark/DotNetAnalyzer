@@ -110,7 +110,7 @@
 ### 克隆仓库
 
 ```bash
-git clone https://github.com/yourusername/DotNetAnalyzer.git
+git clone https://github.com/CartapenaBark/DotNetAnalyzer.git
 cd DotNetAnalyzer
 ```
 
@@ -519,8 +519,8 @@ feat(symbols): add find_references implementation
 
 ### 联系方式
 
-- **GitHub Issues**: [提交问题](https://github.com/yourusername/DotNetAnalyzer/issues)
-- **Discussions**: [参与讨论](https://github.com/yourusername/DotNetAnalyzer/discussions)
+- **GitHub Issues**: [提交问题](https://github.com/CartapenaBark/DotNetAnalyzer/issues)
+- **Discussions**: [参与讨论](https://github.com/CartapenaBark/DotNetAnalyzer/discussions)
 
 ### 资源
 

@@ -4,6 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- Core 项目不单独打包，仅作为 Cli 工具的依赖 -->
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

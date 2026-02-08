@@ -30,10 +30,11 @@ jobs:
       run: dotnet test -c Release --no-build --verbosity normal
 
     - name: Pack NuGet package
-      run: dotnet pack -c Release --no-build --output ./nupkg
+      run: dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release --no-build --output ./nupkg
 
     - name: Upload NuGet package
       uses: actions/upload-artifact@v4
       with:
         name: nuget-package
         path: ./nupkg/*.nupkg
+        retention-days: 7

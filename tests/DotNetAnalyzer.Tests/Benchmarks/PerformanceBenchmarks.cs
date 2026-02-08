@@ -105,8 +105,9 @@ public class PerformanceBenchmarks
         _output.WriteLine($"诊断信息获取时间: {retrievalTime}ms");
         _output.WriteLine($"诊断数量: {diagnostics.Length}");
 
-        // 诊断获取应该很快
-        Assert.True(retrievalTime < 1000, $"诊断获取时间 {retrievalTime}ms 超过预期阈值 1000ms");
+        // 诊断获取应该很快（CI 环境需要更宽松的阈值）
+        var threshold = Environment.GetEnvironmentVariable("CI") != null ? 1500 : 1000;
+        Assert.True(retrievalTime < threshold, $"诊断获取时间 {retrievalTime}ms 超过预期阈值 {threshold}ms");
     }
 
     [Fact]

@@ -399,3 +399,11 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Claude Code
+.Claude/
+.mcp.json
+CLAUDE.md
+
+# OpenSpec
+openspec/*

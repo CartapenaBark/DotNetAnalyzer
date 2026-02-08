@@ -143,10 +143,10 @@ public class WorkspaceManager : IDisposable
     /// <summary>
     /// 异步加载指定路径的 Visual Studio 解决方案
     /// </summary>
-    /// <param name="solutionPath">解决方案文件路径（.sln）</param>
+    /// <param name="solutionPath">解决方案文件路径（.sln 或 .slnx）</param>
     /// <returns>加载的 <see cref="Solution"/> 对象</returns>
     /// <exception cref="ProjectLoadException">
-    /// 当文件不存在、不是有效的 .sln 文件或加载失败时抛出
+    /// 当文件不存在、不是有效的解决方案文件（.sln 或 .slnx）或加载失败时抛出
     /// </exception>
     /// <remarks>
     /// 此方法会：
@@ -154,6 +154,11 @@ public class WorkspaceManager : IDisposable
     ///   <item>验证文件存在性和扩展名</item>
     ///   <item>使用 MSBuildWorkspace 加载解决方案</item>
     ///   <item>验证解决方案对象不为 null</item>
+    /// </list>
+    /// <para>支持的格式：</para>
+    /// <list type="bullet">
+    ///   <item><description>传统 .sln 格式（Visual Studio 2010-2019）</description></item>
+    ///   <item><description>新一代 .slnx 格式（Visual Studio 2022 17.8+，XML 格式）</description></item>
     /// </list>
     /// 注意：解决方案不会被缓存，每次调用都会重新加载。
     /// </remarks>

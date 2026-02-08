@@ -1,14 +1,62 @@
 # DotNetAnalyzer 配置指南
 
-本文档介绍如何配置和自定义 DotNetAnalyzer MCP 服务器的行为。
+本文档介绍如何获取、安装和配置 DotNetAnalyzer MCP 服务器。
 
 ## 目录
 
+- [获取 DotNetAnalyzer](#获取-dotnetanalyzer)
 - [环境变量](#环境变量)
 - [MCP 服务器配置](#mcp-服务器配置)
 - [Claude Code 集成](#claude-code-集成)
 - [日志和调试](#日志和调试)
 - [高级配置](#高级配置)
+
+---
+
+## 获取 DotNetAnalyzer
+
+### 从 NuGet 安装（推荐）
+
+DotNetAnalyzer 已发布到 [NuGet.org](https://www.nuget.org/packages/DotNetAnalyzer)，这是最简单的安装方式。
+
+**安装**:
+```bash
+dotnet tool install --global DotNetAnalyzer
+```
+
+**更新**:
+```bash
+dotnet tool update --global DotNetAnalyzer
+```
+
+**卸载**:
+```bash
+dotnet tool uninstall --global DotNetAnalyzer
+```
+
+### 从源码构建
+
+如果您想从源码构建或开发 DotNetAnalyzer：
+
+```bash
+# 克隆仓库
+git clone https://github.com/CartapenaBark/DotNetAnalyzer.git
+cd DotNetAnalyzer
+
+# 还原依赖
+dotnet restore
+
+# 构建
+dotnet build -c Release
+
+# 运行测试
+dotnet test
+
+# 打包
+dotnet pack -c Release
+```
+
+---
 
 ## 环境变量
 

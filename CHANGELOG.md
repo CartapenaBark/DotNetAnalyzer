@@ -7,18 +7,93 @@
 
 ## [Unreleased]
 
-### 新增
-- ✨ **.slnx 解决方案格式支持** - 支持 Visual Studio 2022 的新一代 XML 格式
-  - 同时支持 `.sln` 和 `.slnx` 两种格式
-  - 向后兼容传统 .sln 文件
-  - 升级 Roslyn 到 5.0.0 以支持新格式
-  - 新增单元测试验证功能
-
 ### 计划中
 - 代码重构工具
 - 代码生成工具
 - 扩展的E2E测试
-- 性能基准测试
+
+---
+
+## [0.5.0] - 2026-02-09
+
+### 🎉 发布亮点
+
+- ✅ **发布到 NuGet.org** - 可通过 `dotnet tool install --global DotNetAnalyzer` 安装
+- 📦 **NuGet 包**: [https://www.nuget.org/packages/DotNetAnalyzer](https://www.nuget.org/packages/DotNetAnalyzer)
+
+### 新增
+
+#### 🆕 .slnx 解决方案格式支持
+- ✅ **.slnx 文件加载** - 完全支持 Visual Studio 2022 的 XML 格式
+  - 支持 `.sln` 和 `.slnx` 两种格式
+  - 向后兼容传统 .sln 文件
+  - 升级 Roslyn 从 4.11.0 到 5.0.0
+  - 新增 3 个单元测试验证功能
+
+- ✅ **扩展名验证增强**
+  - 明确错误提示支持的格式（.sln 或 .slnx）
+  - 友好的错误消息和建议
+
+#### 🧪 性能测试套件
+- ✅ **.slnx vs .sln 性能比较**
+  - 验证 .slnx 加载时间 ≤ .sln + 10%
+  - 10 次迭代的精确测试
+  - 统计分析（平均值、最小值、最大值）
+
+- ✅ **并发加载能力验证**
+  - 测试 5 个并发任务同时加载
+  - 确保实例模式的并发安全性
+
+- ✅ **性能稳定性测试**
+  - 20 次迭代验证性能一致性
+  - 变异系数 < 50% 的稳定性要求
+
+### 变更
+
+#### 🔧 架构改进
+- ✅ **WorkspaceManager 并发修复**
+  - 从静态单例模式改为实例模式
+  - 每个 WorkspaceManager 拥有独立的 MSBuildWorkspace
+  - 支持多线程并发加载解决方案
+  - 移除测试中的串行执行限制
+
+- ✅ **API 现代化**
+  - 修复 `Workspace.WorkspaceFailed` 过时 API 警告
+  - 使用 `RegisterWorkspaceFailedHandler` 替代
+
+#### 📚 依赖升级
+- ⬆️ **Roslyn 5.0.0**
+  - Microsoft.CodeAnalysis 4.11.0 → 5.0.0
+  - Microsoft.CodeAnalysis.CSharp 4.11.0 → 5.0.0
+  - Microsoft.CodeAnalysis.Workspaces.MSBuild 4.11.0 → 5.0.0
+
+- ✅ **BenchmarkDotNet 0.15.8**
+  - 新增性能基准测试依赖
+
+### 文档更新
+- 📖 **CHANGELOG.md** - 添加 0.5.0 版本变更记录
+- 📖 **README.md** - 更新版本号和新功能说明
+- 📖 **CONFIGURATION.md** - 添加 .slnx 支持和系统要求
+- 📖 **OpenSpec 规范** - 同步 .slnx 支持到主规范
+
+### CI/CD 改进
+- ✅ **GitHub Actions 优化**
+  - 调整性能基准测试阈值适配 CI 环境
+  - 本地 1000ms，CI 环境 1500ms
+  - 所有 26 个测试通过
+
+### 性能指标
+- ✅ **零编译警告** - 构建无警告
+- ✅ **测试通过率** - 26/26 测试通过（100%）
+- ✅ **并发支持** - 支持并行测试执行
+- ✅ **.slnx 性能** - 与 .sln 性能相当（±10%以内）
+
+### Breaking Changes
+- ⚠️ **最低要求提升**
+  - 仍然需要 .NET 8.0 SDK（无变更）
+  - Roslyn 5.0.0 要求（自动满足）
+
+---
 
 ## [0.4.0] - 2026-02-08
 

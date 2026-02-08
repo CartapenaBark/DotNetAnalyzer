@@ -7,10 +7,9 @@ namespace DotNetAnalyzer.Tests.Integration;
 
 /// <summary>
 /// Workspace 管理器集成测试
-/// 测试真实的 .csproj 和 .sln 文件加载
-/// 使用 NonParallelCollection 来顺序运行测试，避免并发访问 MSBuildWorkspace
+/// 测试真实的 .csproj、.sln 和 .slnx 文件加载
+/// 每个 WorkspaceManager 实例拥有独立的工作区，支持并行测试
 /// </summary>
-[Collection("Non-Parallel Tests")]
 public class WorkspaceIntegrationTests
 {
     private readonly string _testAssetsPath;

@@ -177,4 +177,96 @@ public class WorkspaceIntegrationTests
         Assert.Equal("ClassLibrary", dependencyInfo.ProjectName);
         Assert.Contains("net8.0", dependencyInfo.TargetFramework);
     }
+
+    [Fact]
+    public async Task GetSolutionAsync_ShouldLoadSlnxFormat()
+    {
+        // Arrange
+        var solutionPath = Path.Combine(_testAssetsPath, "TestSolution.slnx");
+        _output.WriteLine($"解决方案路径: {solutionPath}");
+
+        if (!File.Exists(solutionPath))
+        {
+            _output.WriteLine($"⚠️ .slnx 文件不存在，跳过测试");
+            return;
+        }
+
+        using var workspaceManager = CreateWorkspaceManager();
+
+        // Act
+        var solution = await workspaceManager.GetSolutionAsync(solutionPath);
+
+        // Assert
+        Assert.NotNull(solution);
+        Assert.True(solution.Projects.Count() > 0, "解决方案应包含项目");
+
+        _output.WriteLine($"✅ 成功加载 .slnx 解决方案");
+        _output.WriteLine($"   项目数量: {solution.Projects.Count()}");
+        foreach (var project in solution.Projects)
+        {
+            _output.WriteLine($"   - {project.Name}");
+        }
+    }
+
+    [Fact]
+    public async Task GetSolutionAsync_ShouldStillSupportSln()
+    {
+        // Arrange
+        var solutionPath = Path.Combine(_testAssetsPath, "TestSolution.sln");
+        _output.WriteLine($"解决方案路径: {solutionPath}");
+
+        if (!File.Exists(solutionPath))
+        {
+            _output.WriteLine($"⚠️ .sln 文件不存在，跳过测试");
+            return;
+        }
+
+        using var workspaceManager = CreateWorkspaceManager();
+
+        // Act
+        var solution = await workspaceManager.GetSolutionAsync(solutionPath);
+
+        // Assert
+        Assert.NotNull(solution);
+        Assert.True(solution.Projects.Count() > 0, "解决方案应包含项目");
+
+        _output.WriteLine($"✅ 成功加载 .sln 解决方案（向后兼容）");
+        _output.WriteLine($"   项目数量: {solution.Projects.Count()}");
+    }
+
+    [Fact]
+    public async Task GetSolutionAsync_ShouldRejectInvalidExtension()
+    {
+        // Arrange
+        var tempDir = Path.Combine(_testAssetsPath, "TempInvalid");
+        Directory.CreateDirectory(tempDir);
+        var invalidSolutionPath = Path.Combine(tempDir, "TestSolution.txt");
+        File.WriteAllText(invalidSolutionPath, "invalid content");
+
+        try
+        {
+            _output.WriteLine($"无效解决方案路径: {invalidSolutionPath}");
+
+            using var workspaceManager = CreateWorkspaceManager();
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<ProjectLoadException>(
+                async () => await workspaceManager.GetSolutionAsync(invalidSolutionPath));
+
+            _output.WriteLine($"✅ 正确拒绝无效扩展名");
+            _output.WriteLine($"   错误消息: {exception.Message}");
+
+            Assert.Contains("有效的解决方案文件", exception.Message);
+            Assert.Contains(".sln", exception.Message);
+            Assert.Contains(".slnx", exception.Message);
+        }
+        finally
+        {
+            // Cleanup
+            if (Directory.Exists(tempDir))
+            {
+                Directory.Delete(tempDir, true);
+            }
+        }
+    }
 }

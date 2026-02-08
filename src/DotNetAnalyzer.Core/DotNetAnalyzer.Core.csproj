@@ -1,9 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- 目标框架：net8.0 -->
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- Core 项目不单独打包，仅作为 Cli 工具的依赖 -->
+    <IsPackable>false</IsPackable>
+    <!-- 定义条件编译符号 -->
+    <DefineConstants>NET8_0;$(DefineConstants)</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

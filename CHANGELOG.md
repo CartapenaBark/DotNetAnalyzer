@@ -8,11 +8,209 @@
 ## [Unreleased]
 
 ### 计划中
-- 单元测试和集成测试
-- CI/CD 自动化
-- 性能优化和缓存改进
 - 代码重构工具
 - 代码生成工具
+- 扩展的E2E测试
+- 性能基准测试
+
+## [0.4.0] - 2026-02-08
+
+### 新增
+
+#### 🚀 高级项目管理功能
+- ✅ **项目依赖关系分析** - 在 `list_projects` 中集成
+  - 自动分析每个项目的依赖关系
+  - 显示项目引用数量
+  - 循环依赖检测
+  - 包引用统计
+
+- ✅ **源文件列表提取** - 在 `get_project_info` 中集成
+  - 完整的源文件路径列表
+  - 文件名和路径信息
+  - 支持大项目的文件浏览
+
+- ✅ **构建顺序计算** - 在 `get_solution_info` 中集成
+  - 使用拓扑排序算法计算构建顺序
+  - 处理复杂的依赖关系
+  - 检测并报告循环依赖
+  - 自动生成最优构建序列
+
+- ✅ **启动项目识别** - 在 `get_solution_info` 中集成
+  - 自动识别可执行的启动项目
+  - 智能过滤库项目
+  - 支持多启动项目场景
+
+#### ⚡ 性能优化
+- ✅ **LRU 缓存实现**
+  - 线程安全的 LRU (Least Recently Used) 缓存
+  - 固定容量限制（默认50个项目）
+  - 自动清理最少使用的项目
+  - 支持基于时间的过期策略（30分钟）
+  - O(1) 时间复杂度的查找和插入
+
+- ✅ **增量分析支持**
+  - 编译缓存避免重复编译
+  - 文件修改时间检测
+  - 智能缓存失效机制
+
+- ✅ **内存优化**
+  - 限制工作区缓存大小
+  - 自动资源清理
+  - 防止内存泄漏
+
+### 改进
+- 更新版本号到 0.4.0
+- ✨ **简化目标框架支持** - 仅支持 .NET 8.0
+  - 移除 net6.0 支持以消除包兼容性问题
+  - 使用最新版本的 Roslyn (4.11.0)
+  - 完全消除编译警告（0 警告 0 错误）
+- 增强了 `ProjectTools.ListProjects()` - 包含依赖分析
+- 增强了 `ProjectTools.GetProjectInfo()` - 包含源文件列表
+- 增强了 `ProjectTools.GetSolutionInfo()` - 包含构建顺序和启动项目
+- 优化了 `WorkspaceManager` - 使用LRU缓存替代简单字典
+- 改进了缓存失效检测机制
+- 提升了大中型解决方案的加载性能
+
+### 技术细节
+
+#### 新增算法
+```csharp
+// 拓扑排序算法
+- TopologicalSort() - 计算项目构建顺序
+  - Kahn算法实现
+  - 循环依赖检测
+  - O(V+E)时间复杂度
+
+// 启动项目识别算法
+- IdentifyStartupProjects() - 智能识别启动项目
+  - 可执行文件检测
+  - 依赖关系分析
+  - 多入口点支持
+```
+
+#### 新增数据结构
+```csharp
+// LRU缓存
+- LruCache<TKey, TValue> - 泛型LRU缓存实现
+  - 线程安全（SemaphoreSlim）
+  - 自动容量管理
+  - 时间过期策略
+  - O(1)性能保证
+```
+
+### 性能指标
+- **缓存命中率**: 预期 >80%（重复项目访问）
+- **内存占用**: 限制在合理范围（<2GB）
+- **加载时间**: 中型解决方案（<50项目）<10秒
+- **缓存清理**: 自动过期（30分钟）
+
+### 测试
+- ✅ **性能基准测试套件**
+  - 项目加载性能测试
+  - 缓存效率验证
+  - 诊断信息获取性能
+  - 语法树分析性能
+  - 依赖分析性能
+  - LRU缓存操作性能
+  - 内存使用限制验证
+
+- ✅ **集成测试框架**
+  - WorkspaceManager 集成测试
+  - 真实项目文件加载测试
+  - 缓存功能验证
+  - 错误处理测试
+
+### 已知限制
+- LRU缓存容量固定（50个项目）
+- 增量分析仅支持文件修改时间检测
+- 拓扑排序可能在循环依赖时返回部分结果
+- 集成测试需要顺序执行以避免 MSBuildWorkspace 并发冲突
+
+## [0.3.0] - 2026-02-08
+
+### 新增
+
+#### 🧩 核心分析器工具库
+- ✅ **SyntaxTreeAnalyzer** - 语法树结构分析
+  - `AnalyzeTree()` - 分析语法树结构和统计信息
+  - `ExtractHierarchy()` - 提取命名空间和类型层次结构
+  - `FindNodeAtPosition()` - 按行列位置查找语法节点
+  - `GetPosition()` - 获取节点的文件位置信息
+  - 支持节点数量统计和结构分析
+
+- ✅ **SemanticModelAnalyzer** - 语义模型分析
+  - `ResolveSymbol()` - 从语法节点解析符号
+  - `InferType()` - 类型推断（var、dynamic、nullable）
+  - `ExtractSymbolMetadata()` - 提取完整符号元数据
+    - 类型信息（基类、接口）
+    - 方法信息（返回类型、参数、异步、扩展方法）
+    - 属性信息（可读/写）
+    - 字段信息（常量、只读）
+  - `ExtractDocumentation()` - XML文档注释提取
+  - `GetAttributes()` - 自定义特性信息提取
+  - `AnalyzeNullability()` - 可空性分析
+
+- ✅ **DependencyAnalyzer** - 项目依赖分析
+  - `AnalyzeDependencies()` - 完整项目依赖分析
+  - `GetProjectReferences()` - 项目引用（ProjectReference）
+  - `GetPackageReferences()` - NuGet包依赖提取
+  - `GetTransitiveDependencies()` - 传递依赖检测
+  - `HasCircularDependency()` - 循环依赖检测
+  - 支持依赖关系图构建
+
+#### 🎯 多目标框架支持
+- ✅ 支持 **net6.0** 和 **net8.0** 双目标框架
+- ✅ 条件编译支持（`#if NET8_0`）
+- ✅ MSBuildWorkspace仅在net8.0中可用
+- ✅ net6.0中提供友好的PlatformNotSupportedException提示
+- ✅ 条件编译符号配置（NET6_0、NET8_0）
+
+#### 🔧 工具增强
+- ✅ 增强了 `ProjectTools.GetProjectInfo()` - 使用DependencyAnalyzer
+- ✅ 增强了 `ProjectTools.AnalyzeDependencies()` - 新增依赖分析工具
+- ✅ 增强了 `AnalysisTools.AnalyzeCode()` - 使用SyntaxTreeAnalyzer
+  - 提供更详细的语法树信息
+  - 包含层次结构分析
+  - 增强的统计信息
+
+### 改进
+- 更新版本号到 0.3.0
+- 完善包发布说明（PackageReleaseNotes）
+- 优化代码组织结构（分析器独立到Core项目）
+
+### 技术细节
+
+#### 新增数据模型
+```csharp
+// SyntaxTreeAnalyzer
+- SyntaxTreeInfo
+- SyntaxHierarchy
+- NamespaceInfo
+- TypeInfo
+- MemberInfo
+- FileLinePositionSpan
+
+// SemanticModelAnalyzer
+- SemanticTypeInfo
+- SymbolMetadata
+- ParameterInfo
+- ParamInfo
+- DocumentationInfo
+- AttributeInfo
+- SymbolLocation
+- NullabilityInfo
+
+// DependencyAnalyzer
+- ProjectDependencyInfo
+- ProjectReferenceInfo
+- PackageReferenceInfo
+- DependencyInfo
+```
+
+#### 构建状态
+- ✅ 0 个编译错误
+- ✅ 2 个编译警告（可空性警告）
+- ✅ 所有目标框架构建成功（net6.0, net8.0）
 
 ## [0.2.0] - 2026-02-08
 

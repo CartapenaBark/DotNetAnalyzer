@@ -29,7 +29,7 @@ jobs:
       run: dotnet test -c Release --no-build
 
     - name: Pack NuGet package
-      run: dotnet pack -c Release --no-build --output ./nupkg
+      run: dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release --no-build --output ./nupkg
 
     - name: Publish to NuGet.org
       run: |

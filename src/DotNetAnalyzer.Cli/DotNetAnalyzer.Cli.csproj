@@ -6,6 +6,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <!-- 目标框架：net8.0 -->
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -14,30 +15,47 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-analyzer</ToolCommandName>
     <PackageId>DotNetAnalyzer</PackageId>
-    <Version>0.2.0</Version>
+    <Version>0.4.0</Version>
     <Authors>CartapenaBark</Authors>
     <Description>MCP server for .NET code analysis with Roslyn</Description>
     <PackageTags>mcp;roslyn;code-analysis;claude;dotnet</PackageTags>
     <PackageProjectUrl>https://github.com/CartapenaBark/DotNetAnalyzer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/CartapenaBark/DotNetAnalyzer</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>
-      v0.2.0 - Symbol Query Features
-      - ✅ Complete symbol query tools (find_references, find_declarations, get_symbol_info)
-      - ✅ Enhanced code analysis with syntax tree parsing
-      - ✅ Full Roslyn integration for semantic analysis
-      - ✅ XML documentation extraction
-    </PackageReleaseNotes>
+    <PackageReleaseNotes><![CDATA[
+      v0.4.0 - Advanced Features & Performance Optimization
+      - Enhanced project management with dependency analysis and build order
+      - Source file list extraction in project info
+      - Topological sort for build order computation
+      - Startup project identification
+      - LRU cache implementation for workspace management
+      - Incremental analysis support to avoid recompilation
+      - Performance optimizations for large solutions
+      - Extended integration tests and E2E testing
+    ]]></PackageReleaseNotes>
+
+    <!-- 公司和产品信息 -->
+    <Company>CartapenaBark</Company>
+    <Product>DotNetAnalyzer - MCP Code Analysis Server</Product>
+    <Copyright>Copyright (c) 2026 CartapenaBark</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
   </ItemGroup>
 
+  <!-- 包含项目文件到 NuGet 包 -->
   <ItemGroup>
-    <!-- 包含 README.md 作为包说明文件 -->
-    <None Include="../../README.md" Pack="true" PackagePath="\" Visible="false" />
+    <!-- README.md 文件 -->
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
+
+    <!-- LICENSE 文件 -->
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" Visible="false" />
+
+    <!-- 图标（可选） -->
+    <!-- <None Include="icon.png" Pack="true" PackagePath="\" Visible="false" /> -->
   </ItemGroup>
 
 </Project>

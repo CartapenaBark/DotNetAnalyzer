@@ -3,7 +3,7 @@
 > 一个强大的 MCP (Model Context Protocol) 服务器工具，将 Roslyn 的代码分析能力引入 Claude Code
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/8.0)
-[![Version](https://img.shields.io/badge/version-0.2.0-brightgreen.svg)](https://github.com/CartapenaBark/DotNetAnalyzer)
+[![Version](https://img.shields.io/badge/version-0.4.0-brightgreen.svg)](https://github.com/CartapenaBark/DotNetAnalyzer)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 📖 简介
@@ -16,9 +16,9 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 - ✅ **语义级代码分析** - 不仅仅是语法高亮，而是真正的类型和符号理解
 - ✅ **智能代码导航** - 跳转到定义、查找引用、理解继承层次
-- ✅ **自动化重构** - 提取方法、重命名符号、封装字段等 15+ 种重构操作
-- ✅ **代码生成** - 自动实现接口、生成构造函数、管理 using 等
+- ✅ **项目管理** - 解决方案分析、依赖关系、构建顺序
 - ✅ **深度洞察** - 调用图分析、代码度量、复杂度评估
+- ✅ **性能优化** - LRU缓存、增量分析、快速响应
 
 ### 作为 .NET 工具的优势
 
@@ -29,7 +29,7 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 ## 🎯 核心功能
 
-**当前版本 (v0.2.0)** 提供 **8 个核心 MCP 工具**，支持强命名：
+**当前版本 (v0.4.0)** 提供 **8 个核心 MCP 工具**，支持强命名：
 
 ### ✅ 已实现的工具
 
@@ -39,17 +39,22 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
   - 支持单个文件诊断
   - 提供错误位置和修复建议
 
-**项目管理**:
+**项目管理** (✨ v0.4.0 增强):
 - `list_projects` - 列出解决方案中的所有项目
   - 项目名称、路径、程序集名称
   - 项目类型和文档数量
+  - ✨ **依赖关系分析** - 自动分析项目依赖
+  - ✨ **循环依赖检测** - 识别循环引用
 - `get_project_info` - 获取项目的详细信息
   - 项目配置信息
   - 项目引用和包引用
   - 编译诊断统计
+  - ✨ **源文件列表** - 完整的源文件路径
 - `get_solution_info` - 获取解决方案的详细信息
   - 解决方案配置
   - 项目列表和总数
+  - ✨ **构建顺序** - 拓扑排序计算最优构建序列
+  - ✨ **启动项目** - 自动识别可执行入口点
 
 **代码分析** (✨ 完整实现):
 - `analyze_code` - 分析代码的语法和语义结构
@@ -400,11 +405,21 @@ DotNetAnalyzer 的开发分为多个阶段，逐步构建完整的代码分析�
 
 | Phase | 名称 | 状态 | 进度 |
 |-------|------|------|------|
-| 1 | MCP Server Foundation | 💭 提案 | 0% |
+| 1 | MCP Server Foundation | ✅ 完成 | 100% |
 | 2 | Navigation Enhancement | 💭 提案 | 0% |
 | 3 | Code Refactoring | 💭 提案 | 0% |
 | 4 | Code Generation and Fixing | 💭 提案 | 0% |
 | 5 | Advanced Features | 💭 提案 | 0% |
+
+### v0.4.0 里程碑 (✅ 已完成)
+- ✅ 8个核心MCP工具全部实现
+- ✅ LRU缓存和性能优化
+- ✅ 项目依赖关系分析
+- ✅ 构建顺序计算
+- ✅ 启动项目识别
+- ✅ 集成测试框架
+- ✅ 性能基准测试
+- ✅ 完整文档（README、CHANGELOG、CONFIGURATION、INTEGRATION_TESTING）
 
 ## 🤝 贡献
 

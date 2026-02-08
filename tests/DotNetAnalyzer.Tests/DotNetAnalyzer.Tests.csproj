@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\DotNetAnalyzer.Core\DotNetAnalyzer.Core.csproj" />
+    <ProjectReference Include="..\..\src\DotNetAnalyzer.Cli\DotNetAnalyzer.Cli.csproj" />
   </ItemGroup>
 
 </Project>

@@ -76,24 +76,8 @@ public static class ProjectTools
             var compilation = await project.GetCompilationAsync();
             var solution = project.Solution;
 
-            // 获取项目引用（通过 Solution 解析）
-            var projectReferences = project.ProjectReferences.Select(pr =>
-            {
-                var referencedProject = solution.GetProject(pr.ProjectId);
-                return new
-                {
-                    projectId = pr.ProjectId.Id,
-                    name = referencedProject?.Name,
-                    filePath = referencedProject?.FilePath
-                };
-            }).ToList();
-
-            // 获取包引用
-            var metadataReferences = project.MetadataReferences.Select(mr => new
-            {
-                name = System.IO.Path.GetFileNameWithoutExtension(mr.Display),
-                version = GetNuGetVersionFromReference(mr.Display)
-            }).ToList();
+            // 使用 DependencyAnalyzer 获取依赖信息
+            var dependencyInfo = DependencyAnalyzer.AnalyzeDependencies(project);
 
             // 获取文档数量
             var documentCount = project.DocumentIds.Count;
@@ -113,18 +97,56 @@ public static class ProjectTools
                     assemblyName = project.AssemblyName,
                     outputType = project.CompilationOptions?.OutputKind.ToString() ?? "Unknown",
                     language = project.Language,
+                    targetFramework = dependencyInfo.TargetFramework,
                     documentCount,
                     diagnostics = new
                     {
                         errorCount,
                         warningCount
                     },
-                    references = new
+                    dependencies = new
                     {
-                        projectReferences = projectReferences,
-                        packageReferences = metadataReferences
+                        projectReferences = dependencyInfo.ProjectReferences,
+                        packageReferences = dependencyInfo.PackageReferences,
+                        transitiveDependencies = dependencyInfo.TransitiveDependencies,
+                        hasCircularReference = dependencyInfo.HasCircularReference
                     }
                 }
+            }, Formatting.Indented);
+        }
+        catch (Exception ex)
+        {
+            return JsonConvert.SerializeObject(new { success = false, error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// 分析项目依赖关系
+    /// </summary>
+    /// <param name="workspaceManager">Roslyn 工作区管理器</param>
+    /// <param name="projectPath">项目路径</param>
+    /// <returns>依赖关系分析结果 JSON 字符串</returns>
+    [McpServerTool, Description("分析项目的依赖关系，包括项目引用、包依赖、传递依赖和循环依赖检测")]
+    public static async Task<string> AnalyzeDependencies(
+        WorkspaceManager workspaceManager,
+        [Description("项目路径")] string projectPath)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(projectPath))
+            {
+                return JsonConvert.SerializeObject(new { success = false, error = "projectPath is required" });
+            }
+
+            var project = await workspaceManager.GetProjectAsync(projectPath);
+
+            // 使用 DependencyAnalyzer 分析依赖
+            var dependencyInfo = DependencyAnalyzer.AnalyzeDependencies(project);
+
+            return JsonConvert.SerializeObject(new
+            {
+                success = true,
+                dependencies = dependencyInfo
             }, Formatting.Indented);
         }
         catch (Exception ex)

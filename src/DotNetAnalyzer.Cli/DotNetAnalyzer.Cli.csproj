@@ -15,7 +15,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-analyzer</ToolCommandName>
     <PackageId>DotNetAnalyzer</PackageId>
-    <Version>0.2.0</Version>
+    <Version>0.3.0</Version>
     <Authors>CartapenaBark</Authors>
     <Description>MCP server for .NET code analysis with Roslyn</Description>
     <PackageTags>mcp;roslyn;code-analysis;claude;dotnet</PackageTags>
@@ -25,11 +25,12 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      v0.2.0 - Symbol Query Features
-      - ✅ Complete symbol query tools (find_references, find_declarations, get_symbol_info)
-      - ✅ Enhanced code analysis with syntax tree parsing
-      - ✅ Full Roslyn integration for semantic analysis
-      - ✅ XML documentation extraction
+      v0.3.0 - Core Analyzer Utilities
+      - ✅ SyntaxTreeAnalyzer - Syntax tree structure analysis and hierarchy extraction
+      - ✅ SemanticModelAnalyzer - Symbol resolution, type inference, and metadata extraction
+      - ✅ DependencyAnalyzer - Project dependency analysis with circular dependency detection
+      - ✅ Multi-framework support (net6.0;net8.0) with conditional compilation
+      - ✅ Enhanced code analysis tools using new analyzers
     </PackageReleaseNotes>
 
     <!-- 公司和产品信息 -->

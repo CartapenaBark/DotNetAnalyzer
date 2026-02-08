@@ -14,6 +14,92 @@
 - 代码重构工具
 - 代码生成工具
 
+## [0.3.0] - 2026-02-08
+
+### 新增
+
+#### 🧩 核心分析器工具库
+- ✅ **SyntaxTreeAnalyzer** - 语法树结构分析
+  - `AnalyzeTree()` - 分析语法树结构和统计信息
+  - `ExtractHierarchy()` - 提取命名空间和类型层次结构
+  - `FindNodeAtPosition()` - 按行列位置查找语法节点
+  - `GetPosition()` - 获取节点的文件位置信息
+  - 支持节点数量统计和结构分析
+
+- ✅ **SemanticModelAnalyzer** - 语义模型分析
+  - `ResolveSymbol()` - 从语法节点解析符号
+  - `InferType()` - 类型推断（var、dynamic、nullable）
+  - `ExtractSymbolMetadata()` - 提取完整符号元数据
+    - 类型信息（基类、接口）
+    - 方法信息（返回类型、参数、异步、扩展方法）
+    - 属性信息（可读/写）
+    - 字段信息（常量、只读）
+  - `ExtractDocumentation()` - XML文档注释提取
+  - `GetAttributes()` - 自定义特性信息提取
+  - `AnalyzeNullability()` - 可空性分析
+
+- ✅ **DependencyAnalyzer** - 项目依赖分析
+  - `AnalyzeDependencies()` - 完整项目依赖分析
+  - `GetProjectReferences()` - 项目引用（ProjectReference）
+  - `GetPackageReferences()` - NuGet包依赖提取
+  - `GetTransitiveDependencies()` - 传递依赖检测
+  - `HasCircularDependency()` - 循环依赖检测
+  - 支持依赖关系图构建
+
+#### 🎯 多目标框架支持
+- ✅ 支持 **net6.0** 和 **net8.0** 双目标框架
+- ✅ 条件编译支持（`#if NET8_0`）
+- ✅ MSBuildWorkspace仅在net8.0中可用
+- ✅ net6.0中提供友好的PlatformNotSupportedException提示
+- ✅ 条件编译符号配置（NET6_0、NET8_0）
+
+#### 🔧 工具增强
+- ✅ 增强了 `ProjectTools.GetProjectInfo()` - 使用DependencyAnalyzer
+- ✅ 增强了 `ProjectTools.AnalyzeDependencies()` - 新增依赖分析工具
+- ✅ 增强了 `AnalysisTools.AnalyzeCode()` - 使用SyntaxTreeAnalyzer
+  - 提供更详细的语法树信息
+  - 包含层次结构分析
+  - 增强的统计信息
+
+### 改进
+- 更新版本号到 0.3.0
+- 完善包发布说明（PackageReleaseNotes）
+- 优化代码组织结构（分析器独立到Core项目）
+
+### 技术细节
+
+#### 新增数据模型
+```csharp
+// SyntaxTreeAnalyzer
+- SyntaxTreeInfo
+- SyntaxHierarchy
+- NamespaceInfo
+- TypeInfo
+- MemberInfo
+- FileLinePositionSpan
+
+// SemanticModelAnalyzer
+- SemanticTypeInfo
+- SymbolMetadata
+- ParameterInfo
+- ParamInfo
+- DocumentationInfo
+- AttributeInfo
+- SymbolLocation
+- NullabilityInfo
+
+// DependencyAnalyzer
+- ProjectDependencyInfo
+- ProjectReferenceInfo
+- PackageReferenceInfo
+- DependencyInfo
+```
+
+#### 构建状态
+- ✅ 0 个编译错误
+- ✅ 2 个编译警告（可空性警告）
+- ✅ 所有目标框架构建成功（net6.0, net8.0）
+
 ## [0.2.0] - 2026-02-08
 
 ### 新增

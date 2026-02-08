@@ -60,7 +60,13 @@ public static class AnalysisTools
                 return CreateErrorResponse($"无法获取语义模型: {filePath}");
             }
 
-            // 基本文件信息
+            // 使用新的分析器获取详细信息
+
+            // 1. 语法树分析
+            var syntaxTreeInfo = SyntaxTreeAnalyzer.AnalyzeTree(tree);
+            var hierarchy = SyntaxTreeAnalyzer.ExtractHierarchy(root);
+
+            // 2. 基本文件信息
             var lines = await File.ReadAllLinesAsync(filePath);
             var fileInfo = new
             {
@@ -70,31 +76,43 @@ public static class AnalysisTools
                 size = new FileInfo(filePath).Length
             };
 
-            // 提取命名空间
+            // 3. 提取命名空间
             var namespaces = ExtractNamespaces(root);
 
-            // 提取类型声明（类、接口、结构体、枚举等）
+            // 4. 提取类型声明（类、接口、结构体、枚举等）
             var typeDeclarations = ExtractTypeDeclarations(root, semanticModel);
 
-            // 提取方法声明
+            // 5. 提取方法声明
             var methodDeclarations = ExtractMethodDeclarations(root, semanticModel);
 
-            // 提取 using 指令
+            // 6. 提取 using 指令
             var usings = ExtractUsings(root);
-
-            // 语法树摘要（根节点类型）
-            var syntaxInfo = new
-            {
-                rootNodeType = root.GetType().Name,
-                hasCompilationUnit = root is CompilationUnitSyntax,
-                nodeCount = CountNodes(root)
-            };
 
             var result = JsonConvert.SerializeObject(new
             {
                 success = true,
                 fileInfo,
-                syntaxInfo,
+                syntaxTree = new
+                {
+                    rootNodeKind = syntaxTreeInfo.RootNodeKind,
+                    hasCompilationUnit = syntaxTreeInfo.HasCompilationUnit,
+                    nodeCount = syntaxTreeInfo.NodeCount,
+                    usingsCount = syntaxTreeInfo.UsingsCount,
+                    namespacesCount = syntaxTreeInfo.NamespacesCount,
+                    typeDeclarationsCount = syntaxTreeInfo.TypeDeclarationsCount,
+                    methodDeclarationsCount = syntaxTreeInfo.MethodDeclarationsCount
+                },
+                hierarchy = new
+                {
+                    namespaces = hierarchy.Namespaces.Select(n => new
+                    {
+                        name = n.Name,
+                        startLine = n.StartLine,
+                        typeCount = n.Types.Count
+                    }),
+                    totalNamespaces = hierarchy.Namespaces.Count,
+                    totalTypes = hierarchy.Namespaces.Sum(n => n.Types.Count)
+                },
                 namespaces = namespaces.ToArray(),
                 usings = usings.ToArray(),
                 typeDeclarations = typeDeclarations.ToArray(),
@@ -218,11 +236,6 @@ public static class AnalysisTools
         }
 
         return usings;
-    }
-
-    private static int CountNodes(SyntaxNode root)
-    {
-        return root.DescendantNodesAndSelf().Count();
     }
 
     private static string CreateErrorResponse(string message)

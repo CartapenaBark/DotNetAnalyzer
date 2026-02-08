@@ -15,7 +15,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-analyzer</ToolCommandName>
     <PackageId>DotNetAnalyzer</PackageId>
-    <Version>0.4.0</Version>
+    <Version>0.5.0</Version>
     <Authors>CartapenaBark</Authors>
     <Description>MCP server for .NET code analysis with Roslyn</Description>
     <PackageTags>mcp;roslyn;code-analysis;claude;dotnet</PackageTags>
@@ -25,15 +25,27 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes><![CDATA[
-      v0.4.0 - Advanced Features & Performance Optimization
-      - Enhanced project management with dependency analysis and build order
-      - Source file list extraction in project info
-      - Topological sort for build order computation
-      - Startup project identification
-      - LRU cache implementation for workspace management
-      - Incremental analysis support to avoid recompilation
-      - Performance optimizations for large solutions
-      - Extended integration tests and E2E testing
+      v0.5.0 - SLNX Format Support & Roslyn 5.0 Upgrade
+      - ✨ Support for Visual Studio 2022 .slnx XML format solution files
+      - ⬆️ Upgrade Roslyn from 4.11.0 to 5.0.0
+      - ✅ Backward compatibility with traditional .sln format maintained
+      - ✨ Enhanced solution loading with dual format support (.sln and .slnx)
+      - 🧪 Added comprehensive unit tests for .slnx support
+      - 📝 Updated documentation with .slnx format information
+
+      Breaking Changes:
+      - Requires .NET 8.0 SDK or higher (Roslyn 5.0 requirement)
+
+      Technical Details:
+      - Upgraded Microsoft.CodeAnalysis.* packages to 5.0.0
+      - Modernized WorkspaceManager API usage
+      - Zero compilation warnings
+      - All tests passing (4/4)
+
+      Migration Guide:
+      - No code changes required for existing users
+      - .sln files continue to work as before
+      - .slnx files are now automatically supported
     ]]></PackageReleaseNotes>
 
     <!-- 公司和产品信息 -->

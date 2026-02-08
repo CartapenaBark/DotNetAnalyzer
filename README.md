@@ -262,9 +262,9 @@ Claude: [调用 extract_method] ...
 <PackageReference Include="ModelContextProtocol" Version="*" />
 
 <!-- Roslyn 分析 -->
-<PackageReference Include="Microsoft.CodeAnalysis" Version="4.*" />
-<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.*" />
-<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.*" />
+<PackageReference Include="Microsoft.CodeAnalysis" Version="5.*" />
+<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.*" />
+<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="5.*" />
 
 <!-- CLI 框架 -->
 <PackageReference Include="System.CommandLine" Version="2.*" />
@@ -274,6 +274,10 @@ Claude: [调用 extract_method] ...
 <PackageReference Include="Moq" Version="4.*" />
 <PackageReference Include="FluentAssertions" Version="6.*" />
 ```
+
+**支持的解决方案格式**:
+- ✅ 传统 `.sln` 格式（文本格式）
+- ✅ 新一代 `.slnx` 格式（XML 格式，Visual Studio 2022+）
 
 ## 📦 构建和发布
 

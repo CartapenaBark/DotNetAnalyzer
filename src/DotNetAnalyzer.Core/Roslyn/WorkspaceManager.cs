@@ -1,8 +1,11 @@
 using Microsoft.CodeAnalysis;
+#if NET8_0
 using Microsoft.CodeAnalysis.MSBuild;
+#endif
 
 namespace DotNetAnalyzer.Core.Roslyn;
 
+#if NET8_0
 /// <summary>
 /// Roslyn 工作区管理器，负责加载和缓存 .NET 项目及解决方案
 /// </summary>
@@ -244,3 +247,55 @@ public class WorkspaceManager : IDisposable
         _semaphore?.Dispose();
     }
 }
+#else
+/// <summary>
+/// .NET 6.0 不支持 MSBuild 工作区功能
+/// </summary>
+/// <remarks>
+/// 在 .NET 6.0 中，WorkspaceManager 功能受限。
+/// 请使用 .NET 8.0 或更高版本以获得完整的 MSBuild 集成支持。
+/// </remarks>
+public class WorkspaceManager : IDisposable
+{
+    /// <summary>
+    /// .NET 6.0 限制版本构造函数
+    /// </summary>
+    public WorkspaceManager()
+    {
+    }
+
+    /// <summary>
+    /// .NET 6.0 不支持此方法
+    /// </summary>
+    public Task<Project> GetProjectAsync(string projectPath)
+    {
+        throw new PlatformNotSupportedException(
+            "MSBuild workspace is only supported on .NET 8.0 or later. " +
+            "Please upgrade to .NET 8.0 to use this feature.");
+    }
+
+    /// <summary>
+    /// .NET 6.0 不支持此方法
+    /// </summary>
+    public Task<Solution> GetSolutionAsync(string solutionPath)
+    {
+        throw new PlatformNotSupportedException(
+            "MSBuild workspace is only supported on .NET 8.0 or later. " +
+            "Please upgrade to .NET 8.0 to use this feature.");
+    }
+
+    /// <summary>
+    /// 清除缓存（.NET 6.0 空实现）
+    /// </summary>
+    public void ClearCache()
+    {
+    }
+
+    /// <summary>
+    /// 释放资源（.NET 6.0 空实现）
+    /// </summary>
+    public void Dispose()
+    {
+    }
+}
+#endif

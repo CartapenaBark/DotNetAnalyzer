@@ -167,11 +167,12 @@ public class WorkspaceManager : IDisposable
                 solutionPath);
         }
 
-        // 验证文件扩展名
-        if (!solutionPath.EndsWith(".sln", StringComparison.OrdinalIgnoreCase))
+        // 验证文件扩展名（支持 .sln 和 .slnx）
+        if (!solutionPath.EndsWith(".sln", StringComparison.OrdinalIgnoreCase) &&
+            !solutionPath.EndsWith(".slnx", StringComparison.OrdinalIgnoreCase))
         {
             throw new ProjectLoadException(
-                $"文件不是有效的解决方案文件。期望 .sln 文件，实际: {solutionPath}",
+                $"文件不是有效的解决方案文件。期望 .sln 或 .slnx 文件，实际: {solutionPath}",
                 solutionPath);
         }
 

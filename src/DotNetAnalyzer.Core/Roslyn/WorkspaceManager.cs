@@ -42,10 +42,10 @@ public class WorkspaceManager : IDisposable
         if (_workspace == null)
         {
             _workspace = MSBuildWorkspace.Create();
-            _workspace.WorkspaceFailed += (s, e) =>
+            _workspace.RegisterWorkspaceFailedHandler(_ =>
             {
                 // 静默处理工作区失败，不记录日志
-            };
+            });
         }
     }
 

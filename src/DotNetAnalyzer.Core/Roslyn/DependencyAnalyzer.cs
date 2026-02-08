@@ -15,12 +15,32 @@ public static class DependencyAnalyzer
         if (project == null)
             throw new ArgumentNullException(nameof(project));
 
-        // 从编译选项中获取目标框架
+        // 从项目文件中获取目标框架
         var targetFramework = "Unknown";
-        if (project.CompilationOptions != null)
+        if (!string.IsNullOrEmpty(project.FilePath))
         {
-            var tfm = project.CompilationOptions.OutputKind.ToString();
-            targetFramework = tfm;
+            try
+            {
+                var projectXml = System.Xml.Linq.XDocument.Load(project.FilePath);
+
+                // 尝试带命名空间的元素
+                var tfmElement = projectXml.Descendants("{http://schemas.microsoft.com/developer/msbuild/2003}TargetFramework").FirstOrDefault();
+
+                // 如果没找到，尝试不带命名空间的元素（SDK风格项目）
+                if (tfmElement == null)
+                {
+                    tfmElement = projectXml.Descendants("TargetFramework").FirstOrDefault();
+                }
+
+                if (tfmElement != null)
+                {
+                    targetFramework = tfmElement.Value;
+                }
+            }
+            catch
+            {
+                // 忽略 XML 解析错误，使用默认值
+            }
         }
 
         return new ProjectDependencyInfo

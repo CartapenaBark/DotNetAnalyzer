@@ -96,7 +96,21 @@ public class WorkspaceManager : IDisposable
         await _semaphore.WaitAsync();
         try
         {
-            var project = await _workspace!.OpenProjectAsync(projectPath);
+            // 检查项目是否已在工作区中（处理并发情况）
+            var existingProject = _workspace!.CurrentSolution.Projects
+                .FirstOrDefault(p => p.FilePath == projectPath);
+
+            Project project;
+            if (existingProject != null)
+            {
+                // 项目已存在，使用现有的
+                project = existingProject;
+            }
+            else
+            {
+                // 项目不存在，加载新项目
+                project = await _workspace.OpenProjectAsync(projectPath);
+            }
 
             // 验证项目加载成功
             if (project == null)

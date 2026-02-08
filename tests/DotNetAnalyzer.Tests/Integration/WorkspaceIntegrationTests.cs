@@ -166,14 +166,15 @@ public class WorkspaceIntegrationTests
         // Act
         var dependencyInfo = DependencyAnalyzer.AnalyzeDependencies(project);
 
-        // Assert
+        // Assert - 先输出信息
+        _output.WriteLine($"✅ 成功分析依赖");
+        _output.WriteLine($"   项目名称: {dependencyInfo.ProjectName}");
+        _output.WriteLine($"   项目路径: {dependencyInfo.ProjectFilePath}");
+        _output.WriteLine($"   目标框架: {dependencyInfo.TargetFramework}");
+        _output.WriteLine($"   包引用数量: {dependencyInfo.PackageReferences.Length}");
+
         Assert.NotNull(dependencyInfo);
         Assert.Equal("ClassLibrary", dependencyInfo.ProjectName);
         Assert.Contains("net8.0", dependencyInfo.TargetFramework);
-
-        _output.WriteLine($"✅ 成功分析依赖");
-        _output.WriteLine($"   项目名称: {dependencyInfo.ProjectName}");
-        _output.WriteLine($"   目标框架: {dependencyInfo.TargetFramework}");
-        _output.WriteLine($"   包引用数量: {dependencyInfo.PackageReferences.Length}");
     }
 }

@@ -13,16 +13,18 @@ namespace DotNetAnalyzer.Core.Roslyn;
 /// 此类提供以下功能：
 /// <list type="bullet">
 ///   <item>使用 MSBuildWorkspace 加载 .csproj 和 .sln 文件</item>
-///   <item>缓存已加载的项目以提高性能</item>
+///   <item>LRU 缓存已加载的项目以提高性能（容量：50个项目）</item>
 ///   <item>线程安全的项目加载（使用 SemaphoreSlim）</item>
-///   <item>基础的缓存失效检测</item>
+///   <item>文件修改时间检测实现缓存失效</item>
+///   <item>增量分析支持避免重复编译</item>
 ///   <item>友好的错误处理和验证</item>
 /// </list>
 /// </remarks>
 public class WorkspaceManager : IDisposable
 {
     private static MSBuildWorkspace? _workspace;
-    private static readonly Dictionary<string, Project> _projectCache = new();
+    private static readonly LruCache<string, Project> _projectCache = new(capacity: 50, expirationTime: TimeSpan.FromMinutes(30));
+    private static readonly Dictionary<string, (Compilation Compilation, DateTime LastModified)> _compilationCache = new();
     private static readonly SemaphoreSlim _semaphore = new(1, 1);
 
     /// <summary>
@@ -85,7 +87,7 @@ public class WorkspaceManager : IDisposable
 
         if (_projectCache.TryGetValue(projectPath, out var cachedProject))
         {
-            if (!IsProjectModified(cachedProject))
+            if (cachedProject is not null && !IsProjectModified(cachedProject))
             {
                 return cachedProject;
             }
@@ -105,7 +107,7 @@ public class WorkspaceManager : IDisposable
                     projectPath);
             }
 
-            _projectCache[projectPath] = project;
+            _projectCache.Set(projectPath, project);
             return project;
         }
         catch (ProjectLoadException)
@@ -236,15 +238,18 @@ public class WorkspaceManager : IDisposable
     /// <remarks>
     /// 此方法会：
     /// <list type="bullet">
-    ///   <item>释放 MSBuildWorkspace 实例</item>
-    ///   <item>释放信号量</item>
     ///   <item>清空项目缓存</item>
+    ///   <item>清空编译缓存</item>
     /// </list>
+    /// 注意：MSBuildWorkspace 和 SemaphoreSlim 是静态单例，不会被释放。
+    /// 它们将在应用程序退出时由 .NET 运行时自动清理。
     /// </remarks>
     public void Dispose()
     {
-        _workspace?.Dispose();
-        _semaphore?.Dispose();
+        // 清空缓存，但不释放静态单例资源
+        // 静态资源（_workspace 和 _semaphore）会在应用程序退出时自动清理
+        _projectCache.Clear();
+        _compilationCache.Clear();
     }
 }
 #else

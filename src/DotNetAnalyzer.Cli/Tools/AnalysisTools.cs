@@ -226,6 +226,9 @@ public static class AnalysisTools
 
         foreach (var usingDirective in root.DescendantNodes().OfType<UsingDirectiveSyntax>())
         {
+            if (usingDirective.Name is null)
+                continue;
+
             usings.Add(new
             {
                 name = usingDirective.Name.ToString(),

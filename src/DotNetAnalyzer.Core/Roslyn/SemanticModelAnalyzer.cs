@@ -142,7 +142,7 @@ public static class SemanticModelAnalyzer
             {
                 Name = attr.AttributeClass?.Name ?? "Unknown",
                 Namespace = attr.AttributeClass?.ContainingNamespace?.Name ?? string.Empty,
-                ConstructorArguments = attr.ConstructorArguments.Select(a => a.ToString()).ToArray(),
+                ConstructorArguments = attr.ConstructorArguments.Select(a => a.ToString() ?? string.Empty).ToArray(),
                 NamedArguments = attr.NamedArguments.Select(p => $"{p.Key}={p.Value}").ToArray()
             })
             .ToArray();

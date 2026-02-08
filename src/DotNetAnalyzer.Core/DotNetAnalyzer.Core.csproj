@@ -1,15 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- 多目标框架支持：net6.0 和 net8.0 -->
-    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    <!-- 目标框架：net8.0 -->
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <!-- Core 项目不单独打包，仅作为 Cli 工具的依赖 -->
     <IsPackable>false</IsPackable>
     <!-- 定义条件编译符号 -->
-    <DefineConstants Condition="'$(TargetFramework)' == 'net8.0'">NET8_0;$(DefineConstants)</DefineConstants>
-    <DefineConstants Condition="'$(TargetFramework)' == 'net6.0'">NET6_0;$(DefineConstants)</DefineConstants>
+    <DefineConstants>NET8_0;$(DefineConstants)</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

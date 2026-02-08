@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj" />
+    <Project Path="src/DotNetAnalyzer.Core/DotNetAnalyzer.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DotNetAnalyzer.Tests/DotNetAnalyzer.Tests.csproj" />
+  </Folder>
+</Solution>

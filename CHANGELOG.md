@@ -8,6 +8,58 @@
 ## [Unreleased]
 
 ### 计划中
+- 单元测试和集成测试
+- CI/CD 自动化
+- 性能优化和缓存改进
+- 代码重构工具
+- 代码生成工具
+
+## [0.2.0] - 2026-02-08
+
+### 新增
+
+#### ✨ 符号查询工具完整实现
+- ✅ `find_references` - 查找符号的所有引用
+  - 使用 Roslyn `SymbolFinder.FindReferencesAsync` API
+  - 跨文件引用查找
+  - 区分声明和引用位置
+  - 提取引用上下文（代码片段）
+  - 返回分组和汇总信息
+
+- ✅ `find_declarations` - 查找符号的声明位置
+  - 处理重写方法的基类声明
+  - 处理接口实现的声明
+  - 支持扩展方法识别
+  - 返回声明链（从基类到当前类）
+
+- ✅ `get_symbol_info` - 获取符号的详细信息
+  - 提取基本符号元数据（名称、类型、可访问性）
+  - 支持不同符号类型（类、方法、属性、字段）
+  - 提取 XML 文档注释（`<summary>`, `<param>`, `<returns>`）
+  - 方法参数信息（类型、可选参数、默认值）
+  - 类型特定信息（基类、接口、类型参数）
+
+#### 📊 代码分析工具完善
+- ✅ `analyze_code` - 语法树和语义分析
+  - 语法树根节点提取
+  - 命名空间层次结构
+  - 类型声明分析（类、接口、结构体、枚举）
+  - 方法声明分析（签名、参数、修饰符）
+  - Using 指令提取（静态导入、别名）
+  - 语义模型集成（符号解析）
+
+### 改进
+- 更新版本号到 0.2.0
+- 更新 NuGet 包元数据（Authors, RepositoryUrl）
+- 完善包发布说明（PackageReleaseNotes）
+
+### 文档
+- 更新 README.md 说明 v0.2.0 功能
+- 更新工具实现状态（移除"占位符"标记）
+
+## [0.1.0-alpha] - 2026-02-08
+
+### 计划中
 - 完整的符号查询实现（`find_references`, `find_declarations`, `get_symbol_info`）
 - 代码分析工具完善（语法树分析）
 - 单元测试和集成测试
@@ -174,6 +226,6 @@ Newtonsoft.Json 13.0.3
 ---
 
 **链接**
-- [GitHub Releases](https://github.com/yourusername/DotNetAnalyzer/releases)
+- [GitHub Releases](https://github.com/CartapenaBark/DotNetAnalyzer/releases)
 - [NuGet Package](https://www.nuget.org/packages/DotNetAnalyzer/)
-- [问题追踪](https://github.com/yourusername/DotNetAnalyzer/issues)
+- [问题追踪](https://github.com/CartapenaBark/DotNetAnalyzer/issues)

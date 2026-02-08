@@ -24,7 +24,6 @@ public class WorkspaceManager : IDisposable
 {
     private static MSBuildWorkspace? _workspace;
     private static readonly LruCache<string, Project> _projectCache = new(capacity: 50, expirationTime: TimeSpan.FromMinutes(30));
-    private static readonly Dictionary<string, (Compilation Compilation, DateTime LastModified)> _compilationCache = new();
     private static readonly SemaphoreSlim _semaphore = new(1, 1);
 
     /// <summary>
@@ -239,7 +238,6 @@ public class WorkspaceManager : IDisposable
     /// 此方法会：
     /// <list type="bullet">
     ///   <item>清空项目缓存</item>
-    ///   <item>清空编译缓存</item>
     /// </list>
     /// 注意：MSBuildWorkspace 和 SemaphoreSlim 是静态单例，不会被释放。
     /// 它们将在应用程序退出时由 .NET 运行时自动清理。
@@ -249,7 +247,6 @@ public class WorkspaceManager : IDisposable
         // 清空缓存，但不释放静态单例资源
         // 静态资源（_workspace 和 _semaphore）会在应用程序退出时自动清理
         _projectCache.Clear();
-        _compilationCache.Clear();
     }
 }
 #else

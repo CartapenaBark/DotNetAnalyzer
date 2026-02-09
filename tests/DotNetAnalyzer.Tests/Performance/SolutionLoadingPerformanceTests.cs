@@ -20,7 +20,7 @@ public class SolutionLoadingPerformanceTests
         _testAssetsPath = TestHelper.GetTestAssetsPath();
     }
 
-    [Fact]
+    [Fact(Timeout = 120000)] // 2 minutes timeout for CI
     public async Task SlnxLoadingPerformance_ShouldBeComparableToSln()
     {
         // Arrange
@@ -103,7 +103,7 @@ public class SolutionLoadingPerformanceTests
             $".slnx 加载时间 ({avgSlnxTime:F2} ms) 超过阈值 ({threshold:F2} ms = .sln + 10%)");
     }
 
-    [Fact]
+    [Fact(Timeout = 60000)] // 1 minute timeout
     public async Task WorkspaceManager_ShouldSupportConcurrentLoading()
     {
         // Arrange
@@ -148,7 +148,7 @@ public class SolutionLoadingPerformanceTests
             $"并发加载性能异常: 最大时间 {maxTime} ms 远大于平均时间 {avgTime:F2} ms");
     }
 
-    [Fact]
+    [Fact(Timeout = 180000)] // 3 minutes timeout for multiple iterations
     public async Task SolutionLoading_ShouldHaveConsistentPerformance()
     {
         // Arrange

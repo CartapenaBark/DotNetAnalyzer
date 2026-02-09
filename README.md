@@ -252,11 +252,13 @@ dotnet tool uninstall --global DotNetAnalyzer
 
 ### 配置 Claude Code
 
-在 Claude Code 的配置文件中添加 MCP 服务器配置：
+在项目目录中创建 `.mcp.json` 文件来配置 MCP 服务器：
 
 **配置文件位置：**
-- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
-- macOS/Linux: `~/.config/claude/claude_desktop_config.json`
+- 项目级配置（推荐）：`.mcp.json` - 放在项目根目录
+- 用户级配置：`~/.claude/settings.json` - 适用于所有项目
+
+**创建 `.mcp.json` 文件：**
 
 ```json
 {
@@ -275,6 +277,25 @@ dotnet tool uninstall --global DotNetAnalyzer
   }
 }
 ```
+
+**或者使用项目级 `settings.json`：**
+
+在项目根目录创建 `.claude/settings.json`：
+
+```json
+{
+  "enabledMcpjsonServers": ["dotnet-analyzer"]
+}
+```
+
+然后在项目根目录创建 `.mcp.json` 文件（同上）。
+
+**配置优先级：**
+1. 企业管理策略（最高）
+2. 命令行参数
+3. `.claude/settings.local.json`（本地项目）
+4. `.claude/settings.json`（共享项目）
+5. `~/.claude/settings.json`（用户级，最低）
 
 ### 支持的解决方案格式
 

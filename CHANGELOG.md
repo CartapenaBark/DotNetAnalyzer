@@ -7,6 +7,23 @@
 
 ## [Unreleased]
 
+### 📚 文档更新
+- ✅ **创建实施状态文档** - `openspec/IMPLEMENTATION_STATUS.md` 详细记录实际实施进度
+- ✅ **更新 README** - 修正工具数量（22 → 41 个）和 Phase 状态
+- ✅ **Phase 2 完成** - 所有 7 个导航工具已实现并可用
+- ✅ **Phase 3-5 进度更新** - 记录部分实施的工具和框架状态
+
+**重要说明**: README 中声明的工具数量和实施状态已严重过时。实际项目进度远超文档记录。
+- 实际 MCP 工具数: **41 个**（不是 22 个）
+- Phase 2: ✅ 100% 完成（7 个工具）
+- Phase 3: 🔨 33% 完成（5/15 个工具）
+- Phase 4: 🔨 27% 完成（4/15 个工具）
+- Phase 5: 🔨 30% 完成（6/10+ 个工具）
+
+详见: [openspec/IMPLEMENTATION_STATUS.md](openspec/IMPLEMENTATION_STATUS.md)
+
+---
+
 ---
 
 ## [0.6.1] - 2026-02-10

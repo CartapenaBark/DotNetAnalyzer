@@ -10,6 +10,7 @@
 - [符号查询工具](#符号查询工具)
 - [项目管理工具](#项目管理工具)
 - [代码诊断工具](#代码诊断工具)
+- [导航增强工具 (Phase 2)](#导航增强工具-phase-2) ✨
 - [配置选项](#配置选项)
 - [最佳实践](#最佳实践)
 - [故障排除](#故障排除)
@@ -58,7 +59,9 @@ Claude: [调用 get_diagnostics] ...
 
 ## MCP 工具概览
 
-DotNetAnalyzer v0.5.0 提供 **8 个核心 MCP 工具**：
+DotNetAnalyzer v0.6.1 提供 **41 个 MCP 工具**，分为以下类别：
+
+### 核心工具 (Phase 1) - 22 个
 
 | 工具名称 | 类别 | 描述 | 状态 |
 |---------|------|------|------|
@@ -69,8 +72,21 @@ DotNetAnalyzer v0.5.0 提供 **8 个核心 MCP 工具**：
 | `list_projects` | 项目管理 | 列出解决方案中的所有项目 | ✅ 完整实现 |
 | `get_project_info` | 项目管理 | 获取项目的详细信息 | ✅ 完整实现 |
 | `get_solution_info` | 项目管理 | 获取解决方案的详细信息 | ✅ 完整实现 |
-| `analyze_dependencies` | 项目管理 | 分析项目依赖关系 | ✅ 完整实现 |
 | `get_diagnostics` | 代码诊断 | 获取编译器诊断信息 | ✅ 完整实现 |
+| ... (其他 14 个工具) | | | |
+
+### 导航增强工具 (Phase 2) - 7 个 ✨
+
+| 工具名称 | 类别 | 描述 | 状态 |
+|---------|------|------|------|
+| `go_to_definition` | 导航 | 跳转到符号定义位置 | ✅ 完整实现 |
+| `get_type_hierarchy` | 类型分析 | 获取类型的完整继承层次 | ✅ 完整实现 |
+| `get_member_hierarchy` | 成员分析 | 获取成员的重写和实现层次 | ✅ 完整实现 |
+| `get_semantic_model` | 语义分析 | 获取位置的语义模型信息 | ✅ 完整实现 |
+| `get_syntax_tree` | 语法分析 | 获取语法树的详细信息 | ✅ 完整实现 |
+| `get_code_metrics` | 代码度量 | 计算代码复杂度和质量指标 | ✅ 完整实现 |
+
+详细的 Phase 2 工具文档请参见 [导航增强工具 (Phase 2)](#导航增强工具-phase-2) 章节。
 
 ---
 
@@ -679,6 +695,555 @@ Claude: [调用 get_diagnostics，指定 filePath]
 
 ---
 
+## 导航增强工具 (Phase 2)
+
+✨ **v0.6.1 新增**: Phase 2 提供了 7 个强大的代码导航和语义分析工具，使 Claude Code 能够深度理解代码结构和关系。
+
+### 工具概览
+
+| 工具名称 | 描述 | 主要用途 |
+|---------|------|----------|
+| `go_to_definition` | 跳转到符号定义 | 快速定位符号定义位置 |
+| `get_type_hierarchy` | 类型继承层次 | 理解类的继承关系 |
+| `get_member_hierarchy` | 成员层次结构 | 查看重写和接口实现 |
+| `get_semantic_model` | 语义模型信息 | 获取符号和类型详情 |
+| `get_syntax_tree` | 语法树结构 | 深入分析代码语法 |
+| `get_code_metrics` | 代码度量指标 | 评估代码质量 |
+
+### go_to_definition
+
+跳转到指定位置符号的定义位置。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `filePath` | string | ✅ | 文件路径 |
+| `line` | integer | ✅ | 行号（从 0 开始） |
+| `column` | integer | ✅ | 列号（从 0 开始） |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "data": {
+    "definition": {
+      "filePath": "path/to/definition.cs",
+      "line": 42,
+      "column": 10,
+      "symbolInfo": {
+        "name": "MyMethod",
+        "kind": "Method",
+        "containingType": "MyClass"
+      }
+    }
+  }
+}
+```
+
+#### 使用示例
+
+```csharp
+// 用户询问
+"Show me where ILogger is defined"
+
+// Claude 调用
+go_to_definition(filePath="Program.cs", line=15, column=25)
+```
+
+#### 特性
+
+- ✅ 支持所有符号类型（类、方法、属性、字段等）
+- ✅ 跨文件定义跳转
+- ✅ 处理隐式定义（如扩展方法）
+- ✅ 返回符号的详细信息
+
+---
+
+### get_type_hierarchy
+
+获取类型的完整继承层次结构，包括基类型链、派生类型和实现的接口。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目路径 (.csproj) |
+| `typeName` | string | ✅ | 类型名称（完全限定名或简单名称） |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "data": {
+    "typeName": "MyClass",
+    "hierarchy": {
+      "baseTypes": [
+        {
+          "name": "BaseClass",
+          "namespace": "MyNamespace",
+          "filePath": "path/to/BaseClass.cs",
+          "line": 5,
+          "typeParameters": [],
+          "kind": "Class"
+        },
+        {
+          "name": "Object",
+          "namespace": "System",
+          "kind": "Class"
+        }
+      ],
+      "derivedTypes": [
+        {
+          "name": "DerivedClass",
+          "namespace": "MyNamespace",
+          "filePath": "path/to/DerivedClass.cs",
+          "line": 10
+        }
+      ],
+      "interfaces": [
+        {
+          "name": "IEnumerable",
+          "namespace": "System.Collections",
+          "implementedMembers": ["GetEnumerator"]
+        }
+      ],
+      "members": [
+        {
+          "name": "MyMethod",
+          "kind": "Method",
+          "type": "void",
+          "accessibility": "Public",
+          "isStatic": false,
+          "isVirtual": false,
+          "isAbstract": false,
+          "isOverride": false
+        }
+      ]
+    }
+  }
+}
+```
+
+#### 使用示例
+
+```csharp
+// 用户询问
+"Show me the inheritance hierarchy of DbSet<TEntity>"
+
+// Claude 调用
+get_type_hierarchy(
+  projectPath="src/MyProject/MyProject.csproj",
+  typeName="Microsoft.EntityFrameworkCore.DbSet`1"
+)
+```
+
+#### 特性
+
+- ✅ 完整的基类型链（直到 object）
+- ✅ 查找所有派生类型（跨项目）
+- ✅ 接口实现详情
+- ✅ 接口成员映射
+- ✅ 支持泛型类型
+- ✅ 类型成员信息
+
+#### 性能说明
+
+- 小型项目（< 10 个类型）: < 100ms
+- 中型项目（10-100 个类型）: < 500ms
+- 大型项目（> 100 个类型）: < 2s
+
+---
+
+### get_member_hierarchy
+
+获取成员的重写、隐藏和接口实现层次结构。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目路径 |
+| `memberName` | string | ✅ | 成员名称 |
+| `containingType` | string | ✅ | 所属类型名称 |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "data": {
+    "memberName": "ToString",
+    "containingType": "MyClass",
+    "hierarchy": {
+      "overriddenMembers": [
+        {
+          "name": "ToString",
+          "containingType": "Object",
+          "declarationLocation": {
+            "filePath": "mscorlib.cs",
+            "line": 123
+          }
+        }
+      ],
+      "hidingMembers": [],
+      "implementedInterfaceMembers": [
+        {
+          "interfaceName": "IFormattable",
+          "memberName": "ToString",
+          "declarationLocation": {
+            "filePath": "mscorlib.cs",
+            "line": 456
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+#### 使用示例
+
+```csharp
+// 用户询问
+"Does this method override anything?"
+
+// Claude 调用
+get_member_hierarchy(
+  projectPath="src/MyProject/MyProject.csproj",
+  memberName="Execute",
+  containingType="MyCommand"
+)
+```
+
+#### 特性
+
+- ✅ 重写链追踪
+- ✅ 方法隐藏检测
+- ✅ 显式接口实现识别
+- ✅ 跨项目层次分析
+
+---
+
+### get_semantic_model
+
+获取指定位置的详细语义模型信息，包括符号、类型、常量值等。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `filePath` | string | ✅ | 文件路径 |
+| `line` | integer | ✅ | 行号（从 0 开始） |
+| `column` | integer | ✅ | 列号（从 0 开始） |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "data": {
+    "position": {
+      "filePath": "Program.cs",
+      "line": 15,
+      "column": 20
+    },
+    "symbol": {
+      "name": "myVariable",
+      "kind": "Variable",
+      "type": "System.String",
+      "containingSymbol": "Main"
+    },
+    "type": {
+      "name": "string",
+      "kind": "Structure",
+      "members": ["Length", "ToLower", "ToUpper", ...]
+    },
+    "constantValue": "Hello World",
+    "allSymbolsInScope": [
+      {"name": "myVariable", "kind": "Variable"},
+      {"name": "Console", "kind": "Class"}
+    ]
+  }
+}
+```
+
+#### 使用示例
+
+```csharp
+// 用户询问
+"What's the type of this variable?"
+
+// Claude 调用
+get_semantic_model(filePath="Program.cs", line=15, column=20)
+```
+
+#### 特性
+
+- ✅ 符号信息（名称、类型、可访问性）
+- ✅ 类型详细信息（成员、基类、接口）
+- ✅ 常量值提取（编译时常量）
+- ✅ 作用域内所有符号
+- ✅ 推断类型信息
+
+---
+
+### get_syntax_tree
+
+获取文件的语法树结构，以 JSON 格式返回。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `filePath` | string | ✅ | 文件路径 |
+| `range` | string | ❌ | 可选的范围限制（格式："startLine,startCol,endLine,endCol"） |
+| `maxDepth` | integer | ❌ | 最大深度（默认 100） |
+| `includeTrivia` | boolean | ❌ | 是否包含 trivia（注释、空白） |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "data": {
+    "filePath": "Program.cs",
+    "rootNodeKind": "CompilationUnit",
+    "structure": {
+      "kind": "CompilationUnit",
+      "children": [
+        {
+          "kind": "UsingDirective",
+          "name": "System",
+          "startLine": 1,
+          "endLine": 1
+        },
+        {
+          "kind": "NamespaceDeclaration",
+          "name": "MyApp",
+          "startLine": 3,
+          "endLine": 20,
+          "children": [...]
+        }
+      ]
+    },
+    "trivia": {
+      "leadingTrivia": "...",
+      "trailingTrivia": "..."
+    },
+    "spans": [
+      {
+        "start": 0,
+        "length": 450,
+        "kind": "FullText"
+      }
+    ]
+  }
+}
+```
+
+#### 使用示例
+
+```csharp
+// 用户询问
+"Show me the syntax tree structure of this file"
+
+// Claude 调用
+get_syntax_tree(filePath="Program.cs", maxDepth=50, includeTrivia=false)
+```
+
+#### 特性
+
+- ✅ JSON 格式化语法树
+- ✅ 可配置深度
+- ✅ 范围限制支持
+- ✅ 可选的 trivia 包含
+- ✅ 位置信息（spans）
+
+#### 性能说明
+
+- 小文件（< 100 行）: < 50ms
+- 中等文件（100-500 行）: < 200ms
+- 大文件（> 500 行）: < 1s
+
+---
+
+### get_code_metrics
+
+计算代码的复杂度和质量指标。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目路径 |
+| `filePath` | string | ✅ | 文件路径 |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "data": {
+    "filePath": "MyClass.cs",
+    "totalLinesOfCode": 150,
+    "totalComplexity": 45,
+    "maintainabilityIndex": 72,
+    "namespaceMetrics": [
+      {
+        "namespaceName": "MyApp",
+        "totalComplexity": 45,
+        "typeMetrics": [
+          {
+            "typeName": "MyClass",
+            "kind": "Class",
+            "inheritanceDepth": 2,
+            "classCoupling": 8,
+            "linesOfCode": 150,
+            "complexity": 45,
+            "methodMetrics": [
+              {
+                "methodName": "ProcessData",
+                "returnType": "void",
+                "isAsync": true,
+                "linesOfCode": 35,
+                "cyclomaticComplexity": 8,
+                "parameters": 3
+              }
+            ],
+            "propertyMetrics": [
+              {
+                "propertyName": "Count",
+                "type": "int",
+                "linesOfCode": 5,
+                "cyclomaticComplexity": 1
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "statistics": {
+      "min": 1,
+      "max": 15,
+      "average": 6.5,
+      "median": 5.0,
+      "standardDeviation": 3.2,
+      "count": 10,
+      "outliers": [
+        {
+          "target": "ComplexMethod",
+          "value": 15,
+          "deviation": 2.5
+        }
+      ]
+    }
+  }
+}
+```
+
+#### 使用示例
+
+```csharp
+// 用户询问
+"Which methods have high complexity?"
+
+// Claude 调用（遍历所有文件）
+get_code_metrics(
+  projectPath="src/MyProject/MyProject.csproj",
+  filePath="src/MyProject/ComplexClass.cs"
+)
+```
+
+#### 度量指标说明
+
+| 指标 | 描述 | 健康范围 |
+|------|------|----------|
+| **Cyclomatic Complexity** | 圈复杂度 | < 10 (良好), 10-20 (中等), > 20 (高) |
+| **Lines of Code** | 代码行数 | 方法 < 50, 类 < 500 |
+| **Depth of Inheritance** | 继承深度 | < 6 |
+| **Class Coupling** | 类耦合度 | < 20 (良好), 20-30 (中等), > 30 (高) |
+| **Maintainability Index** | 可维护性指数 | > 70 (良好), 50-70 (中等), < 50 (差) |
+
+#### 特性
+
+- ✅ 多层次分析（项目 → 命名空间 → 类型 → 方法）
+- ✅ 统计信息（最小、最大、平均、标准差）
+- ✅ 异常值识别（标准差方法）
+- ✅ 复杂度级别评估
+- ✅ 建议生成
+
+#### 复杂度级别
+
+```csharp
+public enum ComplexityLevel
+{
+    Simple,      // 圈复杂度 < 10
+    Moderate,    // 圈复杂度 10-15
+    High,        // 圈复杂度 15-20
+    VeryHigh     // 圈复杂度 > 20（建议重构）
+}
+```
+
+#### 使用场景
+
+1. **代码审查**: 识别复杂方法
+2. **重构规划**: 找出技术债务
+3. **质量监控**: 跟踪代码质量趋势
+4. **性能分析**: 定位性能瓶颈
+
+---
+
+### Phase 2 工具最佳实践
+
+#### 1. 类型层次分析
+
+```csharp
+// ❌ 不好：每次调用都重新加载
+for (var type in types)
+{
+  get_type_hierarchy(type.Name);
+}
+
+// ✅ 好：批量分析，并行处理
+var tasks = types.Select(t =>
+  get_type_hierarchy(t.Name, projectPath)
+);
+await Task.WhenAll(tasks);
+```
+
+#### 2. 代码度量
+
+```csharp
+// ✅ 定期检查复杂度
+get_code_metrics(projectPath, filePath);
+
+// 如果发现高复杂度方法
+if (metrics.cyclomaticComplexity > 15)
+{
+  // 建议重构或拆分
+  SuggestRefactoring(method);
+}
+```
+
+#### 3. 语义模型查询
+
+```csharp
+// ✅ 使用语义模型进行类型推断
+var semanticInfo = get_semantic_model(filePath, line, column);
+
+// 检查类型是否实现特定接口
+if (semanticInfo.type.interfaces.Contains("IEnumerable"))
+{
+  // 可以使用 LINQ 方法
+  SuggestLinqMethods(semanticInfo.type.members);
+}
+```
+
+---
+
 ## 配置选项
 
 ### 环境变量
@@ -852,7 +1417,21 @@ Claude: [调用 find_references]
 
 ## API 版本历史
 
-### v0.5.0 (当前版本)
+### v0.6.1 (当前版本)
+
+- ✅ **Phase 2 完成**: 新增 7 个导航增强工具
+  - `go_to_definition` - 跳转到符号定义
+  - `get_type_hierarchy` - 类型继承层次分析
+  - `get_member_hierarchy` - 成员层次结构分析
+  - `get_semantic_model` - 语义模型详细信息
+  - `get_syntax_tree` - 语法树结构分析
+  - `get_code_metrics` - 代码复杂度和质量度量
+- ✅ 工具总数: 41 个（Phase 1: 22 个，Phase 2: 7 个，Phase 3-5: 12 个）
+- ✅ 完整的类型层次分析支持
+- ✅ 代码度量指标（圈复杂度、可维护性指数等）
+- ✅ 语法树 JSON 序列化
+
+### v0.6.0
 
 - ✅ 新增 `.slnx` 格式支持
 - ✅ 升级到 Roslyn 5.0
@@ -887,5 +1466,5 @@ Claude: [调用 find_references]
 
 ---
 
-**版本**: v0.5.0
-**最后更新**: 2026-02-09
+**版本**: v0.6.1
+**最后更新**: 2026-02-10

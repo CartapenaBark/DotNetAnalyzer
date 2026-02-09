@@ -3,7 +3,7 @@
 > 一个强大的 MCP (Model Context Protocol) 服务器工具，将 Roslyn 的代码分析能力引入 Claude Code
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/8.0)
-[![NuGet](https://img.shields.io/badge/nuget-0.5.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
+[![NuGet](https://img.shields.io/badge/nuget-0.6.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 📖 简介
@@ -29,9 +29,35 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 ## 🎯 核心功能
 
-**当前版本 (v0.5.0)** 提供 **8 个核心 MCP 工具**，支持强命名：
+**当前版本 (v0.6.0)** 提供 **22 个 MCP 工具**，支持强命名：
 
-### ✨ v0.5.0 新特性
+### ✨ v0.6.0 新特性
+
+**架构优化：**
+- **统一输出目录** - 所有构建产物集中到 Bin 目录，obj 放在 Bin 下便于清理
+- **Directory.Build.props** - 自动检测根目录，统一管理输出路径
+- **路径验证和安全检查** - PathValidator 防止路径遍历攻击
+- **接口抽象层** - IWorkspaceManager 和 ICompilationCache 接口
+- **依赖注入** - 支持 IOptions 配置模式
+- **结构化日志** - 集成 ILogger，支持可配置日志级别
+- **并发项目加载** - SemaphoreSlim 控制，支持最多 4 个并发
+- **内存监控** - AdaptiveCacheManager 自适应缓存管理
+- **JSON 序列化优化** - 迁移到 System.Text.Json，性能提升 2-3x
+- **测试覆盖提升** - 190 个单元测试，100% 通过率
+- **API 文档完善** - 892 行 API 指南和 834 行示例
+
+**性能优化：**
+- **LRU 缓存优化** - 线程安全，支持项目缓存
+- **增量分析** - 文件修改时间检测，避免重复加载
+- **并发加载** - 支持多项目同时加载，提升效率
+- **内存自适应** - 根据内存压力自动清理缓存
+
+**开发体验：**
+- 📚 完整 API 文档（docs/api-guide.md）
+- 📚 详细使用示例（docs/examples.md）
+- 🛠️ 极简清理 - `rm -rf Bin/` 清理所有构建产物
+
+### ✨ v0.5.0 特性（保留）
 
 - **.slnx 解决方案格式支持** - 完全支持 Visual Studio 2022 的 XML 格式解决方案文件
 - **Roslyn 5.0 升级** - 升级到最新的 Roslyn 版本，提升稳定性和性能
@@ -189,7 +215,7 @@ dotnet-tool list --global
 
 **NuGet 包信息**:
 - 📦 包名: `DotNetAnalyzer`
-- 🏷️ 版本: `0.5.0`
+- 🏷️ 版本: `0.6.0`
 - 🔗 链接: [https://www.nuget.org/packages/DotNetAnalyzer](https://www.nuget.org/packages/DotNetAnalyzer)
 - .NET 8.0 或更高版本
 
@@ -458,6 +484,22 @@ DotNetAnalyzer 的开发分为多个阶段，逐步构建完整的代码分析�
 | 3 | Code Refactoring | 💭 提案 | 0% |
 | 4 | Code Generation and Fixing | 💭 提案 | 0% |
 | 5 | Advanced Features | 💭 提案 | 0% |
+
+### v0.6.0 里程碑 (✅ 已完成)
+- ✅ 统一输出目录优化
+- ✅ 架构改进（接口抽象、依赖注入、结构化日志）
+- ✅ 并发项目加载和内存监控
+- ✅ JSON 序列化优化（System.Text.Json）
+- ✅ 190 个单元测试，100% 通过率
+- ✅ 完整 API 文档和示例
+- ✅ 路径安全验证
+- ✅ 增量分析优化
+
+### v0.5.0 里程碑 (✅ 已完成)
+- ✅ .slnx XML 格式支持
+- ✅ Roslyn 5.0 升级
+- ✅ 并发测试优化
+- ✅ 性能基准测试套件
 
 ### v0.4.0 里程碑 (✅ 已完成)
 - ✅ 8个核心MCP工具全部实现

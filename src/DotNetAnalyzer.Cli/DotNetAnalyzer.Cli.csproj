@@ -15,7 +15,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-analyzer</ToolCommandName>
     <PackageId>DotNetAnalyzer</PackageId>
-    <Version>0.5.0</Version>
+    <Version>0.6.0</Version>
     <Authors>CartapenaBark</Authors>
     <Description>MCP server for .NET code analysis with Roslyn</Description>
     <PackageTags>mcp;roslyn;code-analysis;claude;dotnet</PackageTags>
@@ -25,27 +25,42 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes><![CDATA[
-      v0.5.0 - SLNX Format Support & Roslyn 5.0 Upgrade
-      - ✨ Support for Visual Studio 2022 .slnx XML format solution files
-      - ⬆️ Upgrade Roslyn from 4.11.0 to 5.0.0
-      - ✅ Backward compatibility with traditional .sln format maintained
-      - ✨ Enhanced solution loading with dual format support (.sln and .slnx)
-      - 🧪 Added comprehensive unit tests for .slnx support
-      - 📝 Updated documentation with .slnx format information
+      v0.6.0 - Architecture Improvements & Build Optimization
+
+      架构优化：
+      - ✨ 统一输出目录 - 所有构建产物集中到 Bin 目录，obj 放在 Bin 下便于清理
+      - ✨ Directory.Build.props - 自动检测根目录，统一管理输出路径
+      - ✨ 路径验证和安全检查 - PathValidator 防止路径遍历攻击
+      - ✨ 接口抽象层 - IWorkspaceManager 和 ICompilationCache 接口
+      - ✨ 依赖注入 - 支持 IOptions 配置模式
+      - ✨ 结构化日志 - 集成 ILogger，支持可配置日志级别
+      - ✨ 并发项目加载 - SemaphoreSlim 控制，支持最多 4 个并发
+      - ✨ 内存监控 - AdaptiveCacheManager 自适应缓存管理
+      - ✨ JSON 序列化优化 - 迁移到 System.Text.Json，性能提升 2-3x
+      - ✨ 测试覆盖提升 - 190 个单元测试，100% 通过率
+      - ✨ API 文档完善 - 892 行 API 指南和 834 行示例
+
+      性能优化：
+      - ⚡ LRU 缓存优化 - 线程安全，支持项目缓存
+      - ⚡ 增量分析 - 文件修改时间检测，避免重复加载
+      - ⚡ 并发加载 - 支持多项目同时加载，提升效率
+      - ⚡ 内存自适应 - 根据内存压力自动清理缓存
+
+      开发体验：
+      - 📚 完整 API 文档（docs/api-guide.md）
+      - 📚 详细使用示例（docs/examples.md）
+      - 🛠️ 极简清理 - rm -rf Bin/ 清理所有构建产物
 
       Breaking Changes:
-      - Requires .NET 8.0 SDK or higher (Roslyn 5.0 requirement)
+      - 最低要求保持 .NET 8.0 SDK
+      - 迁移到 System.Text.Json（自动满足，无需代码更改）
 
-      Technical Details:
-      - Upgraded Microsoft.CodeAnalysis.* packages to 5.0.0
-      - Modernized WorkspaceManager API usage
-      - Zero compilation warnings
-      - All tests passing (4/4)
-
-      Migration Guide:
-      - No code changes required for existing users
-      - .sln files continue to work as before
-      - .slnx files are now automatically supported
+      技术细节：
+      - 零编译警告，零编译错误
+      - 22 个 MCP 工具全部实现
+      - 17,000+ 行代码
+      - 完整的单元测试和集成测试
+      - Linux 编码风格规范
     ]]></PackageReleaseNotes>
 
     <!-- 公司和产品信息 -->

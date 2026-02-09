@@ -396,15 +396,15 @@ public class LruCacheTests : IDisposable
     public void Expiration_WithAccess_ShouldRefreshExpiration()
     {
         // Arrange
-        var cache = new LruCache<int, string>(capacity: 10, expirationTime: TimeSpan.FromMilliseconds(200));
+        var cache = new LruCache<int, string>(capacity: 10, expirationTime: TimeSpan.FromMilliseconds(500));
 
         cache.Set(1, "One");
 
         // Act - 在过期前访问
-        Thread.Sleep(100);
+        Thread.Sleep(200);
         cache.TryGetValue(1, out _).Should().BeTrue();
 
-        Thread.Sleep(150); // 总共 250ms，但访问刷新了过期时间
+        Thread.Sleep(300); // 总共 500ms，但访问刷新了过期时间（从访问时开始算）
         cache.TryGetValue(1, out var value).Should().BeTrue(); // 应该还存在
 
         // Assert

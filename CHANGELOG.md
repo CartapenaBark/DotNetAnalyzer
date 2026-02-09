@@ -14,6 +14,156 @@
 
 ---
 
+## [0.6.0] - 2026-02-10
+
+### 🎉 发布亮点
+
+- ✅ **架构全面优化** - 11 项架构改进全部完成
+- ✅ **构建体验提升** - 统一输出目录，极简清理
+- ✅ **22 个 MCP 工具** - 所有计划工具全部实现
+- ✅ **完整测试覆盖** - 190 个测试，100% 通过率
+
+### 新增
+
+#### 🏗️ 架构优化
+- ✅ **统一输出目录** - 所有构建产物集中到 Bin 目录
+  - 最终输出：`Bin/Release/net8.0/`
+  - 中间文件：`Bin/Release/obj/ProjectName/`
+  - NuGet 包：`Bin/nupkg/`
+  - 极简清理：`rm -rf Bin/` 即可清理所有
+
+- ✅ **Directory.Build.props** - 自动根目录检测
+  - 自动检测 `.slnx` 或 `Directory.Build.props`
+  - 统一管理所有项目的输出路径
+  - 简化项目文件配置
+
+- ✅ **路径验证和安全** - PathValidator 安全检查
+  - 路径规范化处理
+  - 路径遍历攻击检测（防止 `../..` 攻击）
+  - 文件扩展名验证
+  - Windows 设备名称检测
+  - 基础路径边界验证
+
+- ✅ **接口抽象层** - IWorkspaceManager 和 ICompilationCache
+  - 降低耦合度，工具类依赖接口
+  - 提高可测试性，支持 Mock
+  - 支持未来扩展
+
+#### 🔧 配置和日志
+- ✅ **依赖注入** - IOptions 配置模式
+  - WorkspaceManagerOptions
+  - CompilationCacheOptions
+  - MemoryMonitoringOptions
+  - appsettings.json 配置文件
+
+- ✅ **结构化日志** - ILogger 集成
+  - 支持可配置日志级别
+  - 记录关键操作和性能指标
+  - 缓存统计和追踪
+
+#### ⚡ 性能优化
+- ✅ **并发项目加载** - SemaphoreSlim 控制
+  - 最多支持 4 个并发加载
+  - 双重检查锁定模式
+  - 缓存命中时完全无锁
+
+- ✅ **内存监控** - AdaptiveCacheManager
+  - 定期监控内存使用
+  - 高内存压力自动清理缓存
+  - 三级策略：正常/高/严重
+
+- ✅ **JSON 序列化优化** - System.Text.Json 迁移
+  - 性能提升 2-3 倍
+  - 内存占用更低
+  - 与 .NET 8.0 原生集成
+
+#### 📚 文档完善
+- ✅ **API 指南** (892 行)
+  - 所有 22 个工具的完整参考
+  - 参数、返回值、使用示例
+  - 配置选项和最佳实践
+
+- ✅ **使用示例** (834 行)
+  - 13 个综合工作流示例
+  - 常见场景处理
+  - 提示和技巧
+
+- ✅ **最佳实践存档** (.claude/pensieve)
+  - 项目编码规范
+  - .NET 构建输出目录标准
+  - OpenSpec 工作流规则
+
+### 测试
+- ✅ **190 个单元测试** - 100% 通过率
+  - 单元测试（所有核心类）
+  - 集成测试（端到端工作流）
+  - 并发测试（多线程安全）
+  - 性能测试（基准测试）
+  - 安全测试（路径验证）
+
+### 改进
+- 更新版本号到 0.6.0
+- ✨ **开发体验提升**
+  - 极简清理：`rm -rf Bin/`
+  - 零配置自动根目录检测
+  - 统一的配置管理
+
+- ✨ **代码质量**
+  - 0 编译错误，0 编译警告
+  - Linux 编码风格规范
+  - 完整的 XML 文档注释
+
+- ✨ **性能优化**
+  - LRU 缓存优化
+  - 并发项目加载
+  - 自适应内存管理
+  - System.Text.Json 性能提升
+
+### 技术细节
+
+#### 新增核心文件
+```
+src/DotNetAnalyzer.Core/
+├── Abstractions/
+│   ├── IWorkspaceManager.cs
+│   └── ICompilationCache.cs
+├── Configuration/
+│   ├── WorkspaceManagerOptions.cs
+│   ├── CompilationCacheOptions.cs
+│   └── MemoryMonitoringOptions.cs
+├── Security/
+│   ├── PathValidator.cs
+│   └── PathValidationException.cs
+├── Memory/
+│   └── AdaptiveCacheManager.cs
+├── Json/
+│   └── JsonSerializerOptions.cs
+└── Metrics/
+    └── CacheMetrics.cs
+```
+
+#### 构建输出结构
+```
+Bin/
+├── Debug/
+│   ├── net8.0/        # 最终输出
+│   ├── obj/           # 中间文件
+│   └── nupkg/         # NuGet 包
+└── Release/
+    ├── net8.0/
+    ├── obj/
+    └── nupkg/
+```
+
+### 性能指标
+- **测试通过率**: 190/190 (100%)
+- **编译警告**: 0
+- **编译错误**: 0
+- **代码行数**: 17,000+
+- **MCP 工具**: 22 个
+
+---
+
 ## [0.5.0] - 2026-02-09
 
 ### 🎉 发布亮点

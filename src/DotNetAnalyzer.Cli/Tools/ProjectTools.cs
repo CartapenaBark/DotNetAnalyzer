@@ -1,6 +1,8 @@
 using System.ComponentModel;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Microsoft.CodeAnalysis;
+using DotNetAnalyzer.Core.Abstractions;
+using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Roslyn;
 using ModelContextProtocol.Server;
 
@@ -20,14 +22,14 @@ public static class ProjectTools
     /// <returns>项目列表的 JSON 字符串</returns>
     [McpServerTool, Description("列出解决方案中的所有项目，包括依赖关系分析")]
     public static async Task<string> ListProjects(
-        WorkspaceManager workspaceManager,
+        IWorkspaceManager workspaceManager,
         [Description("解决方案路径")] string solutionPath)
     {
         try
         {
             if (string.IsNullOrEmpty(solutionPath))
             {
-                return JsonConvert.SerializeObject(new { success = false, error = "solutionPath is required" });
+                return JsonSerializer.Serialize(new { success = false, error = "solutionPath is required" }, JsonOptions.Default);
             }
 
             var solution = await workspaceManager.GetSolutionAsync(solutionPath);
@@ -71,17 +73,17 @@ public static class ProjectTools
                 }
             }
 
-            return JsonConvert.SerializeObject(new
+            return JsonSerializer.Serialize(new
             {
                 success = true,
                 solutionPath,
                 projectCount = projectList.Count,
                 projects = projectList
-            }, Formatting.Indented);
+            }, JsonOptions.Default);
         }
         catch (Exception ex)
         {
-            return JsonConvert.SerializeObject(new { success = false, error = ex.Message });
+            return JsonSerializer.Serialize(new { success = false, error = ex.Message }, JsonOptions.Default);
         }
     }
 
@@ -93,14 +95,14 @@ public static class ProjectTools
     /// <returns>项目详细信息的 JSON 字符串</returns>
     [McpServerTool, Description("获取项目的详细信息")]
     public static async Task<string> GetProjectInfo(
-        WorkspaceManager workspaceManager,
+        IWorkspaceManager workspaceManager,
         [Description("项目路径")] string projectPath)
     {
         try
         {
             if (string.IsNullOrEmpty(projectPath))
             {
-                return JsonConvert.SerializeObject(new { success = false, error = "projectPath is required" });
+                return JsonSerializer.Serialize(new { success = false, error = "projectPath is required" }, JsonOptions.Default);
             }
 
             var project = await workspaceManager.GetProjectAsync(projectPath);
@@ -123,7 +125,7 @@ public static class ProjectTools
             var errorCount = diagnostics.Count(d => d.Severity == DiagnosticSeverity.Error);
             var warningCount = diagnostics.Count(d => d.Severity == DiagnosticSeverity.Warning);
 
-            return JsonConvert.SerializeObject(new
+            return JsonSerializer.Serialize(new
             {
                 success = true,
                 project = new
@@ -149,11 +151,11 @@ public static class ProjectTools
                         hasCircularReference = dependencyInfo.HasCircularReference
                     }
                 }
-            }, Formatting.Indented);
+            }, JsonOptions.Default);
         }
         catch (Exception ex)
         {
-            return JsonConvert.SerializeObject(new { success = false, error = ex.Message });
+            return JsonSerializer.Serialize(new { success = false, error = ex.Message }, JsonOptions.Default);
         }
     }
 
@@ -165,14 +167,14 @@ public static class ProjectTools
     /// <returns>依赖关系分析结果 JSON 字符串</returns>
     [McpServerTool, Description("分析项目的依赖关系，包括项目引用、包依赖、传递依赖和循环依赖检测")]
     public static async Task<string> AnalyzeDependencies(
-        WorkspaceManager workspaceManager,
+        IWorkspaceManager workspaceManager,
         [Description("项目路径")] string projectPath)
     {
         try
         {
             if (string.IsNullOrEmpty(projectPath))
             {
-                return JsonConvert.SerializeObject(new { success = false, error = "projectPath is required" });
+                return JsonSerializer.Serialize(new { success = false, error = "projectPath is required" }, JsonOptions.Default);
             }
 
             var project = await workspaceManager.GetProjectAsync(projectPath);
@@ -180,15 +182,15 @@ public static class ProjectTools
             // 使用 DependencyAnalyzer 分析依赖
             var dependencyInfo = DependencyAnalyzer.AnalyzeDependencies(project);
 
-            return JsonConvert.SerializeObject(new
+            return JsonSerializer.Serialize(new
             {
                 success = true,
                 dependencies = dependencyInfo
-            }, Formatting.Indented);
+            }, JsonOptions.Default);
         }
         catch (Exception ex)
         {
-            return JsonConvert.SerializeObject(new { success = false, error = ex.Message });
+            return JsonSerializer.Serialize(new { success = false, error = ex.Message }, JsonOptions.Default);
         }
     }
 
@@ -200,14 +202,14 @@ public static class ProjectTools
     /// <returns>解决方案详细信息的 JSON 字符串</returns>
     [McpServerTool, Description("获取解决方案的详细信息，包括构建顺序和启动项目")]
     public static async Task<string> GetSolutionInfo(
-        WorkspaceManager workspaceManager,
+        IWorkspaceManager workspaceManager,
         [Description("解决方案路径")] string solutionPath)
     {
         try
         {
             if (string.IsNullOrEmpty(solutionPath))
             {
-                return JsonConvert.SerializeObject(new { success = false, error = "solutionPath is required" });
+                return JsonSerializer.Serialize(new { success = false, error = "solutionPath is required" }, JsonOptions.Default);
             }
 
             var solution = await workspaceManager.GetSolutionAsync(solutionPath);
@@ -255,7 +257,7 @@ public static class ProjectTools
             // 识别启动项目（可执行且无其他项目依赖它，或者是入口点）
             var startupProjects = IdentifyStartupProjects(solution.Projects, dependencyGraph);
 
-            return JsonConvert.SerializeObject(new
+            return JsonSerializer.Serialize(new
             {
                 success = true,
                 solution = new
@@ -267,11 +269,11 @@ public static class ProjectTools
                     buildOrder,
                     startupProjects
                 }
-            }, Formatting.Indented);
+            }, JsonOptions.Default);
         }
         catch (Exception ex)
         {
-            return JsonConvert.SerializeObject(new { success = false, error = ex.Message });
+            return JsonSerializer.Serialize(new { success = false, error = ex.Message }, JsonOptions.Default);
         }
     }
 

@@ -15,8 +15,8 @@
     <PackageReference Include="Microsoft.CodeAnalysis" Version="5.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
     <PackageReference Include="ModelContextProtocol" Version="0.8.0-preview.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>

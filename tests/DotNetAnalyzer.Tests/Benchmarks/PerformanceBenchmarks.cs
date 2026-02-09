@@ -3,6 +3,7 @@ using Xunit.Abstractions;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using DotNetAnalyzer.Core.Roslyn;
+using DotNetAnalyzer.Tests.Helpers;
 
 namespace DotNetAnalyzer.Tests.Benchmarks;
 
@@ -31,7 +32,7 @@ public class PerformanceBenchmarks
         var stopwatch = Stopwatch.StartNew();
 
         // Act
-        using var workspaceManager = new WorkspaceManager();
+        using var workspaceManager = TestHelper.CreateWorkspaceManager();
         var project = await workspaceManager.GetProjectAsync(projectPath);
         stopwatch.Stop();
 
@@ -51,7 +52,7 @@ public class PerformanceBenchmarks
         // Arrange
         var projectPath = Path.Combine(_testAssetsPath, "ClassLibrary", "ClassLibrary.csproj");
 
-        using var workspaceManager = new WorkspaceManager();
+        using var workspaceManager = TestHelper.CreateWorkspaceManager();
 
         // Act - 第一次加载（冷启动）
         var coldStart = Stopwatch.StartNew();
@@ -90,7 +91,7 @@ public class PerformanceBenchmarks
         // Arrange
         var projectPath = Path.Combine(_testAssetsPath, "ConsoleApp", "ConsoleApp.csproj");
 
-        using var workspaceManager = new WorkspaceManager();
+        using var workspaceManager = TestHelper.CreateWorkspaceManager();
         var project = await workspaceManager.GetProjectAsync(projectPath);
         var compilation = await project.GetCompilationAsync();
 
@@ -116,7 +117,7 @@ public class PerformanceBenchmarks
         // Arrange
         var projectPath = Path.Combine(_testAssetsPath, "ClassLibrary", "ClassLibrary.csproj");
 
-        using var workspaceManager = new WorkspaceManager();
+        using var workspaceManager = TestHelper.CreateWorkspaceManager();
         var project = await workspaceManager.GetProjectAsync(projectPath);
         var document = project.Documents.First();
         var tree = await document.GetSyntaxTreeAsync();
@@ -153,7 +154,7 @@ public class PerformanceBenchmarks
         // Arrange
         var projectPath = Path.Combine(_testAssetsPath, "ClassLibrary", "ClassLibrary.csproj");
 
-        using var workspaceManager = new WorkspaceManager();
+        using var workspaceManager = TestHelper.CreateWorkspaceManager();
         var project = await workspaceManager.GetProjectAsync(projectPath);
 
         // Act

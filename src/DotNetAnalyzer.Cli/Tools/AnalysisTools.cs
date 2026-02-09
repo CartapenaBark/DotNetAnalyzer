@@ -1,8 +1,10 @@
 using System.ComponentModel;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using DotNetAnalyzer.Core.Abstractions;
+using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Roslyn;
 using ModelContextProtocol.Server;
 
@@ -19,7 +21,7 @@ public static class AnalysisTools
     /// </summary>
     [McpServerTool, Description("分析代码的语法和语义结构，包括语法树、类型信息、命名空间、类、方法等")]
     public static async Task<string> AnalyzeCode(
-        WorkspaceManager workspaceManager,
+        IWorkspaceManager workspaceManager,
         [Description("项目路径")] string projectPath,
         [Description("文件路径")] string filePath)
     {
@@ -88,7 +90,7 @@ public static class AnalysisTools
             // 6. 提取 using 指令
             var usings = ExtractUsings(root);
 
-            var result = JsonConvert.SerializeObject(new
+            var result = JsonSerializer.Serialize(new
             {
                 success = true,
                 fileInfo,
@@ -124,7 +126,7 @@ public static class AnalysisTools
                     methodCount = methodDeclarations.Count,
                     usingCount = usings.Count
                 }
-            }, Formatting.Indented);
+            }, JsonOptions.Default);
 
             return result;
         }
@@ -243,11 +245,11 @@ public static class AnalysisTools
 
     private static string CreateErrorResponse(string message)
     {
-        return JsonConvert.SerializeObject(new
+        return JsonSerializer.Serialize(new
         {
             success = false,
             error = message
-        }, Formatting.Indented);
+        }, JsonOptions.Default);
     }
 
     #endregion

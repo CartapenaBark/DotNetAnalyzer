@@ -1,4 +1,5 @@
 using DotNetAnalyzer.Core.Roslyn;
+using DotNetAnalyzer.Tests.Helpers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -31,11 +32,11 @@ public class SolutionLoadingPerformanceTests
         // Warmup
         for (int i = 0; i < warmupIterations; i++)
         {
-            using (var workspaceManager = new WorkspaceManager())
+            using (var workspaceManager = TestHelper.CreateWorkspaceManager())
             {
                 await workspaceManager.GetSolutionAsync(slnPath);
             }
-            using (var workspaceManager = new WorkspaceManager())
+            using (var workspaceManager = TestHelper.CreateWorkspaceManager())
             {
                 await workspaceManager.GetSolutionAsync(slnxPath);
             }
@@ -46,7 +47,7 @@ public class SolutionLoadingPerformanceTests
         for (int i = 0; i < testIterations; i++)
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            using (var workspaceManager = new WorkspaceManager())
+            using (var workspaceManager = TestHelper.CreateWorkspaceManager())
             {
                 var solution = await workspaceManager.GetSolutionAsync(slnPath);
                 Assert.NotNull(solution);
@@ -60,7 +61,7 @@ public class SolutionLoadingPerformanceTests
         for (int i = 0; i < testIterations; i++)
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            using (var workspaceManager = new WorkspaceManager())
+            using (var workspaceManager = TestHelper.CreateWorkspaceManager())
             {
                 var solution = await workspaceManager.GetSolutionAsync(slnxPath);
                 Assert.NotNull(solution);
@@ -113,7 +114,7 @@ public class SolutionLoadingPerformanceTests
         var tasks = Enumerable.Range(0, concurrentTasks).Select(async i =>
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            using (var workspaceManager = new WorkspaceManager())
+            using (var workspaceManager = TestHelper.CreateWorkspaceManager())
             {
                 var solution = await workspaceManager.GetSolutionAsync(slnxPath);
                 sw.Stop();
@@ -159,7 +160,7 @@ public class SolutionLoadingPerformanceTests
         for (int i = 0; i < iterations; i++)
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            using (var workspaceManager = new WorkspaceManager())
+            using (var workspaceManager = TestHelper.CreateWorkspaceManager())
             {
                 var solution = await workspaceManager.GetSolutionAsync(slnxPath);
                 Assert.NotNull(solution);

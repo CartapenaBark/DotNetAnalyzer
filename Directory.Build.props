@@ -1,0 +1,25 @@
+<Project>
+  <!--
+    统一输出目录配置
+    所有项目的构建输出（包括中间文件）将集中到根目录的 Bin 文件夹
+    清理构建产物时只需删除 Bin 目录即可
+  -->
+  <PropertyGroup>
+    <!-- 获取仓库根目录，确保以路径分隔符结尾 -->
+    <RepositoryRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'DotNetAnalyzer.slnx'))</RepositoryRoot>
+    <RepositoryRoot Condition="'$(RepositoryRoot)'==''">$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Directory.Build.props'))</RepositoryRoot>
+    <RepositoryRoot Condition="!HasTrailingSlash('$(RepositoryRoot)')">$(RepositoryRoot)\</RepositoryRoot>
+
+    <!-- 统一输出到根目录的 Bin 文件夹 -->
+    <BaseOutputPath>$(RepositoryRoot)Bin\$(Configuration)\</BaseOutputPath>
+    <!-- 将中间输出路径也放在 Bin 下，便于统一清理 -->
+    <BaseIntermediateOutputPath>$(RepositoryRoot)Bin\$(Configuration)\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+
+    <!-- NuGet 包输出路径 -->
+    <PackageOutputPath>$(RepositoryRoot)Bin\nupkg\</PackageOutputPath>
+
+    <!-- 确保输出路径被正确使用 -->
+    <OutputPath>$(BaseOutputPath)</OutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+  </PropertyGroup>
+</Project>

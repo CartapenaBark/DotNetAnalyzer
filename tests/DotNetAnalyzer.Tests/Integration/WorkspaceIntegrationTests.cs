@@ -19,17 +19,10 @@ public class WorkspaceIntegrationTests
     public WorkspaceIntegrationTests(ITestOutputHelper output)
     {
         _output = output;
-
-        // 获取测试资产路径
-        // 测试在: tests/DotNetAnalyzer.Tests/bin/Debug/net8.0
-        // 资产在: tests/TestAssets (需要回到上级目录)
-        var currentDir = Directory.GetCurrentDirectory();
-        var testsDir = Path.GetFullPath(Path.Combine(currentDir, "..", "..", "..", ".."));
-        _testAssetsPath = Path.Combine(testsDir, "TestAssets");
+        _testAssetsPath = TestHelper.GetTestAssetsPath();
 
         _output.WriteLine($"测试资产路径: {_testAssetsPath}");
-        _output.WriteLine($"当前目录: {currentDir}");
-        _output.WriteLine($"Tests目录: {testsDir}");
+        _output.WriteLine($"当前目录: {Directory.GetCurrentDirectory()}");
         _output.WriteLine($"资产存在: {Directory.Exists(_testAssetsPath)}");
     }
 

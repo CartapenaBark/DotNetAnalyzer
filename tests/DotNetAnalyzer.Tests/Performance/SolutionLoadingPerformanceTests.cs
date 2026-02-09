@@ -17,7 +17,7 @@ public class SolutionLoadingPerformanceTests
     public SolutionLoadingPerformanceTests(ITestOutputHelper output)
     {
         _output = output;
-        _testAssetsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "TestAssets"));
+        _testAssetsPath = TestHelper.GetTestAssetsPath();
     }
 
     [Fact]

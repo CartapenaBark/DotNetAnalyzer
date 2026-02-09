@@ -20,9 +20,7 @@ public class ConcurrentLoadingTests
     public ConcurrentLoadingTests(ITestOutputHelper output)
     {
         _output = output;
-        var currentDir = Directory.GetCurrentDirectory();
-        var testsDir = Path.GetFullPath(Path.Combine(currentDir, "..", "..", "..", ".."));
-        _testAssetsPath = Path.Combine(testsDir, "TestAssets");
+        _testAssetsPath = TestHelper.GetTestAssetsPath();
     }
 
     /// <summary>

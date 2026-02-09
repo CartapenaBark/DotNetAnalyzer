@@ -75,4 +75,41 @@ public static class TestHelper
         });
         return loggerFactory.CreateLogger<T>();
     }
+
+    /// <summary>
+    /// 获取测试资产目录的绝对路径
+    /// </summary>
+    /// <returns>测试资产目录路径</returns>
+    public static string GetTestAssetsPath()
+    {
+        var currentDir = Directory.GetCurrentDirectory();
+
+        // 新的输出目录结构: Bin/Release/net8.0/
+        // 需要回到仓库根目录，然后进入 tests/TestAssets
+        // 尝试不同的层级以适应不同的构建配置
+        var possiblePaths = new[]
+        {
+            // 从 Bin/Release/net8.0/ 或 Bin/Debug/net8.0/ 回到根目录
+            Path.Combine(currentDir, "..", ".."),
+            // 从 tests/DotNetAnalyzer.Tests/bin/Debug/net8.0/ (旧结构)
+            Path.Combine(currentDir, "..", "..", "..", ".."),
+            // 从 bin/Release/net8.0/ (如果有额外的中间目录)
+            Path.Combine(currentDir, "..", "..", ".."),
+            // 已经在根目录
+            currentDir
+        };
+
+        foreach (var basePath in possiblePaths)
+        {
+            var testAssetsPath = Path.GetFullPath(Path.Combine(basePath, "tests", "TestAssets"));
+            if (Directory.Exists(testAssetsPath))
+            {
+                return testAssetsPath;
+            }
+        }
+
+        throw new DirectoryNotFoundException(
+            $"无法找到测试资产目录。当前目录: {currentDir}，" +
+            $"已尝试的路径: {string.Join(", ", possiblePaths.Select(p => Path.Combine(p, "tests", "TestAssets")))}");
+    }
 }

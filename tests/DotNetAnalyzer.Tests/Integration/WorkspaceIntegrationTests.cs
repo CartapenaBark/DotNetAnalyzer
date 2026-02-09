@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using DotNetAnalyzer.Core.Roslyn;
+using DotNetAnalyzer.Tests.Helpers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -34,7 +35,7 @@ public class WorkspaceIntegrationTests
 
     private WorkspaceManager CreateWorkspaceManager()
     {
-        return new WorkspaceManager();
+        return TestHelper.CreateWorkspaceManager();
     }
 
     [Fact]

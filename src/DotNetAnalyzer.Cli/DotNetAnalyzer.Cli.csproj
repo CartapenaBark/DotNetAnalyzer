@@ -56,9 +56,17 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
   </ItemGroup>
 
   <!-- 包含项目文件到 NuGet 包 -->
+  <ItemGroup>
+    <!-- appsettings.json 配置文件 -->
+    <None Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="appsettings.Development.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <ItemGroup>
     <!-- README.md 文件 -->
     <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />

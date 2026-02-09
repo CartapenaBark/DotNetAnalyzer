@@ -509,6 +509,39 @@ dotnet tool uninstall --global DotNetAnalyzer
 
 本项目采用 [MIT](LICENSE) 许可证。
 
+## 📚 文档
+
+### 用户指南
+- [API 使用指南](docs/api-guide.md) - 完整的 MCP 工具 API 参考文档
+  - 所有 8 个核心工具的详细说明
+  - 参数、返回值和使用示例
+  - 配置选项和最佳实践
+  - 故障排除指南
+
+- [使用示例](docs/examples.md) - 实际使用场景和代码示例
+  - 基础示例（诊断检查、解决方案分析）
+  - 代码分析示例（结构分析、继承关系）
+  - 符号查询示例（查找引用、符号信息）
+  - 代码诊断示例（错误定位、修复建议）
+  - 依赖分析示例（依赖图、构建顺序）
+  - 综合工作流（代码审查、调试）
+
+- [配置指南](CONFIGURATION.md) - 详细的配置选项说明
+  - 环境变量配置
+  - MCP 服务器配置
+  - 高级配置选项
+  - 性能优化建议
+
+### 开发者文档
+- [集成测试指南](docs/INTEGRATION_TESTING.md) - 如何运行和编写集成测试
+- [工具测试指南](docs/TOOLS_TESTING_GUIDE.md) - MCP 工具测试指南
+- [故障排除](docs/MCP_TROUBLESHOOTING.md) - 常见问题解决方案
+- [CLAUDE.md](CLAUDE.md) - 给 Claude Code 的项目说明
+
+### 项目文档
+- [CHANGELOG](CHANGELOG.md) - 版本更新历史
+- [CONTRIBUTING.md](CONTRIBUTING.md) - 贡献指南
+
 ## 🙏 致谢
 
 - [Roslyn](https://github.com/dotnet/roslyn) - 强大的 .NET 编译器平台

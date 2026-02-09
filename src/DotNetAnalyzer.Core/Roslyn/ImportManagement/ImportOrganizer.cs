@@ -47,8 +47,11 @@ namespace DotNetAnalyzer.Core.Roslyn.ImportManagement
                     var unusedUsings = usings.Where(u => !IsUsingUsed(semanticModel, u)).ToList();
                     foreach (var unused in unusedUsings)
                     {
-                        removedUsings.Add(unused.Name.ToString());
-                        root = root.RemoveNode(unused, SyntaxRemoveOptions.KeepNoTrivia);
+                        var usingName = unused.Name?.ToString() ?? "unknown";
+                        removedUsings.Add(usingName);
+                        var newRoot = root!.RemoveNode(unused, SyntaxRemoveOptions.KeepNoTrivia);
+                        if (newRoot != null)
+                            root = newRoot;
                     }
                     usings = usings.Except(unusedUsings).ToList();
                 }
@@ -63,7 +66,7 @@ namespace DotNetAnalyzer.Core.Roslyn.ImportManagement
                     var lastUsing = usings.Last();
 
                     // 移除所有现有的 using
-                    var newRoot = root.RemoveNodes(usings, SyntaxRemoveOptions.KeepNoTrivia);
+                    var newRoot = root!.RemoveNodes(usings, SyntaxRemoveOptions.KeepNoTrivia);
                     if (newRoot == null)
                     {
                         return new ImportOrganizationResult
@@ -126,7 +129,8 @@ namespace DotNetAnalyzer.Core.Roslyn.ImportManagement
         /// </summary>
         private bool IsUsingUsed(SemanticModel semanticModel, UsingDirectiveSyntax usingDirective)
         {
-            var symbolInfo = semanticModel.GetSymbolInfo(usingDirective.Name);
+            var name = usingDirective.Name ?? throw new ArgumentNullException(nameof(usingDirective));
+            var symbolInfo = semanticModel.GetSymbolInfo(name);
             if (symbolInfo.Symbol == null)
                 return true; // 保守策略：如果无法确定，保留
 
@@ -147,14 +151,14 @@ namespace DotNetAnalyzer.Core.Roslyn.ImportManagement
             if (sortStyle == ImportSortStyle.SystemFirst)
             {
                 return usings
-                    .OrderBy(u => u.Name.ToString().StartsWith("System") ? 0 : 1)
-                    .ThenBy(u => u.Name.ToString())
+                    .OrderBy(u => u.Name?.ToString().StartsWith("System") ?? false ? 0 : 1)
+                    .ThenBy(u => u.Name?.ToString() ?? string.Empty)
                     .ToList();
             }
             else // Alphabetical
             {
                 return usings
-                    .OrderBy(u => u.Name.ToString())
+                    .OrderBy(u => u.Name?.ToString() ?? string.Empty)
                     .ToList();
             }
         }
@@ -172,7 +176,8 @@ namespace DotNetAnalyzer.Core.Roslyn.ImportManagement
 
             for (int i = 0; i < usings.Count; i++)
             {
-                var currentIsSystem = usings[i].Name.ToString().StartsWith("System");
+                var name = usings[i].Name?.ToString() ?? string.Empty;
+                var currentIsSystem = name.StartsWith("System");
 
                 if (i > 0 && currentIsSystem != inSystemGroup)
                 {

@@ -3,7 +3,7 @@
 > 一个强大的 MCP (Model Context Protocol) 服务器工具，将 Roslyn 的代码分析能力引入 Claude Code
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/8.0)
-[![NuGet](https://img.shields.io/badge/nuget-0.6.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
+[![NuGet](https://img.shields.io/badge/nuget-0.6.1-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 📖 简介
@@ -29,7 +29,15 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 ## 🎯 核心功能
 
-**当前版本 (v0.6.0)** 提供 **22 个 MCP 工具**，支持强命名：
+**当前版本 (v0.6.1)** 提供 **22 个 MCP 工具**，支持强命名：
+
+### ✨ v0.6.1 新特性
+
+**CI/CD 优化：**
+- **多平台构建支持** - Ubuntu、Windows、macOS 并行测试，确保跨平台兼容性
+- **NuGet 包缓存** - 使用 actions/cache@v4 加速依赖还原，节省 30-60 秒
+- **智能缓存恢复** - 基于项目文件哈希，支持部分匹配，优化 CI 免费额度使用
+- **性能测试阈值优化** - 调整 CI 环境阈值，适应 GitHub Actions 共享资源
 
 ### ✨ v0.6.0 新特性
 

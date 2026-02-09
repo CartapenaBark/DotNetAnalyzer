@@ -15,7 +15,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-analyzer</ToolCommandName>
     <PackageId>DotNetAnalyzer</PackageId>
-    <Version>0.6.0</Version>
+    <Version>0.6.1</Version>
     <Authors>CartapenaBark</Authors>
     <Description>MCP server for .NET code analysis with Roslyn</Description>
     <PackageTags>mcp;roslyn;code-analysis;claude;dotnet</PackageTags>
@@ -25,6 +25,24 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes><![CDATA[
+      v0.6.1 - CI/CD Optimization & Multi-Platform Support
+
+      CI/CD 优化：
+      - ✨ 多平台构建支持 - Ubuntu、Windows、macOS 并行测试
+      - ✨ NuGet 包缓存 - 使用 actions/cache@v4 加速依赖还原
+      - 🚀 智能缓存恢复 - 基于项目文件哈希，支持部分匹配
+      - 📈 CI 性能测试阈值优化 - 适应 GitHub Actions 环境
+
+      性能提升：
+      - 首次构建：正常下载依赖（~30-60秒）
+      - 缓存命中：直接恢复（~1-2秒）
+      - 部分变化：增量下载（~10-20秒）
+
+      技术细节：
+      - GitHub Actions matrix 策略
+      - 跨平台兼容性验证
+      - 190 个测试全部通过
+
       v0.6.0 - Architecture Improvements & Build Optimization
 
       架构优化：

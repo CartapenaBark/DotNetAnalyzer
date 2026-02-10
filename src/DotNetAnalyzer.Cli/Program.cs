@@ -11,12 +11,39 @@ namespace DotNetAnalyzer.Cli;
 
 class Program
 {
+    private const string Version = "0.6.1";
+
     static async Task Main(string[] args)
     {
+        // 处理命令行参数
+        if (args.Length > 0)
+        {
+            switch (args[0])
+            {
+                case "--version":
+                case "-v":
+                    Console.WriteLine("dotnet-analyzer version " + Version);
+                    return;
+                case "--help":
+                case "-h":
+                    ShowHelp();
+                    return;
+                case "mcp":
+                    // MCP serve 子命令（默认行为）
+                    if (args.Length > 1 && args[1] == "serve")
+                    {
+                        // 继续执行 MCP 服务器启动
+                        args = args.Skip(2).ToArray();
+                    }
+                    break;
+            }
+        }
+
         var builder = Host.CreateApplicationBuilder(args);
 
         // 添加配置支持
-        builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+        // 注意：appsettings.json 设为可选，以便 CLI 工具可以在任何目录运行（如 MCP 服务器）
+        builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
         builder.Configuration.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
 
         // 配置日志
@@ -42,5 +69,27 @@ class Program
             .WithToolsFromAssembly();
 
         await builder.Build().RunAsync();
+    }
+
+    private static void ShowHelp()
+    {
+        Console.WriteLine("DotNetAnalyzer - .NET MCP Server for Claude Code");
+        Console.WriteLine("Version: " + Version);
+        Console.WriteLine();
+        Console.WriteLine("Usage:");
+        Console.WriteLine("  dotnet-analyzer [options] [command]");
+        Console.WriteLine();
+        Console.WriteLine("Options:");
+        Console.WriteLine("  -v, --version     Show version information");
+        Console.WriteLine("  -h, --help        Show help information");
+        Console.WriteLine();
+        Console.WriteLine("Commands:");
+        Console.WriteLine("  mcp serve         Start MCP server (default)");
+        Console.WriteLine();
+        Console.WriteLine("When run without options, dotnet-analyzer starts as an MCP server");
+        Console.WriteLine("and waits for stdio input (for use with Claude Code).");
+        Console.WriteLine();
+        Console.WriteLine("For more information, visit:");
+        Console.WriteLine("  https://github.com/yourusername/DotNetAnalyzer");
     }
 }

@@ -15,9 +15,8 @@
 
 ### 私密报告漏洞
 
-1. **发送邮件**至项目维护者：paradox0520@outlook.com
-2. **在邮件主题中注明** `[SECURITY]` - 漏洞简要描述
-3. **在邮件正文中包含**：
+1. 通过 GitHub 的 **Private vulnerability reporting** 功能报告
+2. **在报告中包含**：
    - 漏洞的详细描述
    - 受影响的版本
    - 重现步骤
@@ -114,5 +113,3 @@ dotnet nuget verify DotNetAnalyzer.Core.x.y.z.nupkg
 ---
 
 **最后更新**：2026年2月
-
-如果您对本安全政策有任何疑问，请联系 paradox0520@outlook.com

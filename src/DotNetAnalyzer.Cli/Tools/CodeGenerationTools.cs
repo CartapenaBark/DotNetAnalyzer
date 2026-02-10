@@ -72,7 +72,6 @@ public static class CodeGenerationTools
     {
         try
         {
-            var generator = new ConstructorGenerator();
             var fieldInfos = fields.Select(f =>
             {
                 var parts = f.Split(' ');
@@ -84,7 +83,7 @@ public static class CodeGenerationTools
                 };
             }).ToList();
 
-            var constructor = generator.GenerateConstructor(className, fieldInfos, baseCall);
+            var constructor = ConstructorGenerator.GenerateConstructor(className, fieldInfos, baseCall);
 
             return JsonSerializer.Serialize(new
             {

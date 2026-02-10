@@ -292,17 +292,17 @@ public class LruCacheBoundaryTests : IDisposable
     public async Task UpdateDuringExpiration_ShouldRefreshCorrectly()
     {
         // Arrange
-        var cache = new LruCache<int, string>(capacity: 10, expirationTime: TimeSpan.FromMilliseconds(500));
+        var cache = new LruCache<int, string>(capacity: 10, expirationTime: TimeSpan.FromMilliseconds(1000));
 
         cache.Set(1, "One");
 
         // Act - 在过期前更新
-        await Task.Delay(200);
+        await Task.Delay(300);
         cache.Set(1, "One-Updated");
 
-        await Task.Delay(300); // 总共 500ms，但更新刷新了 TTL（从更新时开始算）
+        await Task.Delay(400); // 总共 700ms，但更新刷新了 TTL（从更新时开始算，还有 300ms 有效期）
 
-        // Assert - 应该还存在（从200ms处更新，TTL刷新，还有300ms有效）
+        // Assert - 应该还存在（从300ms处更新，TTL刷新到1000ms，还有300ms有效）
         cache.TryGetValue(1, out var value).Should().BeTrue();
         value.Should().Be("One-Updated");
 

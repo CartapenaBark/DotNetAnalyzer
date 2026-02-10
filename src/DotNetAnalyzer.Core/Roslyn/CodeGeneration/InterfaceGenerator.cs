@@ -93,7 +93,7 @@ public class InterfaceGenerator
     /// <summary>
     /// 生成方法实现
     /// </summary>
-    private string GenerateMethod(IMethodSymbol method, string indent, bool generateStub)
+    private static string GenerateMethod(IMethodSymbol method, string indent, bool generateStub)
     {
         var modifiers = "public ";
         if (method.IsAsync)
@@ -128,7 +128,7 @@ public class InterfaceGenerator
     /// <summary>
     /// 生成属性实现
     /// </summary>
-    private string GenerateProperty(IPropertySymbol property, string indent, bool generateStub)
+    private static string GenerateProperty(IPropertySymbol property, string indent, bool generateStub)
     {
         var modifiers = "public ";
         var propertyType = property.Type.ToDisplayString();
@@ -157,7 +157,7 @@ public class InterfaceGenerator
     /// <summary>
     /// 生成事件实现
     /// </summary>
-    private string GenerateEvent(IEventSymbol @event, string indent, bool generateStub)
+    private static string GenerateEvent(IEventSymbol @event, string indent, bool generateStub)
     {
         var eventType = @event.Type.ToDisplayString();
         var eventName = @event.Name;

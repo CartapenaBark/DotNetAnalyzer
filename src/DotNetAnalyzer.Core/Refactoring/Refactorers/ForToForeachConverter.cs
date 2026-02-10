@@ -13,18 +13,45 @@ namespace DotNetAnalyzer.Core.Refactoring.Refactorers;
 [Refactorer("convert_for_to_foreach", "For转Foreach", "Statement", "将for循环转换为foreach循环")]
 public sealed class ForToForeachConverter : IRefactorer
 {
+    private const string DefaultCollectionName = "collection";
+    private const string DefaultItemName = "item";
+
     private readonly IRefactoringValidator _validator;
 
+    /// <summary>
+    /// 获取重构器名称
+    /// </summary>
     public string Name => "convert_for_to_foreach";
+
+    /// <summary>
+    /// 获取重构器显示名称
+    /// </summary>
     public string DisplayName => "For转Foreach";
+
+    /// <summary>
+    /// 获取重构器描述
+    /// </summary>
     public string Description => "将for循环转换为foreach循环";
+
+    /// <summary>
+    /// 获取重构器分类
+    /// </summary>
     public string Category => "Statement";
 
+    /// <summary>
+    /// 初始化 ForToForeachConverter 类的新实例
+    /// </summary>
+    /// <param name="validator">重构验证器,用于验证重构操作的可行性</param>
     public ForToForeachConverter(IRefactoringValidator? validator = null)
     {
         _validator = validator ?? new RefactoringValidator();
     }
 
+    /// <summary>
+    /// 分析for循环并生成转换为foreach的预览
+    /// </summary>
+    /// <param name="context">重构上下文,包含文档、语义模型等信息</param>
+    /// <returns>包含重构预览的结果对象</returns>
     public async Task<Result<RefactoringPreview>> AnalyzeAsync(RefactoringContext context)
     {
         if (!context.SymbolLocation.HasValue)
@@ -32,7 +59,13 @@ public sealed class ForToForeachConverter : IRefactorer
             return Result<RefactoringPreview>.Failure(RefactoringErrorCode.INVALID_SELECTION, "请选择for循环");
         }
 
-        var forLoop = context.Root.FindNode(context.SymbolLocation.Value.Span) as ForStatementSyntax;
+        // 从行列号创建 TextSpan
+        var (line, column) = context.SymbolLocation.Value;
+        var textLine = context.Root.SyntaxTree.GetText().Lines[line];
+        var position = textLine.Start + column;
+        var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
+
+        var forLoop = context.Root.FindNode(span) as ForStatementSyntax;
         if (forLoop == null)
         {
             return Result<RefactoringPreview>.Failure(RefactoringErrorCode.INVALID_SELECTION, "所选内容不是for循环");
@@ -65,6 +98,12 @@ public sealed class ForToForeachConverter : IRefactorer
         return Result<RefactoringPreview>.Success(preview);
     }
 
+    /// <summary>
+    /// 应用重构预览到文档
+    /// </summary>
+    /// <param name="context">重构上下文</param>
+    /// <param name="preview">重构预览对象</param>
+    /// <returns>表示操作结果的任务</returns>
     public async Task<Result> ApplyAsync(RefactoringContext context, RefactoringPreview preview)
     {
         try
@@ -87,11 +126,17 @@ public sealed class ForToForeachConverter : IRefactorer
         }
     }
 
-    private string GenerateForeachFromFor(ForStatementSyntax forLoop, SemanticModel semanticModel)
+    /// <summary>
+    /// 从for循环生成foreach循环代码
+    /// </summary>
+    /// <param name="forLoop">要转换的for循环语法节点</param>
+    /// <param name="semanticModel">语义模型,用于类型推断</param>
+    /// <returns>生成的foreach循环代码字符串</returns>
+    private static string GenerateForeachFromFor(ForStatementSyntax forLoop, SemanticModel semanticModel)
     {
-        // 简化实现：假设标准数组/集合遍历模式
-        var collectionName = "collection"; // 需要从条件中提取
-        var varName = "item"; // 需要从声明中提取
+        // 简化实现:假设标准数组/集合遍历模式
+        var collectionName = DefaultCollectionName; // 需要从条件中提取
+        var varName = DefaultItemName; // 需要从声明中提取
 
         return $"foreach (var {varName} in {collectionName})\r\n{{\r\n{forLoop.Statement}\r\n}}";
     }

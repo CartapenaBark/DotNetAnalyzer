@@ -38,6 +38,7 @@ public sealed class AsRemover : IRefactorer
     /// <summary>
     /// 创建AS转换移除重构器
     /// </summary>
+    /// <param name="validator">重构验证器,用于验证重构操作的可行性</param>
     public AsRemover(IRefactoringValidator? validator = null)
     {
         _validator = validator ?? new RefactoringValidator();
@@ -46,6 +47,8 @@ public sealed class AsRemover : IRefactorer
     /// <summary>
     /// 分析重构可行性并生成预览
     /// </summary>
+    /// <param name="context">重构上下文,包含文档、语义模型等信息</param>
+    /// <returns>包含重构预览的结果对象</returns>
     public async Task<Result<RefactoringPreview>> AnalyzeAsync(RefactoringContext context)
     {
         // 1. 获取as表达式
@@ -56,7 +59,13 @@ public sealed class AsRemover : IRefactorer
                 "请指定要移除的as表达式位置");
         }
 
-        var expressionNode = context.Root.FindNode(context.SymbolLocation.Value.Span);
+        // 从行列号创建 TextSpan
+        var (line, column) = context.SymbolLocation.Value;
+        var textLine = context.Root.SyntaxTree.GetText().Lines[line];
+        var position = textLine.Start + column;
+        var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
+
+        var expressionNode = context.Root.FindNode(span);
         if (expressionNode is not BinaryExpressionSyntax binaryExpression ||
             binaryExpression.Kind() != SyntaxKind.AsExpression)
         {
@@ -148,15 +157,15 @@ public sealed class AsRemover : IRefactorer
         var filePath = context.Document.FilePath ?? throw new InvalidOperationException("Document file path cannot be null");
 
         // 如果父节点是比较表达式，替换整个比较
-        if (parent is BinaryExpressionSyntax parentBinary &&
-            (parentBinary.Kind() == SyntaxKind.EqualsExpression ||
-             parentBinary.Kind() == SyntaxKind.NotEqualsExpression))
+        if (parent is BinaryExpressionSyntax parentComparison &&
+            (parentComparison.Kind() == SyntaxKind.EqualsExpression ||
+             parentComparison.Kind() == SyntaxKind.NotEqualsExpression))
         {
             changes.Add(CodeChange.Replace(
                 filePath,
-                parentBinary.Span,
+                parentComparison.Span,
                 replacementExpression,
-                "替换as表达式为is检查"));
+                "移除as表达式并替换为is表达式或直接转换"));
         }
         else
         {
@@ -182,6 +191,9 @@ public sealed class AsRemover : IRefactorer
     /// <summary>
     /// 应用重构变更
     /// </summary>
+    /// <param name="context">重构上下文</param>
+    /// <param name="preview">重构预览对象</param>
+    /// <returns>表示操作结果的任务</returns>
     public async Task<Result> ApplyAsync(RefactoringContext context, RefactoringPreview preview)
     {
         try

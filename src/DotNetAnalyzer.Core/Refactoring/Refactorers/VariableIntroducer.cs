@@ -184,7 +184,7 @@ public sealed class VariableIntroducer : IRefactorer
     /// <summary>
     /// 查找指定位置的表达式
     /// </summary>
-    private ExpressionSyntax? FindExpressionAtPosition(
+    private static ExpressionSyntax? FindExpressionAtPosition(
         RefactoringContext context,
         int line,
         int column)
@@ -278,7 +278,7 @@ public sealed class VariableIntroducer : IRefactorer
     /// <summary>
     /// 转换为驼峰命名
     /// </summary>
-    private string ToCamelCase(string text)
+    private static string ToCamelCase(string text)
     {
         if (string.IsNullOrEmpty(text))
             return text;
@@ -292,7 +292,7 @@ public sealed class VariableIntroducer : IRefactorer
     /// <summary>
     /// 确定变量声明的插入位置
     /// </summary>
-    private int? DetermineInsertPosition(
+    private static int? DetermineInsertPosition(
         RefactoringContext context,
         ExpressionSyntax expression)
     {
@@ -316,7 +316,7 @@ public sealed class VariableIntroducer : IRefactorer
     /// <summary>
     /// 生成变量声明
     /// </summary>
-    private string GenerateVariableDeclaration(
+    private static string GenerateVariableDeclaration(
         string variableName,
         string variableType,
         ExpressionSyntax expression)

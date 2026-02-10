@@ -10,7 +10,14 @@ public class PropertyGenerator
     /// <summary>
     /// 生成属性
     /// </summary>
-    public string GenerateProperty(
+    /// <param name="propertyType">属性类型</param>
+    /// <param name="propertyName">属性名称</param>
+    /// <param name="hasBackingField">是否有后备字段</param>
+    /// <param name="hasGetter">是否有getter</param>
+    /// <param name="hasSetter">是否有setter</param>
+    /// <param name="isReadOnly">是否只读</param>
+    /// <returns>生成的属性代码</returns>
+    public static string GenerateProperty(
         string propertyType,
         string propertyName,
         bool hasBackingField = false,

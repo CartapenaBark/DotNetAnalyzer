@@ -15,16 +15,40 @@ public sealed class ForeachToForConverter : IRefactorer
 {
     private readonly IRefactoringValidator _validator;
 
+    /// <summary>
+    /// 获取重构器名称
+    /// </summary>
     public string Name => "convert_foreach_to_for";
+
+    /// <summary>
+    /// 获取重构器显示名称
+    /// </summary>
     public string DisplayName => "Foreach转For";
+
+    /// <summary>
+    /// 获取重构器描述
+    /// </summary>
     public string Description => "将foreach循环转换为for循环";
+
+    /// <summary>
+    /// 获取重构器分类
+    /// </summary>
     public string Category => "Statement";
 
+    /// <summary>
+    /// 初始化 ForeachToForConverter 类的新实例
+    /// </summary>
+    /// <param name="validator">重构验证器,用于验证重构操作的可行性</param>
     public ForeachToForConverter(IRefactoringValidator? validator = null)
     {
         _validator = validator ?? new RefactoringValidator();
     }
 
+    /// <summary>
+    /// 分析foreach循环并生成转换为for的预览
+    /// </summary>
+    /// <param name="context">重构上下文,包含文档、语义模型等信息</param>
+    /// <returns>包含重构预览的结果对象</returns>
     public async Task<Result<RefactoringPreview>> AnalyzeAsync(RefactoringContext context)
     {
         if (!context.SymbolLocation.HasValue)
@@ -32,7 +56,13 @@ public sealed class ForeachToForConverter : IRefactorer
             return Result<RefactoringPreview>.Failure(RefactoringErrorCode.INVALID_SELECTION, "请选择foreach循环");
         }
 
-        var foreachLoop = context.Root.FindNode(context.SymbolLocation.Value.Span) as ForEachStatementSyntax;
+        // 从行列号创建 TextSpan
+        var (line, column) = context.SymbolLocation.Value;
+        var textLine = context.Root.SyntaxTree.GetText().Lines[line];
+        var position = textLine.Start + column;
+        var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
+
+        var foreachLoop = context.Root.FindNode(span) as ForEachStatementSyntax;
         if (foreachLoop == null)
         {
             return Result<RefactoringPreview>.Failure(RefactoringErrorCode.INVALID_SELECTION, "所选内容不是foreach循环");
@@ -56,6 +86,12 @@ public sealed class ForeachToForConverter : IRefactorer
         return Result<RefactoringPreview>.Success(preview);
     }
 
+    /// <summary>
+    /// 应用重构预览到文档
+    /// </summary>
+    /// <param name="context">重构上下文</param>
+    /// <param name="preview">重构预览对象</param>
+    /// <returns>表示操作结果的任务</returns>
     public async Task<Result> ApplyAsync(RefactoringContext context, RefactoringPreview preview)
     {
         try
@@ -78,7 +114,12 @@ public sealed class ForeachToForConverter : IRefactorer
         }
     }
 
-    private string GenerateForFromForeach(ForEachStatementSyntax foreachLoop)
+    /// <summary>
+    /// 从foreach循环生成for循环代码
+    /// </summary>
+    /// <param name="foreachLoop">要转换的foreach循环语法节点</param>
+    /// <returns>生成的for循环代码字符串</returns>
+    private static string GenerateForFromForeach(ForEachStatementSyntax foreachLoop)
     {
         var varName = foreachLoop.Identifier.ValueText;
         var collection = foreachLoop.Expression.ToString();

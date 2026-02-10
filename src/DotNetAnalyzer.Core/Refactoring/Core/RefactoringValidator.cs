@@ -11,12 +11,10 @@ namespace DotNetAnalyzer.Core.Refactoring.Core;
 /// <summary>
 /// 重构验证器实现
 /// </summary>
-public sealed class RefactoringValidator : IRefactoringValidator
+public sealed partial class RefactoringValidator : IRefactoringValidator
 {
     // C# 标识符正则表达式
-    private static readonly Regex IdentifierRegex = new(
-        @"^[@]?[a-zA-Z_][a-zA-Z0-9_]*$",
-        RegexOptions.Compiled);
+    private static readonly Regex IdentifierRegex = MyRegex();
 
     /// <summary>
     /// 验证选择范围
@@ -159,7 +157,7 @@ public sealed class RefactoringValidator : IRefactoringValidator
     /// <summary>
     /// 检查节点是否在单个方法内
     /// </summary>
-    private bool IsWithinSingleMethod(SyntaxNode node)
+    private static bool IsWithinSingleMethod(SyntaxNode node)
     {
         var method = node.Ancestors()
             .OfType<MethodDeclarationSyntax>()
@@ -170,4 +168,7 @@ public sealed class RefactoringValidator : IRefactoringValidator
 
         return method.Span.Contains(node.Span);
     }
+
+    [GeneratedRegex(@"^[@]?[a-zA-Z_][a-zA-Z0-9_]*$", RegexOptions.Compiled)]
+    private static partial Regex MyRegex();
 }

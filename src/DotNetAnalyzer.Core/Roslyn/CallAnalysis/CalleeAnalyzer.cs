@@ -29,10 +29,15 @@ public class CalleeAnalyzer
     {
         var semanticModel = await document.GetSemanticModelAsync();
         var root = await document.GetSyntaxRootAsync();
-        var location = root.GetLocation(new TextLine(line, column));
+        if (root == null) return new CalleeAnalysisResult { Callees = new List<CalleeInfo>(), CallTree = new CallTreeNode() };
+
+        // 获取指定位置的文本跨度
+        var textLine = root.SyntaxTree.GetText().Lines[line];
+        var position = textLine.Start + column;
+        var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
 
         // 获取方法符号
-        var node = root.FindNode(location.SourceSpan);
+        var node = root.FindNode(span);
         var methodSymbol = semanticModel.GetSymbolInfo(node).Symbol as IMethodSymbol;
 
         if (methodSymbol == null)
@@ -106,7 +111,7 @@ public class CalleeAnalyzer
     /// <summary>
     /// 获取方法声明节点
     /// </summary>
-    private async Task<MethodDeclarationSyntax> GetMethodDeclarationNodeAsync(
+    private static async Task<MethodDeclarationSyntax> GetMethodDeclarationNodeAsync(
         Document document,
         IMethodSymbol methodSymbol)
     {
@@ -123,7 +128,7 @@ public class CalleeAnalyzer
     /// <summary>
     /// 扁平化调用树
     /// </summary>
-    private List<CalleeInfo> FlattenCallTree(CallTreeNode tree)
+    private static List<CalleeInfo> FlattenCallTree(CallTreeNode tree)
     {
         var callees = new List<CalleeInfo>();
 
@@ -131,9 +136,15 @@ public class CalleeAnalyzer
         {
             var calleeInfo = new CalleeInfo
             {
-                Method = child.Method,
+                Method = new Models.CallAnalysis.SymbolInfo
+                {
+                    Name = child.Method,
+                    Kind = "Method",
+                    ContainingType = "",
+                    Namespace = ""
+                },
                 CallCount = 1, // 简化实现
-                CallSites = new List<SymbolLocation>()
+                CallSites = new List<SourceLocation>()
             };
 
             callees.Add(calleeInfo);

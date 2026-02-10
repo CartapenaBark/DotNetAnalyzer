@@ -39,6 +39,8 @@ public sealed class ParameterAdder : IRefactorer
     /// <summary>
     /// 创建参数添加重构器
     /// </summary>
+    /// <param name="validator">重构验证器,用于验证重构操作的可行性</param>
+    /// <param name="dependencyAnalyzer">依赖分析器,用于分析方法的引用关系</param>
     public ParameterAdder(
         IRefactoringValidator? validator = null,
         IDependencyAnalyzer? dependencyAnalyzer = null)
@@ -50,6 +52,8 @@ public sealed class ParameterAdder : IRefactorer
     /// <summary>
     /// 分析重构可行性并生成预览
     /// </summary>
+    /// <param name="context">重构上下文,包含文档、语义模型等信息</param>
+    /// <returns>包含重构预览的结果对象</returns>
     public async Task<Result<RefactoringPreview>> AnalyzeAsync(RefactoringContext context)
     {
         // 1. 获取方法声明
@@ -60,7 +64,13 @@ public sealed class ParameterAdder : IRefactorer
                 "请指定要添加参数的方法位置");
         }
 
-        var methodNode = context.Root.FindNode(context.SymbolLocation.Value.Span);
+        // 从行列号创建 TextSpan
+        var (line, column) = context.SymbolLocation.Value;
+        var textLine = context.Root.SyntaxTree.GetText().Lines[line];
+        var position = textLine.Start + column;
+        var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
+
+        var methodNode = context.Root.FindNode(span);
         if (methodNode is not MethodDeclarationSyntax methodDeclaration)
         {
             return Result<RefactoringPreview>.Failure(
@@ -124,8 +134,8 @@ public sealed class ParameterAdder : IRefactorer
 
         // 8. 分析所有调用点
         var references = await _dependencyAnalyzer.FindReferencesAsync(
-            context.Solution,
-            methodSymbol);
+            methodSymbol,
+            context.Solution);
 
         // 9. 生成新的方法声明
         var newMethodDeclaration = GenerateNewMethodDeclaration(
@@ -149,10 +159,12 @@ public sealed class ParameterAdder : IRefactorer
         // 更新所有调用点
         foreach (var reference in references)
         {
-            if (reference.Location.IsInSource && reference.Location.SourceTree != null)
+            if (!reference.IsDefinition && reference.Document != null)
             {
-                var refNode = reference.Location.SourceTree.GetRoot()
-                    .FindNode(reference.Location.SourceSpan);
+                var root = await reference.Document.GetSyntaxRootAsync();
+                if (root == null) continue;
+
+                var refNode = root.FindNode(reference.Span);
 
                 if (refNode is InvocationExpressionSyntax invocation)
                 {
@@ -165,8 +177,8 @@ public sealed class ParameterAdder : IRefactorer
                     if (!string.IsNullOrEmpty(updatedInvocation))
                     {
                         changes.Add(CodeChange.Replace(
-                            reference.Location.SourceTree.FilePath,
-                            reference.Location.SourceSpan,
+                            reference.FilePath,
+                            reference.Span,
                             updatedInvocation,
                             "更新方法调用参数"));
                     }
@@ -234,7 +246,7 @@ public sealed class ParameterAdder : IRefactorer
     /// <summary>
     /// 生成新的方法声明
     /// </summary>
-    private string GenerateNewMethodDeclaration(
+    private static string GenerateNewMethodDeclaration(
         MethodDeclarationSyntax methodDeclaration,
         string paramType,
         string paramName,
@@ -300,7 +312,7 @@ public sealed class ParameterAdder : IRefactorer
     /// <summary>
     /// 获取参数类型的默认值
     /// </summary>
-    private string GetDefaultValueForType(string paramName)
+    private static string GetDefaultValueForType(string paramName)
     {
         // 简化实现：根据参数名推断类型
         if (paramName.StartsWith("is", StringComparison.OrdinalIgnoreCase))

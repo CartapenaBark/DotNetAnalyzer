@@ -44,7 +44,7 @@ public class UnusedImportRemover
     /// <summary>
     /// 检查using是否被使用
     /// </summary>
-    private bool IsUsingUsed(SemanticModel semanticModel, SyntaxNode root, UsingDirectiveSyntax usingDirective)
+    private static bool IsUsingUsed(SemanticModel semanticModel, SyntaxNode root, UsingDirectiveSyntax usingDirective)
     {
         var namespaceName = usingDirective.Name.ToString();
 

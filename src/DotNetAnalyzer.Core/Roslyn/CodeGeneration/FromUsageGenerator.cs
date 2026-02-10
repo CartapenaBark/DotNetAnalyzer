@@ -21,10 +21,15 @@ public class FromUsageGenerator
     {
         var semanticModel = await document.GetSemanticModelAsync();
         var root = await document.GetSyntaxRootAsync();
-        var sourceLocation = root.GetLocation(new TextLine(line, column));
+        if (root == null) return string.Empty;
+
+        // 获取指定位置的文本跨度
+        var textLine = root.SyntaxTree.GetText().Lines[line];
+        var position = textLine.Start + column;
+        var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
 
         // 查找使用位置的符号
-        var node = root.FindNode(sourceLocation.SourceSpan);
+        var node = root.FindNode(span);
         var symbolInfo = semanticModel.GetSymbolInfo(node);
 
         if (symbolInfo.Symbol == null)
@@ -60,7 +65,7 @@ public class FromUsageGenerator
     /// <summary>
     /// 生成类声明
     /// </summary>
-    private string GenerateClass(string className)
+    private static string GenerateClass(string className)
     {
         return $@"    public class {className}
     {{
@@ -71,7 +76,7 @@ public class FromUsageGenerator
     /// <summary>
     /// 生成接口声明
     /// </summary>
-    private string GenerateInterface(string interfaceName)
+    private static string GenerateInterface(string interfaceName)
     {
         return $@"    public interface {interfaceName}
     {{
@@ -82,7 +87,7 @@ public class FromUsageGenerator
     /// <summary>
     /// 生成方法声明
     /// </summary>
-    private string GenerateMethod(string methodName, SemanticModel semanticModel, SyntaxNode context)
+    private static string GenerateMethod(string methodName, SemanticModel semanticModel, SyntaxNode context)
     {
         // 尝试从调用上下文推断参数
         var invocation = context.Ancestors().OfType<InvocationExpressionSyntax>().FirstOrDefault();
@@ -105,7 +110,7 @@ public class FromUsageGenerator
     /// <summary>
     /// 生成属性声明
     /// </summary>
-    private string GenerateProperty(string propertyName)
+    private static string GenerateProperty(string propertyName)
     {
         return $@"    public object {propertyName} {{ get; set; }}
 ";
@@ -114,7 +119,7 @@ public class FromUsageGenerator
     /// <summary>
     /// 生成字段声明
     /// </summary>
-    private string GenerateField(string fieldName)
+    private static string GenerateField(string fieldName)
     {
         return $@"    private object _{fieldName};
 ";

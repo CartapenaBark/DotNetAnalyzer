@@ -10,7 +10,7 @@ public class DeconstructorGenerator
     /// <summary>
     /// 生成解构函数
     /// </summary>
-    public string GenerateDeconstructor(
+    public static string GenerateDeconstructor(
         string className,
         List<ParameterInfo> parameters)
     {

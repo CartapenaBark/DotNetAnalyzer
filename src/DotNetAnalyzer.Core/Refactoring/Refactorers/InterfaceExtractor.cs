@@ -38,6 +38,7 @@ public sealed class InterfaceExtractor : IRefactorer
     /// <summary>
     /// 创建接口提取重构器
     /// </summary>
+    /// <param name="validator">重构验证器,用于验证重构操作的可行性</param>
     public InterfaceExtractor(IRefactoringValidator? validator = null)
     {
         _validator = validator ?? new RefactoringValidator();
@@ -46,6 +47,8 @@ public sealed class InterfaceExtractor : IRefactorer
     /// <summary>
     /// 分析重构可行性并生成预览
     /// </summary>
+    /// <param name="context">重构上下文,包含文档、语义模型等信息</param>
+    /// <returns>包含重构预览的结果对象</returns>
     public async Task<Result<RefactoringPreview>> AnalyzeAsync(RefactoringContext context)
     {
         // 1. 获取类声明
@@ -56,7 +59,13 @@ public sealed class InterfaceExtractor : IRefactorer
                 "请指定要提取接口的类位置");
         }
 
-        var classNode = context.Root.FindNode(context.SymbolLocation.Value.Span);
+        // 从行列号创建 TextSpan
+        var (line, column) = context.SymbolLocation.Value;
+        var textLine = context.Root.SyntaxTree.GetText().Lines[line];
+        var position = textLine.Start + column;
+        var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
+
+        var classNode = context.Root.FindNode(span);
         if (classNode is not TypeDeclarationSyntax typeDeclaration)
         {
             return Result<RefactoringPreview>.Failure(
@@ -180,6 +189,9 @@ public sealed class InterfaceExtractor : IRefactorer
     /// <summary>
     /// 应用重构变更
     /// </summary>
+    /// <param name="context">重构上下文</param>
+    /// <param name="preview">重构预览对象</param>
+    /// <returns>表示操作结果的任务</returns>
     public async Task<Result> ApplyAsync(RefactoringContext context, RefactoringPreview preview)
     {
         try
@@ -223,6 +235,11 @@ public sealed class InterfaceExtractor : IRefactorer
     /// <summary>
     /// 生成接口代码
     /// </summary>
+    /// <param name="interfaceName">接口名称</param>
+    /// <param name="className">原始类名</param>
+    /// <param name="members">要提取的成员列表</param>
+    /// <param name="options">语法解析选项</param>
+    /// <returns>生成的接口代码字符串</returns>
     private string GenerateInterface(
         string interfaceName,
         string className,
@@ -261,7 +278,9 @@ public sealed class InterfaceExtractor : IRefactorer
     /// <summary>
     /// 获取方法声明
     /// </summary>
-    private string GetMethodDeclaration(IMethodSymbol method)
+    /// <param name="method">方法符号</param>
+    /// <returns>生成的方法声明字符串</returns>
+    private static string GetMethodDeclaration(IMethodSymbol method)
     {
         var returnType = method.ReturnType.ToDisplayString();
         var parameters = string.Join(", ", method.Parameters.Select(p =>
@@ -281,7 +300,9 @@ public sealed class InterfaceExtractor : IRefactorer
     /// <summary>
     /// 获取属性声明
     /// </summary>
-    private string GetPropertyDeclaration(IPropertySymbol property)
+    /// <param name="property">属性符号</param>
+    /// <returns>生成的属性声明字符串</returns>
+    private static string GetPropertyDeclaration(IPropertySymbol property)
     {
         var modifiers = new List<string>();
 
@@ -308,7 +329,11 @@ public sealed class InterfaceExtractor : IRefactorer
     /// <summary>
     /// 生成类修改代码
     /// </summary>
-    private string GenerateClassModification(
+    /// <param name="typeDeclaration">类型声明语法节点</param>
+    /// <param name="interfaceName">接口名称</param>
+    /// <param name="implementedMembers">已实现的接口成员集合</param>
+    /// <returns>修改后的类声明字符串</returns>
+    private static string GenerateClassModification(
         TypeDeclarationSyntax typeDeclaration,
         string interfaceName,
         HashSet<string> implementedMembers)

@@ -29,10 +29,15 @@ public class CallGraphBuilder
     {
         var semanticModel = await document.GetSemanticModelAsync();
         var root = await document.GetSyntaxRootAsync();
-        var location = root.GetLocation(new TextLine(line, column));
+        if (root == null) return new CallGraphResult { Graph = new CallGraph { Nodes = new List<CallGraphNode>(), Edges = new List<CallGraphEdge>() }, Visualization = new CallGraphVisualization { Format = "dot", Content = "digraph CallGraph { }" } };
+
+        // 获取指定位置的文本跨度
+        var textLine = root.SyntaxTree.GetText().Lines[line];
+        var position = textLine.Start + column;
+        var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
 
         // 获取方法符号
-        var node = root.FindNode(location.SourceSpan);
+        var node = root.FindNode(span);
         var symbol = semanticModel.GetSymbolInfo(node).Symbol as IMethodSymbol;
 
         if (symbol == null)
@@ -121,7 +126,7 @@ public class CallGraphBuilder
                     From = GetMethodId(currentMethod),
                     To = calleeId,
                     CallCount = 1,
-                    CallKind = "direct"
+                    CallKind = CallKind.Direct
                 });
             }
         }
@@ -132,7 +137,7 @@ public class CallGraphBuilder
     /// <summary>
     /// 获取被调用者
     /// </summary>
-    private async Task<List<IMethodSymbol>> GetCalleesAsync(
+    private static async Task<List<IMethodSymbol>> GetCalleesAsync(
         Solution solution,
         IMethodSymbol method)
     {
@@ -177,26 +182,22 @@ public class CallGraphBuilder
     /// <summary>
     /// 创建节点
     /// </summary>
-    private CallGraphNode CreateNode(IMethodSymbol method)
+    private static CallGraphNode CreateNode(IMethodSymbol method)
     {
         var syntaxRef = method.DeclaringSyntaxReferences.FirstOrDefault();
-        var location = new SymbolLocation();
+        var location = new MethodLocation();
 
         if (syntaxRef != null)
         {
             var syntaxTree = syntaxRef.SyntaxTree;
             var span = syntaxRef.Span;
+            var lineSpan = syntaxTree.GetLineSpan(span);
 
-            location = new SymbolLocation
+            location = new MethodLocation
             {
                 FilePath = syntaxTree.FilePath ?? "",
-                Line = syntaxTree.GetLineSpan(span).StartLinePosition.Line,
-                Column = syntaxTree.GetLineSpan(span).StartLinePosition.Character,
-                Span = new Models.TextSpan
-                {
-                    Start = span.Start,
-                    Length = span.Length
-                }
+                StartLine = lineSpan.StartLinePosition.Line,
+                StartColumn = lineSpan.StartLinePosition.Character
             };
         }
 
@@ -212,7 +213,7 @@ public class CallGraphBuilder
     /// <summary>
     /// 获取方法ID
     /// </summary>
-    private string GetMethodId(IMethodSymbol method)
+    private static string GetMethodId(IMethodSymbol method)
     {
         return $"{method.ContainingType?.Name}.{method.Name}";
     }
@@ -236,7 +237,7 @@ public class CallGraphBuilder
     /// <summary>
     /// 计算圈复杂度
     /// </summary>
-    private int CalculateCyclomaticComplexity(CallGraphNode node, List<CallGraphEdge> outgoingEdges)
+    private static int CalculateCyclomaticComplexity(CallGraphNode node, List<CallGraphEdge> outgoingEdges)
     {
         // 简化实现：扇出度作为复杂度
         return outgoingEdges.Count + 1;
@@ -245,7 +246,7 @@ public class CallGraphBuilder
     /// <summary>
     /// 生成DOT可视化
     /// </summary>
-    private CallGraphVisualization GenerateDotVisualization(CallGraph graph)
+    private static CallGraphVisualization GenerateDotVisualization(CallGraph graph)
     {
         var dot = new System.Text.StringBuilder();
         dot.AppendLine("digraph CallGraph {");

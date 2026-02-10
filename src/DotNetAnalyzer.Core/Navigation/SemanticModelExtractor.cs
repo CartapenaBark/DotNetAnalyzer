@@ -103,7 +103,7 @@ public class SemanticModelExtractor
     /// <summary>
     /// 获取文件中的字符位置
     /// </summary>
-    private int GetPosition(Microsoft.CodeAnalysis.SyntaxTree syntaxTree,
+    private static int GetPosition(Microsoft.CodeAnalysis.SyntaxTree syntaxTree,
         int line, int column)
     {
         var lines = syntaxTree.GetText().Lines;
@@ -189,7 +189,7 @@ public class SemanticModelExtractor
     /// <summary>
     /// 映射符号信息
     /// </summary>
-    private Models.SymbolInfo MapSymbolInfo(ISymbol symbol)
+    private static Models.SymbolInfo MapSymbolInfo(ISymbol symbol)
     {
         var location = symbol.Locations.FirstOrDefault(l => l.IsInSource);
         return new Models.SymbolInfo
@@ -215,7 +215,7 @@ public class SemanticModelExtractor
     /// <summary>
     /// 映射类型信息
     /// </summary>
-    private Models.TypeInfo MapTypeInfo(ITypeSymbol typeSymbol)
+    private static Models.TypeInfo MapTypeInfo(ITypeSymbol typeSymbol)
     {
         return new Models.TypeInfo
         {
@@ -262,7 +262,7 @@ public class SemanticModelExtractor
     /// <summary>
     /// 获取适用的扩展方法
     /// </summary>
-    private List<MethodSymbolInfo> GetExtensionMethods(
+    private static List<MethodSymbolInfo> GetExtensionMethods(
         SemanticModel semanticModel,
         int position)
     {
@@ -318,7 +318,7 @@ public class SemanticModelExtractor
     /// <summary>
     /// 获取转换信息
     /// </summary>
-    private List<ConversionInfo> GetConversions(
+    private static List<ConversionInfo> GetConversions(
         SemanticModel semanticModel,
         SyntaxNode root,
         int position)
@@ -350,7 +350,7 @@ public class SemanticModelExtractor
     /// <summary>
     /// 获取方法组信息
     /// </summary>
-    private MethodGroupInfo GetMethodGroupInfo(IMethodSymbol methodSymbol)
+    private static MethodGroupInfo GetMethodGroupInfo(IMethodSymbol methodSymbol)
     {
         return new MethodGroupInfo
         {
@@ -383,7 +383,7 @@ public class SemanticModelExtractor
     /// <summary>
     /// 获取可空信息
     /// </summary>
-    private NullableInfo GetNullableInfo(
+    private static NullableInfo GetNullableInfo(
         SemanticModel semanticModel,
         SyntaxNode root,
         int position)

@@ -12,7 +12,11 @@ public class ConstructorGenerator
     /// <summary>
     /// 生成构造函数
     /// </summary>
-    public string GenerateConstructor(
+    /// <param name="className">类名</param>
+    /// <param name="fields">字段信息列表</param>
+    /// <param name="baseConstructorCall">基类构造函数调用(可选)</param>
+    /// <returns>生成的构造函数代码</returns>
+    public static string GenerateConstructor(
         string className,
         List<FieldInfo> fields,
         string? baseConstructorCall = null)
@@ -48,6 +52,9 @@ public class ConstructorGenerator
     /// <summary>
     /// 字段信息
     /// </summary>
+    /// <remarks>
+    /// 用于存储字段类型、参数名和实际字段名之间的映射关系
+    /// </remarks>
     public class FieldInfo
     {
         public string Type { get; set; } = string.Empty;

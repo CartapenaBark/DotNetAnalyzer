@@ -162,7 +162,7 @@ public sealed class UnnecessaryCodeRemover : IRefactorer
     /// <summary>
     /// 查找未使用的using指令
     /// </summary>
-    private async Task<List<UsingDirectiveSyntax>> FindUnusedUsingsAsync(RefactoringContext context)
+    private static async Task<List<UsingDirectiveSyntax>> FindUnusedUsingsAsync(RefactoringContext context)
     {
         var unusedUsings = new List<UsingDirectiveSyntax>();
         var root = context.Root;
@@ -193,7 +193,7 @@ public sealed class UnnecessaryCodeRemover : IRefactorer
     /// <summary>
     /// 查找不可达代码
     /// </summary>
-    private async Task<List<SyntaxNode>> FindUnreachableCodeAsync(RefactoringContext context)
+    private static async Task<List<SyntaxNode>> FindUnreachableCodeAsync(RefactoringContext context)
     {
         var unreachableCode = new List<SyntaxNode>();
         var root = context.Root;
@@ -233,7 +233,7 @@ public sealed class UnnecessaryCodeRemover : IRefactorer
     /// <summary>
     /// 查找未使用的变量
     /// </summary>
-    private async Task<List<VariableDeclaratorSyntax>> FindUnusedVariablesAsync(RefactoringContext context)
+    private static async Task<List<VariableDeclaratorSyntax>> FindUnusedVariablesAsync(RefactoringContext context)
     {
         var unusedVariables = new List<VariableDeclaratorSyntax>();
         var root = context.Root;

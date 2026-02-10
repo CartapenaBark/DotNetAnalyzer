@@ -249,7 +249,7 @@ public sealed class RefactoringEngine : IRefactoringEngine
     /// <summary>
     /// 获取行范围
     /// </summary>
-    private TextSpan? GetLineSpan(SyntaxNode root, RefactoringLocation location)
+    private static TextSpan? GetLineSpan(SyntaxNode root, RefactoringLocation location)
     {
         try
         {

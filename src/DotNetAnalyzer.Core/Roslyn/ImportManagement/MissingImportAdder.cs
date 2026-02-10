@@ -72,7 +72,7 @@ public class MissingImportAdder
     /// <summary>
     /// 查找未解析的类型
     /// </summary>
-    private List<string> FindUnresolvedTypes(SemanticModel semanticModel, SyntaxNode root)
+    private static List<string> FindUnresolvedTypes(SemanticModel semanticModel, SyntaxNode root)
     {
         var unresolvedTypes = new List<string>();
 
@@ -94,7 +94,7 @@ public class MissingImportAdder
     /// <summary>
     /// 为类型建议命名空间
     /// </summary>
-    private string SuggestNamespaceForType(string typeName)
+    private static string SuggestNamespaceForType(string typeName)
     {
         // 常见类型映射
         var commonMappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)

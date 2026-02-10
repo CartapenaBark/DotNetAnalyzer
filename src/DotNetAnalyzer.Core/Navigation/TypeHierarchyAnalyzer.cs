@@ -75,7 +75,7 @@ public class TypeHierarchyAnalyzer
     /// <summary>
     /// 异步查找类型符号
     /// </summary>
-    private async Task<INamedTypeSymbol?> FindTypeSymbolAsync(
+    private static async Task<INamedTypeSymbol?> FindTypeSymbolAsync(
         Project project,
         string typeName)
     {
@@ -209,7 +209,7 @@ public class TypeHierarchyAnalyzer
     /// <summary>
     /// 获取实现的接口成员
     /// </summary>
-    private List<string> GetImplementedInterfaceMembers(
+    private static List<string> GetImplementedInterfaceMembers(
         INamedTypeSymbol typeSymbol,
         INamedTypeSymbol interfaceSymbol)
     {
@@ -232,7 +232,7 @@ public class TypeHierarchyAnalyzer
     /// <summary>
     /// 获取成员信息
     /// </summary>
-    private List<MemberInfo> GetMemberInfo(INamedTypeSymbol typeSymbol)
+    private static List<MemberInfo> GetMemberInfo(INamedTypeSymbol typeSymbol)
     {
         var members = new List<MemberInfo>();
 

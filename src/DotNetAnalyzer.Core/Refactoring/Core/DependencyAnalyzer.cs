@@ -81,8 +81,8 @@ public sealed class DependencyAnalyzer : IDependencyAnalyzer
 
         return new ControlFlowAnalysisResult
         {
-            ExitPoints = controlFlow.ExitPoints.Count(),
-            ReturnStatements = controlFlow.ReturnStatements.Count(),
+            ExitPoints = controlFlow.ExitPoints.Length,
+            ReturnStatements = controlFlow.ReturnStatements.Length,
             EndPointIsReachable = controlFlow.EndPointIsReachable,
             StartPointIsReachable = controlFlow.StartPointIsReachable
         };

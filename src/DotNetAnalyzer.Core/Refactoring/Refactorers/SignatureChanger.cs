@@ -60,7 +60,13 @@ public sealed class SignatureChanger : IRefactorer
                 "请指定要修改签名的方法位置");
         }
 
-        var methodNode = context.Root.FindNode(context.SymbolLocation.Value.Span);
+        // 从行列号创建 TextSpan
+        var (line, column) = context.SymbolLocation.Value;
+        var textLine = context.Root.SyntaxTree.GetText().Lines[line];
+        var position = textLine.Start + column;
+        var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
+
+        var methodNode = context.Root.FindNode(span);
         if (methodNode is not MethodDeclarationSyntax methodDeclaration)
         {
             return Result<RefactoringPreview>.Failure(
@@ -96,8 +102,8 @@ public sealed class SignatureChanger : IRefactorer
 
         // 5. 分析所有调用点
         var references = await _dependencyAnalyzer.FindReferencesAsync(
-            context.Solution,
-            methodSymbol);
+            methodSymbol,
+            context.Solution);
 
         // 6. 生成新的方法声明
         var newMethodDeclaration = GenerateNewMethodDeclaration(
@@ -119,10 +125,12 @@ public sealed class SignatureChanger : IRefactorer
         // 更新所有调用点
         foreach (var reference in references)
         {
-            if (reference.Location.IsInSource && reference.Location.SourceTree != null)
+            if (!reference.IsDefinition && reference.Document != null)
             {
-                var refNode = reference.Location.SourceTree.GetRoot()
-                    .FindNode(reference.Location.SourceSpan);
+                var root = await reference.Document.GetSyntaxRootAsync();
+                if (root == null) continue;
+
+                var refNode = root.FindNode(reference.Span);
 
                 if (refNode is InvocationExpressionSyntax invocation)
                 {
@@ -134,8 +142,8 @@ public sealed class SignatureChanger : IRefactorer
                     if (!string.IsNullOrEmpty(updatedInvocation))
                     {
                         changes.Add(CodeChange.Replace(
-                            reference.Location.SourceTree.FilePath,
-                            reference.Location.SourceSpan,
+                            reference.FilePath,
+                            reference.Span,
                             updatedInvocation,
                             "更新方法调用"));
                     }
@@ -202,7 +210,7 @@ public sealed class SignatureChanger : IRefactorer
     /// <summary>
     /// 生成新的方法声明
     /// </summary>
-    private string GenerateNewMethodDeclaration(
+    private static string GenerateNewMethodDeclaration(
         MethodDeclarationSyntax methodDeclaration,
         string[] newParameters,
         string? newReturnType)
@@ -286,7 +294,7 @@ public sealed class SignatureChanger : IRefactorer
     /// <summary>
     /// 获取类型的默认值
     /// </summary>
-    private string GetDefaultValueForType(string typeName)
+    private static string GetDefaultValueForType(string typeName)
     {
         return typeName switch
         {

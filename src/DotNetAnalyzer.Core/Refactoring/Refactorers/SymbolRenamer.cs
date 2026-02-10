@@ -210,7 +210,7 @@ public sealed class SymbolRenamer : IRefactorer
     /// <summary>
     /// 检查是否为只读符号
     /// </summary>
-    private bool IsReadOnlySymbol(ISymbol symbol)
+    private static bool IsReadOnlySymbol(ISymbol symbol)
     {
         return symbol.Kind switch
         {
@@ -225,7 +225,7 @@ public sealed class SymbolRenamer : IRefactorer
     /// <summary>
     /// 查找额外的出现位置（注释和字符串）
     /// </summary>
-    private async Task<List<CodeChange>> FindAdditionalOccurrencesAsync(
+    private static async Task<List<CodeChange>> FindAdditionalOccurrencesAsync(
         RefactoringContext context,
         string oldName,
         string newName,

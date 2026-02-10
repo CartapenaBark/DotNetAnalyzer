@@ -57,7 +57,7 @@ namespace DotNetAnalyzer.Core.Roslyn.Formatting
         /// <summary>
         /// 应用换行符转换
         /// </summary>
-        private string ApplyLineEndings(string code, NewLineStyle style)
+        private static string ApplyLineEndings(string code, NewLineStyle style)
         {
             if (style == NewLineStyle.Auto)
             {

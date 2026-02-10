@@ -91,7 +91,7 @@ public class DiffGenerator
     /// <summary>
     /// 生成差异块
     /// </summary>
-    private List<DiffHunk> GenerateHunks(
+    private static List<DiffHunk> GenerateHunks(
         string[] beforeLines,
         string[] afterLines,
         int contextLines)
@@ -150,7 +150,7 @@ public class DiffGenerator
     /// <summary>
     /// 统计添加的行数
     /// </summary>
-    private int CountAddedLines(string[] afterLines, string[] beforeLines)
+    private static int CountAddedLines(string[] afterLines, string[] beforeLines)
     {
         return Math.Max(0, afterLines.Length - beforeLines.Length);
     }
@@ -158,7 +158,7 @@ public class DiffGenerator
     /// <summary>
     /// 统计删除的行数
     /// </summary>
-    private int CountRemovedLines(string[] beforeLines, string[] afterLines)
+    private static int CountRemovedLines(string[] beforeLines, string[] afterLines)
     {
         return Math.Max(0, beforeLines.Length - afterLines.Length);
     }
@@ -166,7 +166,7 @@ public class DiffGenerator
     /// <summary>
     /// 统计修改的行数
     /// </summary>
-    private int CountModifiedLines(string[] beforeLines, string[] afterLines)
+    private static int CountModifiedLines(string[] beforeLines, string[] afterLines)
     {
         int count = 0;
         int minLines = Math.Min(beforeLines.Length, afterLines.Length);

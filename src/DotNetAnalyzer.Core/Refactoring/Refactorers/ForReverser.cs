@@ -13,18 +13,45 @@ namespace DotNetAnalyzer.Core.Refactoring.Refactorers;
 [Refactorer("reverse_for_statement", "反转For循环", "Statement", "反转for循环的遍历方向")]
 public sealed class ForReverser : IRefactorer
 {
+    private const string DefaultLoopVariable = "i";
+    private const string DefaultCollectionName = "collection";
+
     private readonly IRefactoringValidator _validator;
 
+    /// <summary>
+    /// 获取重构器名称
+    /// </summary>
     public string Name => "reverse_for_statement";
+
+    /// <summary>
+    /// 获取重构器显示名称
+    /// </summary>
     public string DisplayName => "反转For循环";
+
+    /// <summary>
+    /// 获取重构器描述
+    /// </summary>
     public string Description => "反转for循环的遍历方向";
+
+    /// <summary>
+    /// 获取重构器分类
+    /// </summary>
     public string Category => "Statement";
 
+    /// <summary>
+    /// 初始化 ForReverser 类的新实例
+    /// </summary>
+    /// <param name="validator">重构验证器,用于验证重构操作的可行性</param>
     public ForReverser(IRefactoringValidator? validator = null)
     {
         _validator = validator ?? new RefactoringValidator();
     }
 
+    /// <summary>
+    /// 分析for循环并生成反转预览
+    /// </summary>
+    /// <param name="context">重构上下文,包含文档、语义模型等信息</param>
+    /// <returns>包含重构预览的结果对象</returns>
     public async Task<Result<RefactoringPreview>> AnalyzeAsync(RefactoringContext context)
     {
         if (!context.SymbolLocation.HasValue)
@@ -32,7 +59,13 @@ public sealed class ForReverser : IRefactorer
             return Result<RefactoringPreview>.Failure(RefactoringErrorCode.INVALID_SELECTION, "请选择for循环");
         }
 
-        var forLoop = context.Root.FindNode(context.SymbolLocation.Value.Span) as ForStatementSyntax;
+        // 从行列号创建 TextSpan
+        var (line, column) = context.SymbolLocation.Value;
+        var textLine = context.Root.SyntaxTree.GetText().Lines[line];
+        var position = textLine.Start + column;
+        var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
+
+        var forLoop = context.Root.FindNode(span) as ForStatementSyntax;
         if (forLoop == null)
         {
             return Result<RefactoringPreview>.Failure(RefactoringErrorCode.INVALID_SELECTION, "所选内容不是for循环");
@@ -56,6 +89,12 @@ public sealed class ForReverser : IRefactorer
         return Result<RefactoringPreview>.Success(preview);
     }
 
+    /// <summary>
+    /// 应用重构预览到文档
+    /// </summary>
+    /// <param name="context">重构上下文</param>
+    /// <param name="preview">重构预览对象</param>
+    /// <returns>表示操作结果的任务</returns>
     public async Task<Result> ApplyAsync(RefactoringContext context, RefactoringPreview preview)
     {
         try
@@ -78,11 +117,16 @@ public sealed class ForReverser : IRefactorer
         }
     }
 
-    private string GenerateReversedFor(ForStatementSyntax forLoop)
+    /// <summary>
+    /// 生成反转后的for循环代码
+    /// </summary>
+    /// <param name="forLoop">要反转的for循环语法节点</param>
+    /// <returns>反转后的for循环代码字符串</returns>
+    private static string GenerateReversedFor(ForStatementSyntax forLoop)
     {
-        // 简化实现：假设标准for循环模式 for (int i = 0; i < count; i++)
-        var loopVar = "i"; // 需要从声明中提取
-        var collection = "collection"; // 需要从条件中提取
+        // 简化实现:假设标准for循环模式 for (int i = 0; i < count; i++)
+        var loopVar = DefaultLoopVariable; // 需要从声明中提取
+        var collection = DefaultCollectionName; // 需要从条件中提取
 
         return $"for (int {loopVar} = {collection}.Count - 1; {loopVar} >= 0; {loopVar}--)\r\n{{\r\n{forLoop.Statement}\r\n}}";
     }

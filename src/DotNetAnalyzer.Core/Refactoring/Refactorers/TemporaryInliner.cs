@@ -60,7 +60,13 @@ public sealed class TemporaryInliner : IRefactorer
                 "请指定要内联的变量位置");
         }
 
-        var variableNode = context.Root.FindNode(context.SymbolLocation.Value.Span);
+        // 从行列号创建 TextSpan
+        var (line, column) = context.SymbolLocation.Value;
+        var textLine = context.Root.SyntaxTree.GetText().Lines[line];
+        var position = textLine.Start + column;
+        var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
+
+        var variableNode = context.Root.FindNode(span);
         if (variableNode is not VariableDeclaratorSyntax variableDeclarator)
         {
             return Result<RefactoringPreview>.Failure(
@@ -118,14 +124,14 @@ public sealed class TemporaryInliner : IRefactorer
 
         // 7. 查找所有使用位置
         var usages = dataFlow.ReadOutside.Count > 0
-            ? await _dependencyAnalyzer.FindReferencesAsync(context.Solution, variableSymbol)
+            ? await _dependencyAnalyzer.FindReferencesAsync(variableSymbol, context.Solution)
             : new List<ReferenceLocation>();
 
         // 限制只处理当前文档的使用
         var currentFilePath = context.Document.FilePath;
         var localUsages = usages.Where(u =>
-            u.Location.IsInSource &&
-            u.Location.SourceTree?.FilePath == currentFilePath).ToList();
+            !u.IsDefinition &&
+            u.Document?.FilePath == currentFilePath).ToList();
 
         if (localUsages.Count == 0)
         {
@@ -155,20 +161,17 @@ public sealed class TemporaryInliner : IRefactorer
         // 替换所有使用位置
         foreach (var usage in localUsages)
         {
-            if (usage.Location.IsInSource)
-            {
-                var refNode = context.Root.FindNode(usage.Location.SourceSpan);
+            var refNode = context.Root.FindNode(usage.Span);
 
-                // 只处理标识符引用
-                if (refNode is IdentifierNameSyntax identifier &&
-                    identifier.Identifier.ValueText == variableSymbol.Name)
-                {
-                    changes.Add(CodeChange.Replace(
-                        filePath,
-                        usage.Location.SourceSpan,
-                        initialValue,
-                        $"替换为表达式 {initialValue}"));
-                }
+            // 只处理标识符引用
+            if (refNode is IdentifierNameSyntax identifier &&
+                identifier.Identifier.ValueText == variableSymbol.Name)
+            {
+                changes.Add(CodeChange.Replace(
+                    filePath,
+                    usage.Span,
+                    initialValue,
+                    $"替换为表达式 {initialValue}"));
             }
         }
 

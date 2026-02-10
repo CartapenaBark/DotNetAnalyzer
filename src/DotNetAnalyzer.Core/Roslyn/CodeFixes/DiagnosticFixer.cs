@@ -78,7 +78,7 @@ public class DiagnosticFixer
     /// <summary>
     /// 修复单个诊断
     /// </summary>
-    public async Task<FixResult> FixDiagnosticAsync(
+    public static async Task<FixResult> FixDiagnosticAsync(
         Solution solution,
         Diagnostic diagnostic,
         string? fixTitle = null)
@@ -96,7 +96,7 @@ public class DiagnosticFixer
     /// <summary>
     /// 获取诊断信息
     /// </summary>
-    private async Task<List<Diagnostic>> GetDiagnosticsAsync(Document document, string diagnosticId)
+    private static async Task<List<Diagnostic>> GetDiagnosticsAsync(Document document, string diagnosticId)
     {
         var semanticModel = await document.GetSemanticModelAsync();
         var diagnostics = semanticModel.GetDiagnostics();

@@ -18,7 +18,12 @@ public class QuickFixProvider
     {
         var semanticModel = await document.GetSemanticModelAsync();
         var root = await document.GetSyntaxRootAsync();
-        var location = root.GetLocation(new TextLine(line, column));
+        if (root == null) return new List<QuickFix>();
+
+        // 获取指定位置的文本跨度
+        var textLine = root.SyntaxTree.GetText().Lines[line];
+        var position = textLine.Start + column;
+        var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
 
         // 获取诊断信息
         var diagnostics = semanticModel.GetDiagnostics();
@@ -28,7 +33,7 @@ public class QuickFixProvider
 
         foreach (var diagnostic in diagnostics)
         {
-            if (diagnostic.Location.SourceSpan.IntersectsWith(location.SourceSpan))
+            if (diagnostic.Location.SourceSpan.IntersectsWith(span))
             {
                 var fixes = GetFixesForDiagnostic(diagnostic);
                 quickFixes.AddRange(fixes);
@@ -41,7 +46,7 @@ public class QuickFixProvider
     /// <summary>
     /// 获取诊断的修复建议
     /// </summary>
-    private List<QuickFix> GetFixesForDiagnostic(Diagnostic diagnostic)
+    private static List<QuickFix> GetFixesForDiagnostic(Diagnostic diagnostic)
     {
         var fixes = new List<QuickFix>();
 

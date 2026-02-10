@@ -231,7 +231,7 @@ public class MetricsAnalyzer
     /// <summary>
     /// 计算圈复杂度
     /// </summary>
-    private int CalculateCyclomaticComplexity(SyntaxNode node)
+    private static int CalculateCyclomaticComplexity(SyntaxNode node)
     {
         var complexity = 1; // 基础复杂度
 
@@ -259,7 +259,7 @@ public class MetricsAnalyzer
     /// <summary>
     /// 计算代码行数
     /// </summary>
-    private int CalculateLinesOfCode(SyntaxNode node)
+    private static int CalculateLinesOfCode(SyntaxNode node)
     {
         var lineSpan = node.GetLocation().GetLineSpan();
         return lineSpan.EndLinePosition.Line - lineSpan.StartLinePosition.Line + 1;
@@ -268,7 +268,7 @@ public class MetricsAnalyzer
     /// <summary>
     /// 计算继承深度
     /// </summary>
-    private int CalculateInheritanceDepth(INamedTypeSymbol typeSymbol)
+    private static int CalculateInheritanceDepth(INamedTypeSymbol typeSymbol)
     {
         var depth = 0;
         var current = typeSymbol.BaseType;
@@ -285,7 +285,7 @@ public class MetricsAnalyzer
     /// <summary>
     /// 计算类耦合
     /// </summary>
-    private int CalculateClassCoupling(INamedTypeSymbol typeSymbol)
+    private static int CalculateClassCoupling(INamedTypeSymbol typeSymbol)
     {
         var coupledTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
 
@@ -348,7 +348,7 @@ public class MetricsAnalyzer
     /// <summary>
     /// 计算维护性指数
     /// </summary>
-    private double CalculateMaintainabilityIndex(FileCodeMetrics metrics)
+    private static double CalculateMaintainabilityIndex(FileCodeMetrics metrics)
     {
         // 简化的维护性指数计算
         // MI = MAX(0, (171 - 5.2 * ln(Halstead Volume) - 0.23 * Cyclomatic Complexity - 16.2 * ln(Lines of Code)) * 100 / 171)

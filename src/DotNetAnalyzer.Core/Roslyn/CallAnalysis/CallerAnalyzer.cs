@@ -13,6 +13,10 @@ public class CallerAnalyzer
 {
     private readonly IWorkspaceManager _workspaceManager;
 
+    /// <summary>
+    /// 初始化 CallerAnalyzer 类的新实例
+    /// </summary>
+    /// <param name="workspaceManager">工作区管理器</param>
     public CallerAnalyzer(IWorkspaceManager workspaceManager)
     {
         _workspaceManager = workspaceManager;
@@ -21,6 +25,11 @@ public class CallerAnalyzer
     /// <summary>
     /// 获取调用指定方法的所有位置
     /// </summary>
+    /// <param name="document">文档对象</param>
+    /// <param name="line">行号(从0开始)</param>
+    /// <param name="column">列号(从0开始)</param>
+    /// <param name="includeIndirect">是否包含间接调用</param>
+    /// <returns>调用者分析结果</returns>
     public async Task<CallerAnalysisResult> GetCallerInfoAsync(
         Document document,
         int line,
@@ -29,10 +38,15 @@ public class CallerAnalyzer
     {
         var semanticModel = await document.GetSemanticModelAsync();
         var root = await document.GetSyntaxRootAsync();
-        var location = root.GetLocation(new TextLine(line, column));
+        if (root == null) return new CallerAnalysisResult { Callers = new List<CallerInfo>(), CallCount = 0 };
+
+        // 获取指定位置的文本跨度
+        var textLine = root.SyntaxTree.GetText().Lines[line];
+        var position = textLine.Start + column;
+        var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
 
         // 获取方法符号
-        var node = root.FindNode(location.SourceSpan);
+        var node = root.FindNode(span);
         var symbol = semanticModel.GetSymbolInfo(node).Symbol as IMethodSymbol;
 
         if (symbol == null)
@@ -67,6 +81,10 @@ public class CallerAnalyzer
     /// <summary>
     /// 在文档中查找调用者
     /// </summary>
+    /// <param name="document">要搜索的文档</param>
+    /// <param name="methodSymbol">要查找的方法符号</param>
+    /// <param name="includeIndirect">是否包含间接调用</param>
+    /// <returns>调用者信息列表</returns>
     private async Task<List<CallerInfo>> FindCallersInDocumentAsync(
         Document document,
         IMethodSymbol methodSymbol,
@@ -86,21 +104,24 @@ public class CallerAnalyzer
             if (invokedSymbol != null &&
                 SymbolEqualityComparer.Default.Equals(invokedSymbol, methodSymbol))
             {
+                var lineSpan = root.SyntaxTree.GetLineSpan(invocation.Span);
                 var callerInfo = new CallerInfo
                 {
-                    Location = new SymbolLocation
+                    Location = new SourceLocation
                     {
                         FilePath = document.FilePath ?? "",
-                        Line = root.GetLocation(invocation.Span).GetLineSpan().StartLinePosition.Line,
-                        Column = root.GetLocation(invocation.Span).GetLineSpan().StartLinePosition.Character,
-                        Span = new Models.TextSpan
-                        {
-                            Start = invocation.Span.Start,
-                            Length = invocation.Span.Length
-                        }
+                        Line = lineSpan.StartLinePosition.Line,
+                        Column = lineSpan.StartLinePosition.Character
                     },
-                    CallKind = "direct",
-                    CallContext = GetCallContext(invocation, semanticModel)
+                    CallerSymbol = new Models.CallAnalysis.SymbolInfo
+                    {
+                        Name = invokedSymbol.Name,
+                        Kind = invokedSymbol.Kind.ToString(),
+                        ContainingType = invokedSymbol.ContainingType?.Name ?? "",
+                        Namespace = invokedSymbol.ContainingNamespace?.ToString() ?? ""
+                    },
+                    CallKind = CallKind.Direct,
+                    Context = GetCallContext(invocation)
                 };
 
                 callers.Add(callerInfo);
@@ -113,33 +134,21 @@ public class CallerAnalyzer
     /// <summary>
     /// 获取调用上下文
     /// </summary>
-    private CallContext GetCallContext(InvocationExpressionSyntax invocation, SemanticModel semanticModel)
+    private static CallContext GetCallContext(InvocationExpressionSyntax invocation)
     {
-        var arguments = new List<ArgumentInfo>();
+        var arguments = new List<string>();
 
         foreach (var arg in invocation.ArgumentList.Arguments)
         {
-            var argType = semanticModel.GetTypeInfo(arg.Expression).Type;
-            arguments.Add(new ArgumentInfo
-            {
-                Type = argType?.ToDisplayString() ?? "unknown",
-                Value = arg.Expression.ToString()
-            });
+            arguments.Add(arg.Expression.ToString());
         }
+
+        var lineSpan = invocation.SyntaxTree.GetLineSpan(invocation.Span);
 
         return new CallContext
         {
             Arguments = arguments,
-            ContainingMethod = GetContainingMethodName(invocation)
+            Line = lineSpan.StartLinePosition.Line
         };
-    }
-
-    /// <summary>
-    /// 获取包含的方法名
-    /// </summary>
-    private string GetContainingMethodName(SyntaxNode node)
-    {
-        var method = node.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault();
-        return method?.Identifier.ValueText ?? "unknown";
     }
 }

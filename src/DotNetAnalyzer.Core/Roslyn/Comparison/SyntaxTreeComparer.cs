@@ -9,10 +9,14 @@ namespace DotNetAnalyzer.Core.Roslyn.Comparison;
 /// <summary>
 /// 语法树比较器
 /// </summary>
-public class SyntaxTreeComparer
+public partial class SyntaxTreeComparer
 {
     private readonly IWorkspaceManager _workspaceManager;
 
+    /// <summary>
+    /// 初始化 SyntaxTreeComparer 类的新实例
+    /// </summary>
+    /// <param name="workspaceManager">工作区管理器</param>
     public SyntaxTreeComparer(IWorkspaceManager workspaceManager)
     {
         _workspaceManager = workspaceManager;
@@ -21,7 +25,12 @@ public class SyntaxTreeComparer
     /// <summary>
     /// 比较两个语法树的差异
     /// </summary>
-    public async Task<SyntaxTreeDifference> CompareAsync(
+    /// <param name="tree1">第一个语法树</param>
+    /// <param name="tree2">第二个语法树</param>
+    /// <param name="ignoreWhitespace">是否忽略空白字符</param>
+    /// <param name="ignoreComments">是否忽略注释</param>
+    /// <returns>语法树差异对象</returns>
+    public static async Task<SyntaxTreeDiffResult> CompareAsync(
         SyntaxTree tree1,
         SyntaxTree tree2,
         bool ignoreWhitespace = false,
@@ -30,7 +39,7 @@ public class SyntaxTreeComparer
         var root1 = await tree1.GetRootAsync();
         var root2 = await tree2.GetRootAsync();
 
-        var differences = new List<SyntaxDifferenceItem>();
+        var differences = new List<SyntaxTreeDifference>();
 
         // 简化实现：比较文本差异
         var text1 = root1.ToFullString();
@@ -38,13 +47,13 @@ public class SyntaxTreeComparer
 
         if (ignoreWhitespace)
         {
-            text1 = System.Text.RegularExpressions.Regex.Replace(text1, @"\s+", " ");
-            text2 = System.Text.RegularExpressions.Regex.Replace(text2, @"\s+", " ");
+            text1 = MyRegex().Replace(text1, " ");
+            text2 = MyRegex().Replace(text2, " ");
         }
 
         if (text1 == text2)
         {
-            return new SyntaxTreeDifference
+            return new SyntaxTreeDiffResult
             {
                 Differences = differences,
                 Summary = new DiffSummary
@@ -71,30 +80,30 @@ public class SyntaxTreeComparer
             {
                 if (line1 == null)
                 {
-                    differences.Add(new SyntaxDifferenceItem
+                    differences.Add(new SyntaxTreeDifference
                     {
                         Kind = DiffKind.Added,
-                        Location = new Models.TextSpan { Start = i, Length = line2?.Length ?? 0 },
-                        AfterText = line2
+                        Location = new SourceRange { StartLine = i },
+                        After = line2
                     });
                 }
                 else if (line2 == null)
                 {
-                    differences.Add(new SyntaxDifferenceItem
+                    differences.Add(new SyntaxTreeDifference
                     {
                         Kind = DiffKind.Removed,
-                        Location = new Models.TextSpan { Start = i, Length = line1.Length },
-                        BeforeText = line1
+                        Location = new SourceRange { StartLine = i },
+                        Before = line1
                     });
                 }
                 else
                 {
-                    differences.Add(new SyntaxDifferenceItem
+                    differences.Add(new SyntaxTreeDifference
                     {
                         Kind = DiffKind.Modified,
-                        Location = new Models.TextSpan { Start = i, Length = line1.Length },
-                        BeforeText = line1,
-                        AfterText = line2
+                        Location = new SourceRange { StartLine = i },
+                        Before = line1,
+                        After = line2
                     });
                 }
             }
@@ -107,10 +116,13 @@ public class SyntaxTreeComparer
             ModifiedNodes = differences.Count(d => d.Kind == DiffKind.Modified)
         };
 
-        return new SyntaxTreeDifference
+        return new SyntaxTreeDiffResult
         {
             Differences = differences,
             Summary = summary
         };
     }
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"\s+")]
+    private static partial System.Text.RegularExpressions.Regex MyRegex();
 }

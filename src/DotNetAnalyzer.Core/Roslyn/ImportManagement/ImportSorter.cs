@@ -12,6 +12,9 @@ public class ImportSorter
     /// <summary>
     /// 排序using指令
     /// </summary>
+    /// <param name="fileContent">文件内容</param>
+    /// <param name="order">排序顺序</param>
+    /// <returns>排序后的文件内容</returns>
     public string SortUsings(string fileContent, ImportSortOrder order = ImportSortOrder.SystemFirst)
     {
         var tree = CSharpSyntaxTree.ParseText(fileContent);
@@ -40,7 +43,7 @@ public class ImportSorter
     /// <summary>
     /// System优先排序
     /// </summary>
-    private List<UsingDirectiveSyntax> SortSystemFirst(List<UsingDirectiveSyntax> usings)
+    private static List<UsingDirectiveSyntax> SortSystemFirst(List<UsingDirectiveSyntax> usings)
     {
         return usings
             .OrderByDescending(u => u.Name.ToString().StartsWith("System"))
@@ -51,7 +54,7 @@ public class ImportSorter
     /// <summary>
     /// 字母顺序排序
     /// </summary>
-    private List<UsingDirectiveSyntax> SortAlphabetically(List<UsingDirectiveSyntax> usings)
+    private static List<UsingDirectiveSyntax> SortAlphabetically(List<UsingDirectiveSyntax> usings)
     {
         return usings
             .OrderBy(u => u.Name.ToString())
@@ -61,7 +64,7 @@ public class ImportSorter
     /// <summary>
     /// 按长度排序
     /// </summary>
-    private List<UsingDirectiveSyntax> SortByLength(List<UsingDirectiveSyntax> usings)
+    private static List<UsingDirectiveSyntax> SortByLength(List<UsingDirectiveSyntax> usings)
     {
         return usings
             .OrderBy(u => u.Name.ToString().Length)
@@ -75,7 +78,10 @@ public class ImportSorter
 /// </summary>
 public enum ImportSortOrder
 {
+    /// <summary>System命名空间优先</summary>
     SystemFirst,
+    /// <summary>按字母顺序</summary>
     Alphabetical,
+    /// <summary>按长度排序</summary>
     Length
 }

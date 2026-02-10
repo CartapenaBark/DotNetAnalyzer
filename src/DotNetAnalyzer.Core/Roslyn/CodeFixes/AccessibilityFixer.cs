@@ -12,6 +12,9 @@ public class AccessibilityFixer
     /// <summary>
     /// 添加可访问性修饰符
     /// </summary>
+    /// <param name="declaration">声明语句</param>
+    /// <param name="accessibility">可访问性级别(public/private/protected/internal)</param>
+    /// <returns>添加了可访问性修饰符的声明</returns>
     public string AddAccessibilityModifier(
         string declaration,
         string accessibility)
@@ -28,7 +31,7 @@ public class AccessibilityFixer
         }
 
         // 添加可访问性修饰符
-        var modifiers = declarationNode switch
+        SyntaxTokenList? modifiers = declarationNode switch
         {
             ClassDeclarationSyntax => SyntaxFactory.TokenList(
                 SyntaxFactory.Token(SyntaxKind.PublicKeyword)),
@@ -41,17 +44,17 @@ public class AccessibilityFixer
             _ => null
         };
 
-        if (modifiers == null)
+        if (!modifiers.HasValue)
         {
             return declaration;
         }
 
         var newDeclaration = declarationNode switch
         {
-            ClassDeclarationSyntax c => c.WithModifiers(modifiers),
-            MethodDeclarationSyntax m => m.WithModifiers(modifiers),
-            FieldDeclarationSyntax f => f.WithModifiers(modifiers),
-            PropertyDeclarationSyntax p => p.WithModifiers(modifiers),
+            ClassDeclarationSyntax c => c.WithModifiers(modifiers.Value),
+            MethodDeclarationSyntax m => m.WithModifiers(modifiers.Value),
+            FieldDeclarationSyntax f => f.WithModifiers(modifiers.Value),
+            PropertyDeclarationSyntax p => p.WithModifiers(modifiers.Value),
             _ => declarationNode
         };
 
@@ -61,7 +64,9 @@ public class AccessibilityFixer
     /// <summary>
     /// 获取可访问性类型
     /// </summary>
-    private SyntaxKind GetAccessibilityKind(string accessibility)
+    /// <param name="accessibility">可访问性字符串</param>
+    /// <returns>对应的语法类型</returns>
+    private static SyntaxKind GetAccessibilityKind(string accessibility)
     {
         return accessibility.ToLower() switch
         {

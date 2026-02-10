@@ -39,6 +39,8 @@ public sealed class FieldEncapsulator : IRefactorer
     /// <summary>
     /// 创建字段封装重构器
     /// </summary>
+    /// <param name="validator">重构验证器,用于验证重构操作的可行性</param>
+    /// <param name="dependencyAnalyzer">依赖分析器,用于分析字段的引用关系</param>
     public FieldEncapsulator(
         IRefactoringValidator? validator = null,
         IDependencyAnalyzer? dependencyAnalyzer = null)
@@ -50,6 +52,8 @@ public sealed class FieldEncapsulator : IRefactorer
     /// <summary>
     /// 分析重构可行性并生成预览
     /// </summary>
+    /// <param name="context">重构上下文,包含文档、语义模型等信息</param>
+    /// <returns>包含重构预览的结果对象</returns>
     public async Task<Result<RefactoringPreview>> AnalyzeAsync(RefactoringContext context)
     {
         // 1. 获取字段符号
@@ -60,7 +64,13 @@ public sealed class FieldEncapsulator : IRefactorer
                 "请指定要封装的字段位置");
         }
 
-        var fieldNode = context.Root.FindNode(context.SymbolLocation.Value.Span);
+        // 从行列号创建 TextSpan
+        var (line, column) = context.SymbolLocation.Value;
+        var textLine = context.Root.SyntaxTree.GetText().Lines[line];
+        var position = textLine.Start + column;
+        var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
+
+        var fieldNode = context.Root.FindNode(span);
         if (fieldNode is not VariableDeclaratorSyntax variableDeclarator)
         {
             return Result<RefactoringPreview>.Failure(
@@ -123,8 +133,8 @@ public sealed class FieldEncapsulator : IRefactorer
 
         // 7. 分析字段使用情况
         var fieldUsages = await _dependencyAnalyzer.FindReferencesAsync(
-            context.Solution,
-            fieldSymbol);
+            fieldSymbol,
+            context.Solution);
 
         // 8. 确定属性类型
         var fieldType = fieldSymbol.Type.ToDisplayString();
@@ -166,18 +176,15 @@ public sealed class FieldEncapsulator : IRefactorer
         // 12. 更新所有访问点
         foreach (var usage in fieldUsages)
         {
-            if (usage.Location.IsInSource)
+            if (!usage.IsDefinition && usage.Document != null)
             {
-                var updateCode = GeneratePropertyAccess(
-                    propertyName,
-                    usage.Location,
-                    fieldSymbol);
+                var updateCode = GeneratePropertyAccess(propertyName);
 
                 if (!string.IsNullOrEmpty(updateCode))
                 {
                     changes.Add(CodeChange.Replace(
-                        usage.Location.SourceTree?.FilePath ?? filePath,
-                        usage.Location.SourceSpan,
+                        usage.FilePath,
+                        usage.Span,
                         updateCode,
                         "更新为属性访问"));
                 }
@@ -200,6 +207,9 @@ public sealed class FieldEncapsulator : IRefactorer
     /// <summary>
     /// 应用重构变更
     /// </summary>
+    /// <param name="context">重构上下文</param>
+    /// <param name="preview">重构预览对象</param>
+    /// <returns>表示操作结果的任务</returns>
     public async Task<Result> ApplyAsync(RefactoringContext context, RefactoringPreview preview)
     {
         try
@@ -243,7 +253,12 @@ public sealed class FieldEncapsulator : IRefactorer
     /// <summary>
     /// 生成属性代码
     /// </summary>
-    private string GenerateProperty(
+    /// <param name="propertyName">属性名称</param>
+    /// <param name="fieldType">属性类型</param>
+    /// <param name="isStatic">是否为静态属性</param>
+    /// <param name="fieldName">关联的字段名称</param>
+    /// <returns>生成的属性代码字符串</returns>
+    private static string GenerateProperty(
         string propertyName,
         string fieldType,
         bool isStatic,
@@ -262,7 +277,10 @@ public sealed class FieldEncapsulator : IRefactorer
     /// <summary>
     /// 生成字段修饰符
     /// </summary>
-    private string GenerateFieldModifiers(IFieldSymbol fieldSymbol, string accessibility)
+    /// <param name="fieldSymbol">字段符号</param>
+    /// <param name="accessibility">访问级别</param>
+    /// <returns>生成的字段修饰符字符串</returns>
+    private static string GenerateFieldModifiers(IFieldSymbol fieldSymbol, string accessibility)
     {
         var modifiers = new List<string>();
 
@@ -281,7 +299,10 @@ public sealed class FieldEncapsulator : IRefactorer
     /// <summary>
     /// 生成私有字段声明
     /// </summary>
-    private string GeneratePrivateFieldDeclaration(FieldDeclarationSyntax fieldDecl, bool isStatic)
+    /// <param name="fieldDecl">字段声明语法节点</param>
+    /// <param name="isStatic">是否为静态字段</param>
+    /// <returns>生成的私有字段声明字符串</returns>
+    private static string GeneratePrivateFieldDeclaration(FieldDeclarationSyntax fieldDecl, bool isStatic)
     {
         var syntax = fieldDecl
             .WithModifiers(SyntaxFactory.TokenList(
@@ -292,13 +313,13 @@ public sealed class FieldEncapsulator : IRefactorer
         var newModifiers = new List<SyntaxToken>();
         foreach (var modifier in fieldDecl.Modifiers)
         {
-            if (modifier.Kind() != SyntaxKind.PublicKeyword)
+            if (!modifier.IsKind(SyntaxKind.PublicKeyword))
             {
                 newModifiers.Add(modifier);
             }
         }
 
-        if (!newModifiers.Any(m => m.Kind() == SyntaxKind.PrivateKeyword))
+        if (!newModifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
         {
             newModifiers.Add(SyntaxFactory.Token(SyntaxKind.PrivateKeyword));
         }
@@ -311,10 +332,9 @@ public sealed class FieldEncapsulator : IRefactorer
     /// <summary>
     /// 生成属性访问代码
     /// </summary>
-    private string GeneratePropertyAccess(
-        string propertyName,
-        Microsoft.CodeAnalysis.Location location,
-        IFieldSymbol fieldSymbol)
+    /// <param name="propertyName">属性名称</param>
+    /// <returns>生成的属性访问代码字符串</returns>
+    private static string GeneratePropertyAccess(string propertyName)
     {
         // 简单实现：直接替换为属性名
         // 在实际应用中，需要根据上下文判断是否需要修改

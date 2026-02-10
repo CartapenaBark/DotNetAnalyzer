@@ -240,7 +240,7 @@ public sealed class InterfaceExtractor : IRefactorer
     /// <param name="members">要提取的成员列表</param>
     /// <param name="options">语法解析选项</param>
     /// <returns>生成的接口代码字符串</returns>
-    private string GenerateInterface(
+    private static string GenerateInterface(
         string interfaceName,
         string className,
         List<ISymbol> members,

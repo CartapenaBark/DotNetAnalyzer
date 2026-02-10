@@ -116,7 +116,7 @@ public class MemberHierarchyAnalyzer
     /// <summary>
     /// 异步分析成员层次结构
     /// </summary>
-    private async Task<MemberHierarchy> AnalyzeMemberHierarchyAsync(
+    private static async Task<MemberHierarchy> AnalyzeMemberHierarchyAsync(
         ISymbol memberSymbol,
         INamedTypeSymbol containingType)
     {
@@ -159,7 +159,7 @@ public class MemberHierarchyAnalyzer
     /// <summary>
     /// 异步获取重写成员链
     /// </summary>
-    private async Task<List<MemberLocation>> GetOverriddenMembersAsync(
+    private static Task<List<MemberLocation>> GetOverriddenMembersAsync(
         ISymbol memberSymbol)
     {
         var overriddenMembers = new List<MemberLocation>();
@@ -195,13 +195,13 @@ public class MemberHierarchyAnalyzer
             }
         }
 
-        return overriddenMembers;
+        return Task.FromResult(overriddenMembers);
     }
 
     /// <summary>
     /// 异步获取隐藏的成员
     /// </summary>
-    private async Task<List<MemberLocation>> GetHidingMembersAsync(
+    private static Task<List<MemberLocation>> GetHidingMembersAsync(
         ISymbol memberSymbol,
         INamedTypeSymbol containingType)
     {
@@ -210,7 +210,7 @@ public class MemberHierarchyAnalyzer
         // 检查是否使用 new 修饰符
         if (!memberSymbol.IsVirtual && !memberSymbol.IsOverride)
         {
-            return hidingMembers;
+            return Task.FromResult(hidingMembers);
         }
 
         // 查找基类型中的同名成员
@@ -236,7 +236,7 @@ public class MemberHierarchyAnalyzer
             }
         }
 
-        return hidingMembers;
+        return Task.FromResult(hidingMembers);
     }
 
     /// <summary>

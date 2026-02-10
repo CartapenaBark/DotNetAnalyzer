@@ -98,7 +98,7 @@ public class SyntaxTreeExtractor
     /// <summary>
     /// 提取语法树信息
     /// </summary>
-    private SyntaxTreeInfo ExtractSyntaxTreeInfo(
+    private static SyntaxTreeInfo ExtractSyntaxTreeInfo(
         Microsoft.CodeAnalysis.SyntaxTree syntaxTree,
         SyntaxNode root,
         TextSpan range,
@@ -134,7 +134,7 @@ public class SyntaxTreeExtractor
     /// <summary>
     /// 映射语法节点
     /// </summary>
-    private SyntaxNodeInfo MapSyntaxNode(
+    private static SyntaxNodeInfo MapSyntaxNode(
         SyntaxNode node,
         TextSpan range,
         int maxDepth,
@@ -278,7 +278,7 @@ public class SyntaxTreeExtractor
     /// <summary>
     /// 获取结构信息
     /// </summary>
-    private List<SyntaxNodeInfo> GetStructure(
+    private static List<SyntaxNodeInfo> GetStructure(
         SyntaxNode root,
         TextSpan range,
         int maxDepth,

@@ -14,7 +14,7 @@ namespace DotNetAnalyzer.Core.Refactoring.Core;
 public sealed partial class RefactoringValidator : IRefactoringValidator
 {
     // C# 标识符正则表达式
-    private static readonly Regex IdentifierRegex = MyRegex();
+    private static readonly Regex IdentifierRegex = IdentifierRegexGenerated();
 
     /// <summary>
     /// 验证选择范围
@@ -170,5 +170,5 @@ public sealed partial class RefactoringValidator : IRefactoringValidator
     }
 
     [GeneratedRegex(@"^[@]?[a-zA-Z_][a-zA-Z0-9_]*$", RegexOptions.Compiled)]
-    private static partial Regex MyRegex();
+    private static partial Regex IdentifierRegexGenerated();
 }

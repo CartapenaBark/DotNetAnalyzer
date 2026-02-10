@@ -197,7 +197,7 @@ public sealed class RefactoringEngine : IRefactoringEngine
     /// <summary>
     /// 创建重构上下文
     /// </summary>
-    private async Task<RefactoringContext?> CreateRefactoringContextAsync(
+    private static async Task<RefactoringContext?> CreateRefactoringContextAsync(
         Document document,
         RefactoringRequest request)
     {

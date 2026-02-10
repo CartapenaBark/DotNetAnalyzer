@@ -296,9 +296,9 @@ public static class ProjectTools
         {
             foreach (var dep in kvp.Value)
             {
-                if (inDegree.ContainsKey(dep))
+                if (inDegree.TryGetValue(dep, out var degree))
                 {
-                    inDegree[dep]++;
+                    inDegree[dep] = degree + 1;
                 }
             }
         }
@@ -322,9 +322,9 @@ public static class ProjectTools
             // 减少依赖此节点的其他节点的入度
             foreach (var dep in graph[node])
             {
-                if (inDegree.ContainsKey(dep))
+                if (inDegree.TryGetValue(dep, out var degree))
                 {
-                    inDegree[dep]--;
+                    inDegree[dep] = degree - 1;
                     if (inDegree[dep] == 0)
                     {
                         queue.Enqueue(dep);

@@ -21,7 +21,7 @@ public class CallGraphBuilder
     /// <summary>
     /// 生成完整的调用图
     /// </summary>
-    public async Task<CallGraphResult> GetCallGraphAsync(
+    public static async Task<CallGraphResult> GetCallGraphAsync(
         Document document,
         int line,
         int column,
@@ -38,7 +38,7 @@ public class CallGraphBuilder
 
         // 获取方法符号
         var node = root.FindNode(span);
-        var symbol = semanticModel.GetSymbolInfo(node).Symbol as IMethodSymbol;
+        var symbol = semanticModel?.GetSymbolInfo(node).Symbol as IMethodSymbol;
 
         if (symbol == null)
         {
@@ -76,7 +76,7 @@ public class CallGraphBuilder
     /// <summary>
     /// 构建调用图
     /// </summary>
-    private async Task<CallGraph> BuildCallGraphAsync(
+    private static async Task<CallGraph> BuildCallGraphAsync(
         Solution solution,
         IMethodSymbol rootMethod,
         int maxDepth)
@@ -113,9 +113,8 @@ public class CallGraphBuilder
                 var calleeId = GetMethodId(callee);
 
                 // 添加节点
-                if (!visited.Contains(calleeId))
+                if (visited.Add(calleeId))
                 {
-                    visited.Add(calleeId);
                     graph.Nodes.Add(CreateNode(callee));
                     queue.Enqueue((callee, depth + 1));
                 }
@@ -221,7 +220,7 @@ public class CallGraphBuilder
     /// <summary>
     /// 计算指标
     /// </summary>
-    private void CalculateMetrics(CallGraph graph)
+    private static void CalculateMetrics(CallGraph graph)
     {
         foreach (var node in graph.Nodes)
         {

@@ -2,13 +2,13 @@
 
 > 一个强大的 MCP (Model Context Protocol) 服务器工具，将 Roslyn 的代码分析能力引入 Claude Code
 
-[![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/8.0)
-[![NuGet](https://img.shields.io/badge/nuget-0.7.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
+[![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet)
+[![NuGet](https://img.shields.io/badge/nuget-0.8.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 📖 简介
 
-DotNetAnalyzer 是一个使用 .NET 8.0 开发的 **.NET 全局工具**，通过封装强大的 Roslyn (.NET Compiler Platform) API，使 Claude Code 能够深度分析和理解 C# 代码。
+DotNetAnalyzer 是一个使用 .NET 8.0/9.0/10.0 开发的 **.NET 全局工具**，通过封装强大的 Roslyn (.NET Compiler Platform) API，使 Claude Code 能够深度分析和理解 C# 代码。
 
 ### 为什么需要 DotNetAnalyzer？
 
@@ -29,7 +29,22 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 ## 🎯 核心功能
 
-**当前版本 (v0.7.0)** 提供 **70 个 MCP 工具**，支持强命名：
+**当前版本 (v0.8.0)** 提供 **70 个 MCP 工具**，支持强命名：
+
+### ✨ v0.8.0 新特性
+
+**框架扩展和依赖优化：**
+- ✅ **.NET 10.0 支持** - 新增 C# 14 语言版本支持
+- ✅ **Roslyn 统一** - 所有框架统一使用 Roslyn 5.0.0
+- ✅ **项目简化** - 移除条件编译，统一依赖版本
+- ✅ **0 警告 0 错误** - 完全消除编译警告和错误
+- ✅ **测试通过** - 所有框架测试全部通过 (net8.0: 190/190, net9.0: 171/171, net10.0: 171/171)
+- ✅ **依赖清理** - 移除未使用的包，解决版本冲突
+
+**支持框架：**
+- .NET 8.0 (C# 12)
+- .NET 9.0 (C# 13)
+- .NET 10.0 (C# 14)
 
 ### ✨ v0.7.0 新特性
 

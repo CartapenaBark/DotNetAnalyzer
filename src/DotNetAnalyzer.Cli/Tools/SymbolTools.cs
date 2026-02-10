@@ -12,7 +12,7 @@ namespace DotNetAnalyzer.Cli.Tools;
 /// MCP 工具类：提供符号查询功能
 /// </summary>
 [McpServerToolType]
-public static class SymbolTools
+public static partial class SymbolTools
 {
     /// <summary>
     /// 查找符号的所有引用
@@ -520,23 +520,32 @@ public static class SymbolTools
 
     private static string? ExtractXmlSummary(string xmlComment)
     {
-        var match = System.Text.RegularExpressions.Regex.Match(xmlComment, "<summary>(.*?)</summary>", System.Text.RegularExpressions.RegexOptions.Singleline);
+        var match = SummaryRegex().Match(xmlComment);
         return match.Success ? match.Groups[1].Value.Trim() : null;
     }
 
     private static string? ExtractXmlReturns(string xmlComment)
     {
-        var match = System.Text.RegularExpressions.Regex.Match(xmlComment, "<returns>(.*?)</returns>", System.Text.RegularExpressions.RegexOptions.Singleline);
+        var match = ReturnsRegex().Match(xmlComment);
         return match.Success ? match.Groups[1].Value.Trim() : null;
     }
 
     private static object[] ExtractXmlParams(string xmlComment)
     {
-        var matches = System.Text.RegularExpressions.Regex.Matches(xmlComment, "<param name=\"(.*?)\">(.*?)</param>", System.Text.RegularExpressions.RegexOptions.Singleline);
+        var matches = ParamsRegex().Matches(xmlComment);
         return matches.Cast<System.Text.RegularExpressions.Match>()
             .Select(m => new { name = m.Groups[1].Value, description = m.Groups[2].Value.Trim() })
             .ToArray();
     }
+
+    [System.Text.RegularExpressions.GeneratedRegex("<summary>(.*?)</summary>", System.Text.RegularExpressions.RegexOptions.Singleline)]
+    private static partial System.Text.RegularExpressions.Regex SummaryRegex();
+
+    [System.Text.RegularExpressions.GeneratedRegex("<returns>(.*?)</returns>", System.Text.RegularExpressions.RegexOptions.Singleline)]
+    private static partial System.Text.RegularExpressions.Regex ReturnsRegex();
+
+    [System.Text.RegularExpressions.GeneratedRegex("<param name=\"(.*?)\">(.*?)</param>", System.Text.RegularExpressions.RegexOptions.Singleline)]
+    private static partial System.Text.RegularExpressions.Regex ParamsRegex();
 
     #endregion
 }

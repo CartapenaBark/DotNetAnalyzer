@@ -9,6 +9,91 @@
 
 ---
 
+## [0.8.0] - 2026-02-10
+
+### 🎯 发布亮点
+
+- ✅ **.NET 10.0 支持** - 新增 C# 14 语言版本支持
+- ✅ **依赖统一** - Roslyn 统一升级到 5.0.0
+- ✅ **0 警告 0 错误** - 完全消除编译警告和错误
+- ✅ **测试通过** - 所有框架测试全部通过
+- ✅ **项目简化** - 移除条件编译，统一依赖版本
+
+### 变更
+
+#### 🔨 框架支持
+
+**新增**:
+- ✅ .NET 10.0 (C# 14) 完整支持
+- ✅ CI/CD 测试矩阵包含 net10.0
+
+**移除**:
+- ❌ .NET Standard 2.0 (与现代 Roslyn 不兼容)
+
+**支持框架**:
+- ✅ .NET 8.0 (C# 12)
+- ✅ .NET 9.0 (C# 13)
+- ✅ .NET 10.0 (C# 14)
+
+#### 📦 依赖优化
+
+**Roslyn 统一**:
+- 所有框架统一使用 Roslyn 5.0.0
+- 移除条件 PackageReference 编译
+- 简化项目文件结构
+
+**清理**:
+- 移除未使用的 BenchmarkDotNet 包
+- 解决所有 NU1608 版本冲突警告
+
+#### 🐛 Bug 修复
+
+**关键修复**:
+- ✅ 修复 WorkspaceManager.cs 条件编译问题
+  - 原因: `#if NET8_0` 导致 net9.0/net10.0 使用受限实现
+  - 解决: 移除条件编译，所有框架使用完整实现
+- ✅ 修复 23 个 .NET 10.0 测试失败
+- ✅ 修复可空引用警告
+
+**代码质量**:
+- ✅ 0 编译错误
+- ✅ 0 编译警告
+- ✅ 所有测试通过
+
+### 测试结果
+
+| 框架 | 测试数 | 通过 | 失败 |
+|------|--------|------|------|
+| .NET 8.0 | 190 | ✅ 190 | 0 |
+| .NET 9.0 | 171 | ✅ 171 | 0 |
+| .NET 10.0 | 171 | ✅ 171 | 0 |
+
+### 文件变更
+
+**项目文件**:
+- `DotNetAnalyzer.Core.csproj` - 添加 net10.0，统一 Roslyn 5.0.0
+- `DotNetAnalyzer.Cli.csproj` - 添加 net10.0，C# 14 支持
+- `DotNetAnalyzer.Tests.csproj` - 添加 net10.0，移除 BenchmarkDotNet
+- `build-and-test.yml` - 添加 net10.0 到 CI/CD 矩阵
+
+**源代码**:
+- `WorkspaceManager.cs` - 移除条件编译
+
+### 技术细节
+
+**构建配置**:
+```xml
+<TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+<PackageReference Include="Microsoft.CodeAnalysis" Version="5.0.0" />
+```
+
+**CI/CD 矩阵**:
+```yaml
+framework: ['net8.0', 'net9.0', 'net10.0']
+```
+
+---
+
 ## [0.7.0] - 2026-02-10
 
 ### 🎉 发布亮点

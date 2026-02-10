@@ -8,24 +8,24 @@ namespace DotNetAnalyzer.Core.Roslyn.ImportManagement;
 /// <summary>
 /// 缺失导入添加器
 /// </summary>
-public class MissingImportAdder
+public class MissingImportAdder(IWorkspaceManager workspaceManager)
 {
-    private readonly IWorkspaceManager _workspaceManager;
-
-    public MissingImportAdder(IWorkspaceManager workspaceManager)
-    {
-        _workspaceManager = workspaceManager;
-    }
+    private readonly IWorkspaceManager _workspaceManager = workspaceManager;
 
     /// <summary>
     /// 添加缺失的using指令
     /// </summary>
-    public async Task<string> AddMissingImportsAsync(
+    public static async Task<string> AddMissingImportsAsync(
         Document document,
         List<string>? suggestedImports = null)
     {
         var semanticModel = await document.GetSemanticModelAsync();
         var root = await document.GetSyntaxRootAsync();
+
+        if (semanticModel == null || root == null)
+        {
+            return (await document.GetSyntaxRootAsync())?.ToFullString() ?? string.Empty;
+        }
 
         // 查找无法解析的类型
         var unresolvedTypes = FindUnresolvedTypes(semanticModel, root);
@@ -64,7 +64,7 @@ public class MissingImportAdder
 
         var newRoot = root.InsertNodesBefore(
             firstNode,
-            new[] { SyntaxFactory.ParseCompilationUnit(newUsings) });
+            [SyntaxFactory.ParseCompilationUnit(newUsings)]);
 
         return newRoot.ToFullString();
     }
@@ -81,7 +81,7 @@ public class MissingImportAdder
             .Select(id => new
             {
                 Name = id.Identifier.ValueText,
-                Symbol = semanticModel.GetSymbolInfo(id).Symbol
+                semanticModel.GetSymbolInfo(id).Symbol
             })
             .Where(x => x.Symbol == null || x.Symbol.Kind == SymbolKind.ErrorType)
             .Select(x => x.Name)

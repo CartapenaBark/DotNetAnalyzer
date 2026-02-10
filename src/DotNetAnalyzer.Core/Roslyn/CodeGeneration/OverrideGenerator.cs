@@ -191,7 +191,7 @@ namespace DotNetAnalyzer.Core.Roslyn.CodeGeneration
         /// <summary>
         /// 生成方法 override
         /// </summary>
-        private MethodDeclarationSyntax GenerateMethodOverride(IMethodSymbol methodSymbol, GenerationOptions options)
+        private static MethodDeclarationSyntax GenerateMethodOverride(IMethodSymbol methodSymbol, GenerationOptions options)
         {
             // 生成参数列表
             var parameters = SyntaxFactory.ParameterList(
@@ -228,7 +228,7 @@ namespace DotNetAnalyzer.Core.Roslyn.CodeGeneration
         /// <summary>
         /// 生成属性 override
         /// </summary>
-        private PropertyDeclarationSyntax GeneratePropertyOverride(IPropertySymbol propertySymbol, GenerationOptions options)
+        private static PropertyDeclarationSyntax GeneratePropertyOverride(IPropertySymbol propertySymbol, GenerationOptions options)
         {
             // 生成访问器
             var accessors = new List<AccessorDeclarationSyntax>();

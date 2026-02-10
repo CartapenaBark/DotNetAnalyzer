@@ -9,18 +9,13 @@ namespace DotNetAnalyzer.Core.Roslyn.CallAnalysis;
 /// <summary>
 /// 调用者分析器
 /// </summary>
-public class CallerAnalyzer
+/// <remarks>
+/// 初始化 CallerAnalyzer 类的新实例
+/// </remarks>
+/// <param name="workspaceManager">工作区管理器</param>
+public class CallerAnalyzer(IWorkspaceManager workspaceManager)
 {
-    private readonly IWorkspaceManager _workspaceManager;
-
-    /// <summary>
-    /// 初始化 CallerAnalyzer 类的新实例
-    /// </summary>
-    /// <param name="workspaceManager">工作区管理器</param>
-    public CallerAnalyzer(IWorkspaceManager workspaceManager)
-    {
-        _workspaceManager = workspaceManager;
-    }
+    private readonly IWorkspaceManager _workspaceManager = workspaceManager;
 
     /// <summary>
     /// 获取调用指定方法的所有位置
@@ -30,7 +25,7 @@ public class CallerAnalyzer
     /// <param name="column">列号(从0开始)</param>
     /// <param name="includeIndirect">是否包含间接调用</param>
     /// <returns>调用者分析结果</returns>
-    public async Task<CallerAnalysisResult> GetCallerInfoAsync(
+    public static async Task<CallerAnalysisResult> GetCallerInfoAsync(
         Document document,
         int line,
         int column,
@@ -38,7 +33,7 @@ public class CallerAnalyzer
     {
         var semanticModel = await document.GetSemanticModelAsync();
         var root = await document.GetSyntaxRootAsync();
-        if (root == null) return new CallerAnalysisResult { Callers = new List<CallerInfo>(), CallCount = 0 };
+        if (root == null) return new CallerAnalysisResult { Callers = [], CallCount = 0 };
 
         // 获取指定位置的文本跨度
         var textLine = root.SyntaxTree.GetText().Lines[line];
@@ -47,13 +42,12 @@ public class CallerAnalyzer
 
         // 获取方法符号
         var node = root.FindNode(span);
-        var symbol = semanticModel.GetSymbolInfo(node).Symbol as IMethodSymbol;
 
-        if (symbol == null)
+        if (semanticModel?.GetSymbolInfo(node).Symbol is not IMethodSymbol symbol)
         {
             return new CallerAnalysisResult
             {
-                Callers = new List<CallerInfo>(),
+                Callers = [],
                 CallCount = 0
             };
         }
@@ -85,7 +79,7 @@ public class CallerAnalyzer
     /// <param name="methodSymbol">要查找的方法符号</param>
     /// <param name="includeIndirect">是否包含间接调用</param>
     /// <returns>调用者信息列表</returns>
-    private async Task<List<CallerInfo>> FindCallersInDocumentAsync(
+    private static async Task<List<CallerInfo>> FindCallersInDocumentAsync(
         Document document,
         IMethodSymbol methodSymbol,
         bool includeIndirect)
@@ -94,14 +88,17 @@ public class CallerAnalyzer
         var semanticModel = await document.GetSemanticModelAsync();
         var root = await document.GetSyntaxRootAsync();
 
+        if (semanticModel == null || root == null)
+        {
+            return callers;
+        }
+
         // 查找所有调用表达式
         var invocations = root.DescendantNodes().OfType<InvocationExpressionSyntax>();
 
         foreach (var invocation in invocations)
         {
-            var invokedSymbol = semanticModel.GetSymbolInfo(invocation).Symbol as IMethodSymbol;
-
-            if (invokedSymbol != null &&
+            if (semanticModel.GetSymbolInfo(invocation).Symbol is IMethodSymbol invokedSymbol &&
                 SymbolEqualityComparer.Default.Equals(invokedSymbol, methodSymbol))
             {
                 var lineSpan = root.SyntaxTree.GetLineSpan(invocation.Span);

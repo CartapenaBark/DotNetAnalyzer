@@ -11,7 +11,7 @@ public class DiagnosticFixer
     /// <summary>
     /// 修复所有出现的诊断
     /// </summary>
-    public async Task<FixResult> FixAllOccurrencesAsync(
+    public static async Task<FixResult> FixAllOccurrencesAsync(
         Solution solution,
         string diagnosticId,
         FixScope scope,
@@ -99,6 +99,10 @@ public class DiagnosticFixer
     private static async Task<List<Diagnostic>> GetDiagnosticsAsync(Document document, string diagnosticId)
     {
         var semanticModel = await document.GetSemanticModelAsync();
+        if (semanticModel == null)
+        {
+            return new List<Diagnostic>();
+        }
         var diagnostics = semanticModel.GetDiagnostics();
 
         return diagnostics

@@ -249,7 +249,7 @@ public sealed class SignatureChanger : IRefactorer
     /// <summary>
     /// 生成更新后的方法调用
     /// </summary>
-    private string GenerateUpdatedInvocation(
+    private static string GenerateUpdatedInvocation(
         InvocationExpressionSyntax invocation,
         IList<IParameterSymbol> oldParameters,
         string[] newParameters)

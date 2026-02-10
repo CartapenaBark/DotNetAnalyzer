@@ -183,7 +183,7 @@ public class TypeHierarchyAnalyzer
     /// <summary>
     /// 获取实现的接口
     /// </summary>
-    private List<InterfaceInfo> GetImplementedInterfaces(
+    private static List<InterfaceInfo> GetImplementedInterfaces(
         INamedTypeSymbol typeSymbol)
     {
         var interfaces = new List<InterfaceInfo>();

@@ -37,8 +37,7 @@ public static class CodeGenerationTools
                 return CreateErrorResponse($"找不到文件: {filePath}");
             }
 
-            var generator = new InterfaceGenerator(workspaceManager);
-            var implementation = await generator.GenerateInterfaceImplementationAsync(
+            var implementation = await InterfaceGenerator.GenerateInterfaceImplementationAsync(
                 document,
                 className,
                 interfaceName,
@@ -119,8 +118,7 @@ public static class CodeGenerationTools
                 return CreateErrorResponse($"找不到文件: {filePath}");
             }
 
-            var remover = new UnusedImportRemover(workspaceManager);
-            var result = await remover.RemoveUnusedUsingsAsync(document);
+            var result = await UnusedImportRemover.RemoveUnusedUsingsAsync(document);
 
             return JsonSerializer.Serialize(new
             {
@@ -147,7 +145,6 @@ public static class CodeGenerationTools
     {
         try
         {
-            var sorter = new ImportSorter();
             var sortOrder = order.ToLower() switch
             {
                 "systemfirst" => ImportSortOrder.SystemFirst,
@@ -156,7 +153,7 @@ public static class CodeGenerationTools
                 _ => ImportSortOrder.SystemFirst
             };
 
-            var sorted = sorter.SortUsings(fileContent, sortOrder);
+            var sorted = ImportSorter.SortUsings(fileContent, sortOrder);
 
             return JsonSerializer.Serialize(new
             {
@@ -193,8 +190,7 @@ public static class CodeGenerationTools
                 return CreateErrorResponse($"找不到文件: {filePath}");
             }
 
-            var adder = new MissingImportAdder(workspaceManager);
-            var result = await adder.AddMissingImportsAsync(document, suggestions?.ToList());
+            var result = await MissingImportAdder.AddMissingImportsAsync(document, suggestions?.ToList());
 
             return JsonSerializer.Serialize(new
             {

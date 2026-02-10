@@ -21,7 +21,7 @@ public class CalleeAnalyzer
     /// <summary>
     /// 获取方法内调用的所有其他方法
     /// </summary>
-    public async Task<CalleeAnalysisResult> GetCalleeInfoAsync(
+    public static async Task<CalleeAnalysisResult> GetCalleeInfoAsync(
         Document document,
         int line,
         int column,
@@ -38,7 +38,7 @@ public class CalleeAnalyzer
 
         // 获取方法符号
         var node = root.FindNode(span);
-        var methodSymbol = semanticModel.GetSymbolInfo(node).Symbol as IMethodSymbol;
+        var methodSymbol = semanticModel?.GetSymbolInfo(node).Symbol as IMethodSymbol;
 
         if (methodSymbol == null)
         {
@@ -65,7 +65,7 @@ public class CalleeAnalyzer
     /// <summary>
     /// 构建调用树
     /// </summary>
-    private async Task<CallTreeNode> BuildCallTreeAsync(
+    private static async Task<CallTreeNode> BuildCallTreeAsync(
         Document document,
         IMethodSymbol methodSymbol,
         int maxDepth,

@@ -282,7 +282,7 @@ public sealed class ParameterAdder : IRefactorer
     /// <summary>
     /// 生成更新后的方法调用
     /// </summary>
-    private string GenerateUpdatedInvocation(
+    private static string GenerateUpdatedInvocation(
         InvocationExpressionSyntax invocation,
         string paramName,
         string? defaultValue,

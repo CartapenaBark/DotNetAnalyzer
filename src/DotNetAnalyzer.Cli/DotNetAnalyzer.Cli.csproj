@@ -6,16 +6,23 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <!-- 目标框架：net8.0 -->
-    <TargetFramework>net8.0</TargetFramework>
+    <!-- 目标框架：支持 .NET 8.0、9.0、10.0 -->
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- 自动定义条件编译符号 -->
+    <DefineConstants>$(DefineConstants);$(TargetFramework.Replace('NET', 'NET').Replace('.', '_'))</DefineConstants>
+
+    <!-- C# 语言版本配置 -->
+    <LangVersion Condition="'$(TargetFramework)' == 'net8.0'">12.0</LangVersion>
+    <LangVersion Condition="'$(TargetFramework)' == 'net9.0'">13.0</LangVersion>
+    <LangVersion Condition="'$(TargetFramework)' == 'net10.0'">14.0</LangVersion>
 
     <!-- .NET Global Tool 配置 -->
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-analyzer</ToolCommandName>
     <PackageId>DotNetAnalyzer</PackageId>
-    <Version>0.7.0</Version>
+    <Version>0.8.0</Version>
     <Authors>CartapenaBark</Authors>
     <Description>MCP server with 70 tools for .NET code analysis, refactoring, and code generation</Description>
     <PackageTags>mcp;roslyn;code-analysis;claude;dotnet</PackageTags>
@@ -25,6 +32,31 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes><![CDATA[
+      v0.8.0 - Framework Expansion & Dependency Optimization
+
+      🎯 MAJOR IMPROVEMENTS:
+        • ✨ Added .NET 10.0 support (C# 14)
+        • 📦 Unified Roslyn to version 5.0.0 across all frameworks
+        • 🔧 Removed conditional PackageReference compilations
+        • ⚡ Achieved 0 warnings, 0 errors build
+        • ✅ All tests passing (171 tests on net9.0/net10.0, 190 on net8.0)
+
+      📊 FRAMEWORK SUPPORT:
+        • .NET 8.0 (C# 12) - 190/190 tests passing ✅
+        • .NET 9.0 (C# 13) - 171/171 tests passing ✅
+        • .NET 10.0 (C# 14) - 171/171 tests passing ✅
+        • Dropped .NET Standard 2.0 (incompatible with modern Roslyn)
+
+      🔧 DEPENDENCIES:
+        • Roslyn: Unified to 5.0.0 (was: 4.14.0 on net8.0, 5.0.0 on net9.0)
+        • Removed BenchmarkDotNet (unused, causing NU1608 warnings)
+        • All NU1608 package version conflicts resolved
+
+      🐛 BUG FIXES:
+        • Fixed WorkspaceManager conditional compilation (NET8_0 → all frameworks)
+        • Fixed 23 test failures on .NET 10.0
+        • Removed null reference warnings
+
       v0.7.0 - Complete Feature Implementation
 
       🎉 Major Release - All Planned Features Completed
@@ -93,9 +125,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <!-- Microsoft.Extensions.* 包 - 统一版本 -->
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
   </ItemGroup>
 
   <!-- 包含项目文件到 NuGet 包 -->

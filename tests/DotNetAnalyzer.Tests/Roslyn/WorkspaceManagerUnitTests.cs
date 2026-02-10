@@ -13,7 +13,6 @@ namespace DotNetAnalyzer.Tests.Roslyn;
 /// WorkspaceManager 单元测试
 /// 测试配置、初始化、缓存管理等功能
 /// </summary>
-#if NET8_0
 public class WorkspaceManagerUnitTests : IDisposable
 {
     private readonly ITestOutputHelper _output;
@@ -330,17 +329,3 @@ public class WorkspaceManagerUnitTests : IDisposable
         // 清理
     }
 }
-#else
-/// <summary>
-/// .NET 6.0 不支持 WorkspaceManager 单元测试
-/// </summary>
-public class WorkspaceManagerUnitTests
-{
-    [Fact]
-    public void DotNet6_ShouldSkipTests()
-    {
-        // 在 .NET 6.0 中跳过这些测试
-        Assert.True(true, "WorkspaceManager tests are only supported on .NET 8.0+");
-    }
-}
-#endif

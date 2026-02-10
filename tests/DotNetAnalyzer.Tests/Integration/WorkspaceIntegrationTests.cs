@@ -26,7 +26,7 @@ public class WorkspaceIntegrationTests
         _output.WriteLine($"资产存在: {Directory.Exists(_testAssetsPath)}");
     }
 
-    private WorkspaceManager CreateWorkspaceManager()
+    private static WorkspaceManager CreateWorkspaceManager()
     {
         return TestHelper.CreateWorkspaceManager();
     }
@@ -46,7 +46,7 @@ public class WorkspaceIntegrationTests
         // Assert
         Assert.NotNull(project);
         Assert.Equal("ConsoleApp", project.Name);
-        Assert.True(project.Documents.Count() > 0, "项目应包含文档");
+        Assert.True(project.Documents.Any(), "项目应包含文档");
 
         _output.WriteLine($"✅ 成功加载项目: {project.Name}");
         _output.WriteLine($"   文档数量: {project.Documents.Count()}");
@@ -91,7 +91,7 @@ public class WorkspaceIntegrationTests
 
         // Assert
         Assert.NotNull(solution);
-        Assert.True(solution.Projects.Count() > 0, "解决方案应包含项目");
+        Assert.True(solution.Projects.Any(), "解决方案应包含项目");
 
         _output.WriteLine($"✅ 成功加载解决方案");
         _output.WriteLine($"   项目数量: {solution.Projects.Count()}");
@@ -191,7 +191,7 @@ public class WorkspaceIntegrationTests
 
         // Assert
         Assert.NotNull(solution);
-        Assert.True(solution.Projects.Count() > 0, "解决方案应包含项目");
+        Assert.True(solution.Projects.Any(), "解决方案应包含项目");
 
         _output.WriteLine($"✅ 成功加载 .slnx 解决方案");
         _output.WriteLine($"   项目数量: {solution.Projects.Count()}");
@@ -221,7 +221,7 @@ public class WorkspaceIntegrationTests
 
         // Assert
         Assert.NotNull(solution);
-        Assert.True(solution.Projects.Count() > 0, "解决方案应包含项目");
+        Assert.True(solution.Projects.Any(), "解决方案应包含项目");
 
         _output.WriteLine($"✅ 成功加载 .sln 解决方案（向后兼容）");
         _output.WriteLine($"   项目数量: {solution.Projects.Count()}");

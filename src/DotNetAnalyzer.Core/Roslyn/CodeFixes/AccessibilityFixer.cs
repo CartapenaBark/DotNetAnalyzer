@@ -15,7 +15,7 @@ public class AccessibilityFixer
     /// <param name="declaration">声明语句</param>
     /// <param name="accessibility">可访问性级别(public/private/protected/internal)</param>
     /// <returns>添加了可访问性修饰符的声明</returns>
-    public string AddAccessibilityModifier(
+    public static string AddAccessibilityModifier(
         string declaration,
         string accessibility)
     {

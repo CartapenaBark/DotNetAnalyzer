@@ -24,11 +24,90 @@ namespace DotNetAnalyzer.Core.Memory;
 /// </remarks>
 public class AdaptiveCacheManager : IDisposable
 {
+    private static readonly Action<ILogger, TimeSpan, double, double, double, Exception?> s_logInitialized =
+        LoggerMessage.Define<TimeSpan, double, double, double>(LogLevel.Information,
+            new EventId(1, nameof(AdaptiveCacheManager)),
+            "AdaptiveCacheManager 已初始化 - 检查间隔: {CheckInterval}, 高内存阈值: {HighThreshold}%, 严重内存阈值: {CriticalThreshold}%, 清理百分比: {CleanupPercentage}%");
+
+    private static readonly Action<ILogger, string, string, Exception?> s_logCacheRegistered =
+        LoggerMessage.Define<string, string>(LogLevel.Debug,
+            new EventId(2, nameof(RegisterCache)),
+            "已注册缓存: {CacheName}, 类型: {CacheType}");
+
+    private static readonly Action<ILogger, double, int, Exception?> s_logMemoryMonitoring =
+        LoggerMessage.Define<double, int>(LogLevel.Debug,
+            new EventId(3, nameof(MonitorMemoryPressure)),
+            "内存监控 - 使用率: {MemoryLoad:F2}%, 已注册缓存数: {CacheCount}");
+
+    private static readonly Action<ILogger, Exception?> s_logMonitoringError =
+        LoggerMessage.Define(LogLevel.Error,
+            new EventId(4, nameof(MonitorMemoryPressure)),
+            "内存监控过程中发生错误");
+
+    private static readonly Action<ILogger, double, Exception?> s_logHighMemoryPressure =
+        LoggerMessage.Define<double>(LogLevel.Warning,
+            new EventId(5, nameof(ExecuteHighMemoryCleanup)),
+            "高内存压力触发缓存清理 - 内存使用率 ≥ {HighThreshold}%");
+
+    private static readonly Action<ILogger, string, Exception?> s_logCacheCleaned =
+        LoggerMessage.Define<string>(LogLevel.Information,
+            new EventId(6, nameof(ExecuteHighMemoryCleanup)),
+            "已清理缓存: {CacheName}");
+
+    private static readonly Action<ILogger, string, Exception?> s_logCacheCleanupError =
+        LoggerMessage.Define<string>(LogLevel.Error,
+            new EventId(7, nameof(ExecuteHighMemoryCleanup)),
+            "清理缓存 {CacheName} 时发生错误");
+
+    private static readonly Action<ILogger, int, int, Exception?> s_logHighMemoryCleanupComplete =
+        LoggerMessage.Define<int, int>(LogLevel.Warning,
+            new EventId(8, nameof(ExecuteHighMemoryCleanup)),
+            "高内存压力清理完成 - 已清理 {CleanedCount}/{TotalCount} 个缓存");
+
+    private static readonly Action<ILogger, double, double, Exception?> s_logCriticalMemoryPressure =
+        LoggerMessage.Define<double, double>(LogLevel.Critical,
+            new EventId(9, nameof(ExecuteCriticalCleanup)),
+            "严重内存压力触发深度清理 - 内存使用率: {MemoryLoad:F2}%, 清理百分比: {CleanupPercentage}%");
+
+    private static readonly Action<ILogger, string, Exception?> s_logCacheFullyCleaned =
+        LoggerMessage.Define<string>(LogLevel.Information,
+            new EventId(10, nameof(ExecuteCriticalCleanup)),
+            "已完全清理缓存: {CacheName}");
+
+    private static readonly Action<ILogger, string, int, Exception?> s_logCacheCleanedWithCount =
+        LoggerMessage.Define<string, int>(LogLevel.Information,
+            new EventId(11, nameof(ExecuteCriticalCleanup)),
+            "已清理缓存: {CacheName}, 原有项数: {OriginalCount}, 清理策略: 完全清理");
+
+    private static readonly Action<ILogger, string, Exception?> s_logCriticalCleanupError =
+        LoggerMessage.Define<string>(LogLevel.Error,
+            new EventId(12, nameof(ExecuteCriticalCleanup)),
+            "深度清理缓存 {CacheName} 时发生错误");
+
+    private static readonly Action<ILogger, int, int, Exception?> s_logCriticalCleanupComplete =
+        LoggerMessage.Define<int, int>(LogLevel.Critical,
+            new EventId(13, nameof(ExecuteCriticalCleanup)),
+            "严重内存压力深度清理完成 - 已清理 {CleanedCount}/{TotalCount} 个缓存");
+
+    private static readonly Action<ILogger, Exception?> s_logGarbageCollected =
+        LoggerMessage.Define(LogLevel.Warning,
+            new EventId(14, nameof(ExecuteCriticalCleanup)),
+            "已触发垃圾回收以释放内存");
+
+    private static readonly Action<ILogger, Exception?> s_logDisposing =
+        LoggerMessage.Define(LogLevel.Information,
+            new EventId(15, nameof(Dispose)),
+            "AdaptiveCacheManager 正在释放资源");
+
     private readonly ConcurrentDictionary<string, (object Cache, DateTime LastAccess)> _caches;
     private readonly Timer _monitoringTimer;
     private readonly MemoryMonitoringOptions _options;
     private readonly ILogger<AdaptiveCacheManager> _logger;
+#if NET9_0_OR_GREATER
+    private readonly Lock _cleanupLock = new();
+#else
     private readonly object _cleanupLock = new();
+#endif
     private bool _disposed;
 
     /// <summary>
@@ -57,14 +136,8 @@ public class AdaptiveCacheManager : IDisposable
             dueTime: _options.CheckInterval,
             period: _options.CheckInterval);
 
-        _logger.LogInformation(
-            "AdaptiveCacheManager 已初始化 - 检查间隔: {CheckInterval}, " +
-            "高内存阈值: {HighThreshold}%, 严重内存阈值: {CriticalThreshold}%, " +
-            "清理百分比: {CleanupPercentage}%",
-            _options.CheckInterval,
-            _options.HighMemoryThreshold,
-            _options.CriticalMemoryThreshold,
-            _options.CacheCleanupPercentage);
+        s_logInitialized(_logger, _options.CheckInterval, _options.HighMemoryThreshold,
+            _options.CriticalMemoryThreshold, _options.CacheCleanupPercentage, null);
     }
 
     /// <summary>
@@ -84,17 +157,14 @@ public class AdaptiveCacheManager : IDisposable
             throw new ArgumentException("缓存名称不能为空", nameof(cacheName));
         }
 
-        if (cache == null)
-        {
-            throw new ArgumentNullException(nameof(cache));
-        }
+        ArgumentNullException.ThrowIfNull(cache);
 
         _caches.AddOrUpdate(
             cacheName,
             (cache, DateTime.UtcNow),
             (_, _) => (cache, DateTime.UtcNow));
 
-        _logger.LogDebug("已注册缓存: {CacheName}, 类型: {CacheType}", cacheName, typeof(T).Name);
+        s_logCacheRegistered(_logger, cacheName, typeof(T).Name, null);
     }
 
     /// <summary>
@@ -121,10 +191,7 @@ public class AdaptiveCacheManager : IDisposable
             // 获取内存使用率
             var memoryLoad = GetMemoryLoadPercentage();
 
-            _logger.LogDebug(
-                "内存监控 - 使用率: {MemoryLoad:F2}%, 已注册缓存数: {CacheCount}",
-                memoryLoad,
-                _caches.Count);
+            s_logMemoryMonitoring(_logger, memoryLoad, _caches.Count, null);
 
             // 根据内存压力级别执行清理策略
             if (memoryLoad >= _options.CriticalMemoryThreshold)
@@ -146,7 +213,7 @@ public class AdaptiveCacheManager : IDisposable
         catch (Exception ex)
         {
             // 避免在 Timer 回调中抛出异常
-            _logger.LogError(ex, "内存监控过程中发生错误");
+            s_logMonitoringError(_logger, ex);
         }
     }
 
@@ -200,9 +267,7 @@ public class AdaptiveCacheManager : IDisposable
     {
         lock (_cleanupLock)
         {
-            _logger.LogWarning(
-                "高内存压力触发缓存清理 - 内存使用率 ≥ {HighThreshold}%",
-                _options.HighMemoryThreshold);
+            s_logHighMemoryPressure(_logger, _options.HighMemoryThreshold, null);
 
             var cleanedCaches = 0;
 
@@ -216,19 +281,16 @@ public class AdaptiveCacheManager : IDisposable
                     {
                         clearMethod.Invoke(cache, null);
                         cleanedCaches++;
-                        _logger.LogInformation("已清理缓存: {CacheName}", cacheName);
+                        s_logCacheCleaned(_logger, cacheName, null);
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "清理缓存 {CacheName} 时发生错误", cacheName);
+                    s_logCacheCleanupError(_logger, cacheName, ex);
                 }
             }
 
-            _logger.LogWarning(
-                "高内存压力清理完成 - 已清理 {CleanedCount}/{TotalCount} 个缓存",
-                cleanedCaches,
-                _caches.Count);
+            s_logHighMemoryCleanupComplete(_logger, cleanedCaches, _caches.Count, null);
         }
     }
 
@@ -245,10 +307,7 @@ public class AdaptiveCacheManager : IDisposable
         {
             var memoryLoad = GetMemoryLoadPercentage();
 
-            _logger.LogCritical(
-                "严重内存压力触发深度清理 - 内存使用率: {MemoryLoad:F2}%, 清理百分比: {CleanupPercentage}%",
-                memoryLoad,
-                _options.CacheCleanupPercentage);
+            s_logCriticalMemoryPressure(_logger, memoryLoad, _options.CacheCleanupPercentage, null);
 
             var cleanedCaches = 0;
 
@@ -264,7 +323,7 @@ public class AdaptiveCacheManager : IDisposable
                         var clearMethod = cache.GetType().GetMethod("Clear");
                         clearMethod?.Invoke(cache, null);
                         cleanedCaches++;
-                        _logger.LogInformation("已完全清理缓存: {CacheName}", cacheName);
+                        s_logCacheFullyCleaned(_logger, cacheName, null);
                         continue;
                     }
 
@@ -284,29 +343,23 @@ public class AdaptiveCacheManager : IDisposable
                     {
                         clearMethod2.Invoke(cache, null);
                         cleanedCaches++;
-                        _logger.LogInformation(
-                            "已清理缓存: {CacheName}, 原有项数: {OriginalCount}, 清理策略: 完全清理",
-                            cacheName,
-                            currentCount);
+                        s_logCacheCleanedWithCount(_logger, cacheName, currentCount, null);
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "深度清理缓存 {CacheName} 时发生错误", cacheName);
+                    s_logCriticalCleanupError(_logger, cacheName, ex);
                 }
             }
 
-            _logger.LogCritical(
-                "严重内存压力深度清理完成 - 已清理 {CleanedCount}/{TotalCount} 个缓存",
-                cleanedCaches,
-                _caches.Count);
+            s_logCriticalCleanupComplete(_logger, cleanedCaches, _caches.Count, null);
 
             // 在严重内存压力下建议 GC 回收
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
 
-            _logger.LogWarning("已触发垃圾回收以释放内存");
+            s_logGarbageCollected(_logger, null);
         }
     }
 
@@ -383,7 +436,7 @@ public class AdaptiveCacheManager : IDisposable
             return;
         }
 
-        _logger.LogInformation("AdaptiveCacheManager 正在释放资源");
+        s_logDisposing(_logger, null);
 
         _monitoringTimer.Dispose();
         _caches.Clear();

@@ -20,7 +20,7 @@ public class InterfaceGenerator
     /// <summary>
     /// 生成接口实现
     /// </summary>
-    public async Task<string> GenerateInterfaceImplementationAsync(
+    public static async Task<string> GenerateInterfaceImplementationAsync(
         Document document,
         string className,
         string interfaceName,
@@ -28,6 +28,11 @@ public class InterfaceGenerator
     {
         var semanticModel = await document.GetSemanticModelAsync();
         var root = await document.GetSyntaxRootAsync();
+
+        if (semanticModel == null || root == null)
+        {
+            throw new InvalidOperationException("无法获取语义模型或语法根节点");
+        }
 
         // 查找类声明
         var classDeclaration = root.DescendantNodes()
@@ -40,7 +45,13 @@ public class InterfaceGenerator
         }
 
         // 获取接口符号
-        var interfaceSymbol = semanticModel.Compilation.GetTypeByMetadataName(interfaceName);
+        var compilation = semanticModel.Compilation;
+        if (compilation == null)
+        {
+            throw new InvalidOperationException("无法获取编译对象");
+        }
+
+        var interfaceSymbol = compilation.GetTypeByMetadataName(interfaceName);
         if (interfaceSymbol == null)
         {
             throw new InvalidOperationException($"找不到接口 '{interfaceName}'");
@@ -58,7 +69,7 @@ public class InterfaceGenerator
     /// <summary>
     /// 生成接口成员实现
     /// </summary>
-    private string GenerateMembers(
+    private static string GenerateMembers(
         INamedTypeSymbol interfaceSymbol,
         SemanticModel semanticModel,
         bool generateStub)

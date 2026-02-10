@@ -126,7 +126,7 @@ public class SemanticModelExtractor
     /// <summary>
     /// 提取语义模型信息
     /// </summary>
-    private SemanticModelInfo ExtractSemanticModelInfo(
+    private static SemanticModelInfo ExtractSemanticModelInfo(
         SemanticModel semanticModel,
         SyntaxNode root,
         int position)
@@ -231,7 +231,7 @@ public class SemanticModelExtractor
     /// <summary>
     /// 获取作用域内的所有符号
     /// </summary>
-    private List<Models.SymbolInfo> GetSymbolsInScope(SemanticModel semanticModel,
+    private static List<Models.SymbolInfo> GetSymbolsInScope(SemanticModel semanticModel,
         int position)
     {
         var symbols = new List<ISymbol>();

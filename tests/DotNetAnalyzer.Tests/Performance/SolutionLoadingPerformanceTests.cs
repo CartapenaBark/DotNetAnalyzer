@@ -191,7 +191,7 @@ public class SolutionLoadingPerformanceTests
     /// <summary>
     /// 计算标准差
     /// </summary>
-    private double CalculateStandardDeviation(IEnumerable<long> values)
+    private static double CalculateStandardDeviation(IEnumerable<long> values)
     {
         var avg = values.Average();
         var sumOfSquares = values.Sum(v => Math.Pow(v - avg, 2));

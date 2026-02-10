@@ -11,7 +11,7 @@ public class QuickFixProvider
     /// <summary>
     /// 获取位置的快速修复建议
     /// </summary>
-    public async Task<List<QuickFix>> GetQuickFixesAsync(
+    public static async Task<List<QuickFix>> GetQuickFixesAsync(
         Document document,
         int line,
         int column)
@@ -26,7 +26,8 @@ public class QuickFixProvider
         var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
 
         // 获取诊断信息
-        var diagnostics = semanticModel.GetDiagnostics();
+        var diagnostics = semanticModel?.GetDiagnostics();
+        if (diagnostics == null) return new List<QuickFix>();
 
         // 查找相关的快速修复
         var quickFixes = new List<QuickFix>();

@@ -166,12 +166,16 @@ public sealed class FieldEncapsulator : IRefactorer
         }
 
         // 在字段后插入属性
-        var insertPosition = fieldDeclaration.Parent.Span.End;
-        changes.Add(CodeChange.Insert(
-            filePath,
-            insertPosition,
-            propertyCode,
-            $"插入属性 {propertyName}"));
+        var fieldParent = fieldDeclaration.Parent;
+        if (fieldParent != null)
+        {
+            var insertPosition = fieldParent.Span.End;
+            changes.Add(CodeChange.Insert(
+                filePath,
+                insertPosition,
+                propertyCode,
+                $"插入属性 {propertyName}"));
+        }
 
         // 12. 更新所有访问点
         foreach (var usage in fieldUsages)

@@ -33,9 +33,9 @@ public class PropertyGenerator
             // 生成带后备字段的属性
             code.AppendLine("{");
             if (hasGetter)
-                code.AppendLine($"        get => _{char.ToLower(propertyName[0])}{propertyName.Substring(1)};");
+                code.AppendLine($"        get => _{char.ToLower(propertyName[0])}{propertyName[1..]};");
             if (hasSetter && !isReadOnly)
-                code.AppendLine($"        set => _{char.ToLower(propertyName[0])}{propertyName.Substring(1)} = value;");
+                code.AppendLine($"        set => _{char.ToLower(propertyName[0])}{propertyName[1..]} = value;");
             code.AppendLine("    }");
         }
         else

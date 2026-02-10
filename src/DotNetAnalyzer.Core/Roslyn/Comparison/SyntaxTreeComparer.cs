@@ -47,8 +47,8 @@ public partial class SyntaxTreeComparer
 
         if (ignoreWhitespace)
         {
-            text1 = MyRegex().Replace(text1, " ");
-            text2 = MyRegex().Replace(text2, " ");
+            text1 = WhitespaceRegex().Replace(text1, " ");
+            text2 = WhitespaceRegex().Replace(text2, " ");
         }
 
         if (text1 == text2)
@@ -84,7 +84,7 @@ public partial class SyntaxTreeComparer
                     {
                         Kind = DiffKind.Added,
                         Location = new SourceRange { StartLine = i },
-                        After = line2
+                        After = line2 ?? string.Empty
                     });
                 }
                 else if (line2 == null)
@@ -124,5 +124,5 @@ public partial class SyntaxTreeComparer
     }
 
     [System.Text.RegularExpressions.GeneratedRegex(@"\s+")]
-    private static partial System.Text.RegularExpressions.Regex MyRegex();
+    private static partial System.Text.RegularExpressions.Regex WhitespaceRegex();
 }

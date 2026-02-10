@@ -160,7 +160,7 @@ public class DefinitionResolver
     /// <summary>
     /// 异步获取符号的定义位置
     /// </summary>
-    private async Task<List<DefinitionLocation>> GetDefinitionLocationsAsync(
+    private static Task<List<DefinitionLocation>> GetDefinitionLocationsAsync(
         ISymbol symbol)
     {
         var locations = new List<DefinitionLocation>();
@@ -193,7 +193,7 @@ public class DefinitionResolver
             }
         }
 
-        return locations;
+        return Task.FromResult(locations);
     }
 
     /// <summary>

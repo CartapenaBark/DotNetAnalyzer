@@ -1,7 +1,5 @@
 using Microsoft.CodeAnalysis;
-#if NET8_0
 using Microsoft.CodeAnalysis.MSBuild;
-#endif
 using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Configuration;
 using DotNetAnalyzer.Core.Security;
@@ -11,7 +9,6 @@ using Microsoft.Extensions.Logging;
 
 namespace DotNetAnalyzer.Core.Roslyn;
 
-#if NET8_0
 /// <summary>
 /// Roslyn 工作区管理器，负责加载和缓存 .NET 项目及解决方案
 /// </summary>
@@ -38,7 +35,7 @@ public class WorkspaceManager : IWorkspaceManager
     /// <remarks>
     /// 键为项目文件路径，值为加载时的文件最后修改时间（UTC）
     /// </remarks>
-    private readonly Dictionary<string, DateTime> _projectModifiedTimes = new();
+    private readonly Dictionary<string, DateTime> _projectModifiedTimes = [];
 
     private readonly WorkspaceManagerOptions _options;
     private readonly ILogger<WorkspaceManager> _logger;
@@ -78,11 +75,11 @@ public class WorkspaceManager : IWorkspaceManager
 
                 // 注册项目缓存
                 _adaptiveCacheManager.RegisterCache("ProjectCache", _projectCache);
-                _logger.LogInformation("AdaptiveCacheManager 已启用并已注册项目缓存");
+                s_logAdaptiveCacheEnabled(_logger, null);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "初始化 AdaptiveCacheManager 失败，将在不启用内存监控的情况下继续运行");
+                s_logAdaptiveCacheInitFailed(_logger, ex);
                 _adaptiveCacheManager = null;
             }
         }
@@ -91,8 +88,8 @@ public class WorkspaceManager : IWorkspaceManager
             _adaptiveCacheManager = null;
         }
 
-        _logger.LogInformation("WorkspaceManager 初始化完成 - 缓存容量: {Capacity}, 过期时间: {Expiration}, 最大并发加载数: {MaxConcurrentLoads}, 内存监控: {MemoryMonitoringEnabled}",
-            _options.CacheCapacity, _options.CacheExpiration, _options.MaxConcurrentLoads, _adaptiveCacheManager != null);
+        s_logInitialized(_logger, _options.CacheCapacity, _options.CacheExpiration,
+            _options.MaxConcurrentLoads, _adaptiveCacheManager != null, null);
     }
 
     /// <summary>
@@ -103,9 +100,9 @@ public class WorkspaceManager : IWorkspaceManager
         _workspace = MSBuildWorkspace.Create();
         _workspace.RegisterWorkspaceFailedHandler(failure =>
         {
-            _logger.LogWarning("工作区失败诊断: {DiagnosticMessage}", failure.Diagnostic.Message);
+            s_logWorkspaceFailed(_logger, failure.Diagnostic.Message, null);
         });
-        _logger.LogDebug("MSBuildWorkspace 创建成功");
+        s_logWorkspaceCreated(_logger, null);
     }
 
     /// <summary>
@@ -139,11 +136,11 @@ public class WorkspaceManager : IWorkspaceManager
         try
         {
             validatedPath = PathValidator.ValidateProjectPath(projectPath, checkExists: true);
-            _logger.LogDebug("项目路径验证成功: {ProjectPath}", validatedPath);
+            s_logPathValidationSuccess(_logger, validatedPath, null);
         }
         catch (PathValidationException ex)
         {
-            _logger.LogError(ex, "项目路径验证失败: {ProjectPath}", projectPath);
+            s_logPathValidationFailed(_logger, projectPath, ex);
             throw new ProjectLoadException(
                 $"项目路径验证失败: {ex.Message}",
                 projectPath,
@@ -156,17 +153,16 @@ public class WorkspaceManager : IWorkspaceManager
             if (cachedProject is not null && !IsProjectModified(validatedPath))
             {
                 _cacheMetrics.RecordHit(validatedPath);
-                _logger.LogDebug("缓存命中（快速路径）: {ProjectPath}, 耗时: {ElapsedMs}ms", validatedPath, stopwatch.ElapsedMilliseconds);
+                s_logCacheHitFastPath(_logger, validatedPath, stopwatch.ElapsedMilliseconds, null);
                 return cachedProject;
             }
             // 缓存已失效，移除旧条目
             _projectCache.Remove(validatedPath);
-            _logger.LogDebug("缓存已失效: {ProjectPath}", validatedPath);
+            s_logCacheInvalidated(_logger, validatedPath, null);
         }
 
         _cacheMetrics.RecordMiss(validatedPath);
-        _logger.LogDebug("等待信号量以加载项目: {ProjectPath}, 当前等待线程数: {CurrentCount}",
-            validatedPath, _semaphore.CurrentCount);
+        s_logWaitSemaphore(_logger, validatedPath, _semaphore.CurrentCount, null);
 
         // 获取信号量（限制并发加载数）
         await _semaphore.WaitAsync();
@@ -179,17 +175,16 @@ public class WorkspaceManager : IWorkspaceManager
                 if (cachedProject is not null && !IsProjectModified(validatedPath))
                 {
                     _cacheMetrics.RecordHit(validatedPath);
-                    _logger.LogDebug("缓存命中（双重检查）: {ProjectPath}, 其他线程已加载, 耗时: {ElapsedMs}ms",
-                        validatedPath, stopwatch.ElapsedMilliseconds);
+                    s_logCacheHitDoubleCheck(_logger, validatedPath, stopwatch.ElapsedMilliseconds, null);
                     return cachedProject;
                 }
                 // 缓存已失效，移除旧条目
                 _projectCache.Remove(validatedPath);
-                _logger.LogDebug("缓存已失效（双重检查）: {ProjectPath}", validatedPath);
+                s_logCacheInvalidatedDoubleCheck(_logger, validatedPath, null);
             }
 
-            _logger.LogInformation("开始加载项目: {ProjectPath}, 当前并发数: {CurrentCount}/{MaxConcurrentLoads}",
-                validatedPath, _options.MaxConcurrentLoads - _semaphore.CurrentCount, _options.MaxConcurrentLoads);
+            s_logStartLoadingProject(_logger, validatedPath,
+                _options.MaxConcurrentLoads - _semaphore.CurrentCount, _options.MaxConcurrentLoads, null);
 
             // 检查项目是否已在工作区中（处理并发情况）
             var existingProject = _workspace!.CurrentSolution.Projects
@@ -200,7 +195,7 @@ public class WorkspaceManager : IWorkspaceManager
             {
                 // 项目已存在于工作区，使用现有的
                 project = existingProject;
-                _logger.LogDebug("项目已存在于工作区: {ProjectPath}", validatedPath);
+                s_logProjectExistsInWorkspace(_logger, validatedPath, null);
 
                 // 即使项目在工作区中，也需要检查并记录修改时间
                 var modifiedTime = File.GetLastWriteTimeUtc(validatedPath);
@@ -213,13 +208,13 @@ public class WorkspaceManager : IWorkspaceManager
             {
                 // 项目不存在，加载新项目
                 project = await _workspace.OpenProjectAsync(validatedPath);
-                _logger.LogDebug("从磁盘加载项目: {ProjectPath}, 耗时: {ElapsedMs}ms", validatedPath, stopwatch.ElapsedMilliseconds);
+                s_logLoadedFromDisk(_logger, validatedPath, stopwatch.ElapsedMilliseconds, null);
             }
 
             // 验证项目加载成功
             if (project == null)
             {
-                _logger.LogError("项目加载失败，返回null: {ProjectPath}", validatedPath);
+                s_logProjectLoadFailedNull(_logger, validatedPath, null);
                 throw new ProjectLoadException(
                     $"无法加载项目: {validatedPath}。项目对象为 null。",
                     validatedPath);
@@ -235,8 +230,8 @@ public class WorkspaceManager : IWorkspaceManager
             // 确保项目在缓存中
             _projectCache.Set(validatedPath, project);
             stopwatch.Stop();
-            _logger.LogInformation("项目加载成功: {ProjectPath}, 文档数: {DocumentCount}, 总耗时: {ElapsedMs}ms, 缓存统计: {CacheStats}",
-                validatedPath, project.DocumentIds.Count, stopwatch.ElapsedMilliseconds, _cacheMetrics.GetSummary());
+            s_logProjectLoadSuccess(_logger, validatedPath, project.DocumentIds.Count,
+                stopwatch.ElapsedMilliseconds, _cacheMetrics.GetSummary(), null);
             return project;
         }
         catch (ProjectLoadException)
@@ -246,7 +241,7 @@ public class WorkspaceManager : IWorkspaceManager
         catch (Exception ex)
         {
             stopwatch.Stop();
-            _logger.LogError(ex, "加载项目时发生错误: {ProjectPath}, 耗时: {ElapsedMs}ms", validatedPath, stopwatch.ElapsedMilliseconds);
+            s_logProjectLoadError(_logger, validatedPath, stopwatch.ElapsedMilliseconds, ex);
             throw new ProjectLoadException(
                 $"加载项目时发生错误: {validatedPath}",
                 validatedPath,
@@ -255,7 +250,7 @@ public class WorkspaceManager : IWorkspaceManager
         finally
         {
             _semaphore.Release();
-            _logger.LogDebug("释放信号量: {ProjectPath}, 剩余可用: {CurrentCount}", validatedPath, _semaphore.CurrentCount);
+            s_logReleaseSemaphore(_logger, validatedPath, _semaphore.CurrentCount, null);
         }
     }
 
@@ -293,18 +288,18 @@ public class WorkspaceManager : IWorkspaceManager
         try
         {
             validatedPath = PathValidator.ValidateSolutionPath(solutionPath, checkExists: true);
-            _logger.LogDebug("解决方案路径验证成功: {SolutionPath}", validatedPath);
+            s_logSolutionPathValidationSuccess(_logger, validatedPath, null);
         }
         catch (PathValidationException ex)
         {
-            _logger.LogError(ex, "解决方案路径验证失败: {SolutionPath}", solutionPath);
+            s_logSolutionPathValidationFailed(_logger, solutionPath, ex);
             throw new ProjectLoadException(
                 $"解决方案路径验证失败: {ex.Message}",
                 solutionPath,
                 ex);
         }
 
-        _logger.LogInformation("开始加载解决方案: {SolutionPath}", validatedPath);
+        s_logStartLoadingSolution(_logger, validatedPath, null);
 
         await _semaphore.WaitAsync();
         try
@@ -314,15 +309,15 @@ public class WorkspaceManager : IWorkspaceManager
             // 验证解决方案加载成功
             if (solution == null)
             {
-                _logger.LogError("解决方案加载失败，返回null: {SolutionPath}", validatedPath);
+                s_logSolutionLoadFailedNull(_logger, validatedPath, null);
                 throw new ProjectLoadException(
                     $"无法加载解决方案: {validatedPath}。解决方案对象为 null。",
                     validatedPath);
             }
 
             stopwatch.Stop();
-            _logger.LogInformation("解决方案加载成功: {SolutionPath}, 项目数: {ProjectCount}, 耗时: {ElapsedMs}ms",
-                validatedPath, solution.Projects.Count(), stopwatch.ElapsedMilliseconds);
+            s_logSolutionLoadSuccess(_logger, validatedPath, solution.Projects.Count(),
+                stopwatch.ElapsedMilliseconds, null);
             return solution;
         }
         catch (ProjectLoadException)
@@ -332,7 +327,7 @@ public class WorkspaceManager : IWorkspaceManager
         catch (Exception ex)
         {
             stopwatch.Stop();
-            _logger.LogError(ex, "加载解决方案时发生错误: {SolutionPath}, 耗时: {ElapsedMs}ms", validatedPath, stopwatch.ElapsedMilliseconds);
+            s_logSolutionLoadError(_logger, validatedPath, stopwatch.ElapsedMilliseconds, ex);
             throw new ProjectLoadException(
                 $"加载解决方案时发生错误: {validatedPath}",
                 validatedPath,
@@ -400,7 +395,7 @@ public class WorkspaceManager : IWorkspaceManager
         _projectCache.Clear();
         _projectModifiedTimes.Clear();
         _cacheMetrics.Reset();
-        _logger.LogInformation("缓存已清除 - 清除前统计: {StatsBefore}", statsBefore);
+        s_logCacheCleared(_logger, statsBefore, null);
     }
 
     /// <summary>
@@ -419,7 +414,7 @@ public class WorkspaceManager : IWorkspaceManager
     public void Dispose()
     {
         var finalStats = _cacheMetrics.GetSummary();
-        _logger.LogInformation("WorkspaceManager 正在释放资源 - 最终缓存统计: {FinalStats}", finalStats);
+        s_logDisposing(_logger, finalStats, null);
 
         _projectCache.Clear();
         _projectModifiedTimes.Clear();
@@ -428,78 +423,155 @@ public class WorkspaceManager : IWorkspaceManager
         if (_adaptiveCacheManager != null)
         {
             _adaptiveCacheManager.Dispose();
-            _logger.LogInformation("AdaptiveCacheManager 已释放");
+            s_logAdaptiveCacheDisposed(_logger, null);
         }
 
-        if (_workspace != null)
-        {
-            _workspace.Dispose();
-            _workspace = null;
-        }
+        _workspace?.Dispose();
+        _workspace = null;
 
         _semaphore.Dispose();
         GC.SuppressFinalize(this);
     }
+
+    #region 日志定义
+    private static readonly Action<ILogger, Exception?> s_logAdaptiveCacheEnabled =
+        LoggerMessage.Define(LogLevel.Information,
+            new EventId(1, nameof(WorkspaceManager)),
+            "AdaptiveCacheManager 已启用并已注册项目缓存");
+
+    private static readonly Action<ILogger, Exception?> s_logAdaptiveCacheInitFailed =
+        LoggerMessage.Define(LogLevel.Warning,
+            new EventId(2, nameof(WorkspaceManager)),
+            "初始化 AdaptiveCacheManager 失败，将在不启用内存监控的情况下继续运行");
+
+    private static readonly Action<ILogger, int, TimeSpan, int, bool, Exception?> s_logInitialized =
+        LoggerMessage.Define<int, TimeSpan, int, bool>(LogLevel.Information,
+            new EventId(3, nameof(WorkspaceManager)),
+            "WorkspaceManager 初始化完成 - 缓存容量: {Capacity}, 过期时间: {Expiration}, 最大并发加载数: {MaxConcurrentLoads}, 内存监控: {MemoryMonitoringEnabled}");
+
+    private static readonly Action<ILogger, string, Exception?> s_logWorkspaceFailed =
+        LoggerMessage.Define<string>(LogLevel.Warning,
+            new EventId(4, nameof(InitializeWorkspace)),
+            "工作区失败诊断: {DiagnosticMessage}");
+
+    private static readonly Action<ILogger, Exception?> s_logWorkspaceCreated =
+        LoggerMessage.Define(LogLevel.Debug,
+            new EventId(5, nameof(InitializeWorkspace)),
+            "MSBuildWorkspace 创建成功");
+
+    private static readonly Action<ILogger, string, Exception?> s_logPathValidationSuccess =
+        LoggerMessage.Define<string>(LogLevel.Debug,
+            new EventId(6, nameof(GetProjectAsync)),
+            "项目路径验证成功: {ProjectPath}");
+
+    private static readonly Action<ILogger, string, Exception?> s_logPathValidationFailed =
+        LoggerMessage.Define<string>(LogLevel.Error,
+            new EventId(7, nameof(GetProjectAsync)),
+            "项目路径验证失败: {ProjectPath}");
+
+    private static readonly Action<ILogger, string, long, Exception?> s_logCacheHitFastPath =
+        LoggerMessage.Define<string, long>(LogLevel.Debug,
+            new EventId(8, nameof(GetProjectAsync)),
+            "缓存命中（快速路径）: {ProjectPath}, 耗时: {ElapsedMs}ms");
+
+    private static readonly Action<ILogger, string, Exception?> s_logCacheInvalidated =
+        LoggerMessage.Define<string>(LogLevel.Debug,
+            new EventId(9, nameof(GetProjectAsync)),
+            "缓存已失效: {ProjectPath}");
+
+    private static readonly Action<ILogger, string, int, Exception?> s_logWaitSemaphore =
+        LoggerMessage.Define<string, int>(LogLevel.Debug,
+            new EventId(10, nameof(GetProjectAsync)),
+            "等待信号量以加载项目: {ProjectPath}, 当前等待线程数: {CurrentCount}");
+
+    private static readonly Action<ILogger, string, long, Exception?> s_logCacheHitDoubleCheck =
+        LoggerMessage.Define<string, long>(LogLevel.Debug,
+            new EventId(11, nameof(GetProjectAsync)),
+            "缓存命中（双重检查）: {ProjectPath}, 其他线程已加载, 耗时: {ElapsedMs}ms");
+
+    private static readonly Action<ILogger, string, Exception?> s_logCacheInvalidatedDoubleCheck =
+        LoggerMessage.Define<string>(LogLevel.Debug,
+            new EventId(12, nameof(GetProjectAsync)),
+            "缓存已失效（双重检查）: {ProjectPath}");
+
+    private static readonly Action<ILogger, string, int, int, Exception?> s_logStartLoadingProject =
+        LoggerMessage.Define<string, int, int>(LogLevel.Information,
+            new EventId(13, nameof(GetProjectAsync)),
+            "开始加载项目: {ProjectPath}, 当前并发数: {CurrentCount}/{MaxConcurrentLoads}");
+
+    private static readonly Action<ILogger, string, Exception?> s_logProjectExistsInWorkspace =
+        LoggerMessage.Define<string>(LogLevel.Debug,
+            new EventId(14, nameof(GetProjectAsync)),
+            "项目已存在于工作区: {ProjectPath}");
+
+    private static readonly Action<ILogger, string, long, Exception?> s_logLoadedFromDisk =
+        LoggerMessage.Define<string, long>(LogLevel.Debug,
+            new EventId(15, nameof(GetProjectAsync)),
+            "从磁盘加载项目: {ProjectPath}, 耗时: {ElapsedMs}ms");
+
+    private static readonly Action<ILogger, string, Exception?> s_logProjectLoadFailedNull =
+        LoggerMessage.Define<string>(LogLevel.Error,
+            new EventId(16, nameof(GetProjectAsync)),
+            "项目加载失败，返回null: {ProjectPath}");
+
+    private static readonly Action<ILogger, string, int, long, string, Exception?> s_logProjectLoadSuccess =
+        LoggerMessage.Define<string, int, long, string>(LogLevel.Information,
+            new EventId(17, nameof(GetProjectAsync)),
+            "项目加载成功: {ProjectPath}, 文档数: {DocumentCount}, 总耗时: {ElapsedMs}ms, 缓存统计: {CacheStats}");
+
+    private static readonly Action<ILogger, string, long, Exception?> s_logProjectLoadError =
+        LoggerMessage.Define<string, long>(LogLevel.Error,
+            new EventId(18, nameof(GetProjectAsync)),
+            "加载项目时发生错误: {ProjectPath}, 耗时: {ElapsedMs}ms");
+
+    private static readonly Action<ILogger, string, int, Exception?> s_logReleaseSemaphore =
+        LoggerMessage.Define<string, int>(LogLevel.Debug,
+            new EventId(19, nameof(GetProjectAsync)),
+            "释放信号量: {ProjectPath}, 剩余可用: {CurrentCount}");
+
+    private static readonly Action<ILogger, string, Exception?> s_logSolutionPathValidationSuccess =
+        LoggerMessage.Define<string>(LogLevel.Debug,
+            new EventId(20, nameof(GetSolutionAsync)),
+            "解决方案路径验证成功: {SolutionPath}");
+
+    private static readonly Action<ILogger, string, Exception?> s_logSolutionPathValidationFailed =
+        LoggerMessage.Define<string>(LogLevel.Error,
+            new EventId(21, nameof(GetSolutionAsync)),
+            "解决方案路径验证失败: {SolutionPath}");
+
+    private static readonly Action<ILogger, string, Exception?> s_logStartLoadingSolution =
+        LoggerMessage.Define<string>(LogLevel.Information,
+            new EventId(22, nameof(GetSolutionAsync)),
+            "开始加载解决方案: {SolutionPath}");
+
+    private static readonly Action<ILogger, string, Exception?> s_logSolutionLoadFailedNull =
+        LoggerMessage.Define<string>(LogLevel.Error,
+            new EventId(23, nameof(GetSolutionAsync)),
+            "解决方案加载失败，返回null: {SolutionPath}");
+
+    private static readonly Action<ILogger, string, int, long, Exception?> s_logSolutionLoadSuccess =
+        LoggerMessage.Define<string, int, long>(LogLevel.Information,
+            new EventId(24, nameof(GetSolutionAsync)),
+            "解决方案加载成功: {SolutionPath}, 项目数: {ProjectCount}, 耗时: {ElapsedMs}ms");
+
+    private static readonly Action<ILogger, string, long, Exception?> s_logSolutionLoadError =
+        LoggerMessage.Define<string, long>(LogLevel.Error,
+            new EventId(25, nameof(GetSolutionAsync)),
+            "加载解决方案时发生错误: {SolutionPath}, 耗时: {ElapsedMs}ms");
+
+    private static readonly Action<ILogger, string, Exception?> s_logCacheCleared =
+        LoggerMessage.Define<string>(LogLevel.Information,
+            new EventId(26, nameof(ClearCache)),
+            "缓存已清除 - 清除前统计: {StatsBefore}");
+
+    private static readonly Action<ILogger, string, Exception?> s_logDisposing =
+        LoggerMessage.Define<string>(LogLevel.Information,
+            new EventId(27, nameof(Dispose)),
+            "WorkspaceManager 正在释放资源 - 最终缓存统计: {FinalStats}");
+
+    private static readonly Action<ILogger, Exception?> s_logAdaptiveCacheDisposed =
+        LoggerMessage.Define(LogLevel.Information,
+            new EventId(28, nameof(Dispose)),
+            "AdaptiveCacheManager 已释放");
+    #endregion
 }
-#else
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Logging;
-
-/// <summary>
-/// .NET 6.0 不支持 MSBuild 工作区功能
-/// </summary>
-/// <remarks>
-/// 在 .NET 6.0 中，WorkspaceManager 功能受限。
-/// 请使用 .NET 8.0 或更高版本以获得完整的 MSBuild 集成支持。
-/// </remarks>
-public class WorkspaceManager : IWorkspaceManager
-{
-    /// <summary>
-    /// .NET 6.0 限制版本构造函数
-    /// </summary>
-    /// <param name="options">配置选项（在 .NET 6.0 中不使用）</param>
-    /// <param name="logger">日志记录器（在 .NET 6.0 中不使用）</param>
-    /// <param name="loggerFactory">日志工厂（在 .NET 6.0 中不使用）</param>
-    public WorkspaceManager(
-        IOptions<WorkspaceManagerOptions> options,
-        ILogger<WorkspaceManager> logger,
-        ILoggerFactory? loggerFactory = null)
-    {
-    }
-
-    /// <summary>
-    /// .NET 6.0 不支持此方法
-    /// </summary>
-    public Task<Project> GetProjectAsync(string projectPath)
-    {
-        throw new PlatformNotSupportedException(
-            "MSBuild workspace is only supported on .NET 8.0 or later. " +
-            "Please upgrade to .NET 8.0 to use this feature.");
-    }
-
-    /// <summary>
-    /// .NET 6.0 不支持此方法
-    /// </summary>
-    public Task<Solution> GetSolutionAsync(string solutionPath)
-    {
-        throw new PlatformNotSupportedException(
-            "MSBuild workspace is only supported on .NET 8.0 or later. " +
-            "Please upgrade to .NET 8.0 to use this feature.");
-    }
-
-    /// <summary>
-    /// 清除缓存（.NET 6.0 空实现）
-    /// </summary>
-    public void ClearCache()
-    {
-    }
-
-    /// <summary>
-    /// 释放资源（.NET 6.0 空实现）
-    /// </summary>
-    public void Dispose()
-    {
-        GC.SuppressFinalize(this);
-    }
-}
-#endif

@@ -173,8 +173,8 @@ public sealed class UnnecessaryCodeRemover : IRefactorer
         foreach (var usingDirective in usings)
         {
             // 检查using是否被使用
-            var isUsed = false;
-            var namespaceName = usingDirective.Name.ToString();
+            var namespaceName = usingDirective.Name?.ToString();
+            if (namespaceName == null) continue;
 
             // 简化检查：在文件中搜索该命名空间的使用
             var typeReferences = root.DescendantNodes()

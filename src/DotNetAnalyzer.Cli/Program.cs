@@ -10,9 +10,9 @@ using DotNetAnalyzer.Core.Memory;
 
 namespace DotNetAnalyzer.Cli;
 
-class Program
+internal sealed class Program
 {
-    static async Task Main(string[] args)
+    private static async Task Main(string[] args)
     {
         // 处理命令行参数
         if (args.Length > 0)
@@ -32,7 +32,7 @@ class Program
                     if (args.Length > 1 && args[1] == "serve")
                     {
                         // 继续执行 MCP 服务器启动
-                        args = args.Skip(2).ToArray();
+                        args = [.. args.Skip(2)];
                     }
                     break;
             }

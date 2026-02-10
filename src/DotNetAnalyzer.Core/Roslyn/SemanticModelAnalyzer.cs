@@ -201,7 +201,8 @@ public static partial class SemanticModelAnalyzer
 
     private static ParamInfo[] ExtractXmlParams(string xmlComment)
     {
-        var matches = MyRegex().Matches(xmlComment);
+        var regex = ParamRegex();
+        var matches = regex.Matches(xmlComment);
 
         return matches
             .Select(m => new ParamInfo
@@ -213,7 +214,7 @@ public static partial class SemanticModelAnalyzer
     }
 
     [GeneratedRegex("<param name=\"(.*?)\">(.*?)</param>", RegexOptions.Singleline)]
-    private static partial Regex MyRegex();
+    private static partial Regex ParamRegex();
 
     #endregion
 }

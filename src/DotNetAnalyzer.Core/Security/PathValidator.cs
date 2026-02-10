@@ -20,17 +20,17 @@ public static class PathValidator
     /// <summary>
     /// 允许的项目文件扩展名
     /// </summary>
-    private static readonly string[] ProjectExtensions = [".csproj"];
+    private static readonly string[] ProjectExtensions = new[] { ".csproj" };
 
     /// <summary>
     /// 允许的解决方案文件扩展名
     /// </summary>
-    private static readonly string[] SolutionExtensions = [".sln", ".slnx"];
+    private static readonly string[] SolutionExtensions = new[] { ".sln", ".slnx" };
 
     /// <summary>
     /// 允许的源代码文件扩展名
     /// </summary>
-    private static readonly string[] SourceFileExtensions = [".cs", ".vb", ".fs"];
+    private static readonly string[] SourceFileExtensions = new[] { ".cs", ".vb", ".fs" };
 
     /// <summary>
     /// 路径遍历攻击的特征字符
@@ -298,7 +298,7 @@ public static class PathValidator
         }
 
         // 检查路径段的长度（防止超长段绕过检查）
-        var segments = path.Split([DirectorySeparatorChar, AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
+        var segments = path.Split(new[] { DirectorySeparatorChar, AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
         const int maxSegmentLength = 255; // Windows MAX_PATH 限制
 
         foreach (var segment in segments)

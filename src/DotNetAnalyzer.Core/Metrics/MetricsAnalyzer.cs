@@ -76,7 +76,7 @@ public class MetricsAnalyzer
     /// <summary>
     /// 分析代码度量
     /// </summary>
-    private FileCodeMetrics AnalyzeMetrics(
+    private static FileCodeMetrics AnalyzeMetrics(
         SyntaxNode root,
         SemanticModel semanticModel,
         string filePath)
@@ -105,7 +105,7 @@ public class MetricsAnalyzer
     /// <summary>
     /// 分析命名空间度量
     /// </summary>
-    private NamespaceCodeMetrics AnalyzeNamespace(
+    private static NamespaceCodeMetrics AnalyzeNamespace(
         NamespaceDeclarationSyntax namespaceSyntax,
         SemanticModel semanticModel)
     {
@@ -129,7 +129,7 @@ public class MetricsAnalyzer
     /// <summary>
     /// 分析类型度量
     /// </summary>
-    private TypeCodeMetrics AnalyzeType(
+    private static TypeCodeMetrics AnalyzeType(
         TypeDeclarationSyntax typeSyntax,
         SemanticModel semanticModel)
     {
@@ -172,7 +172,7 @@ public class MetricsAnalyzer
     /// <summary>
     /// 分析方法度量
     /// </summary>
-    private MethodCodeMetrics AnalyzeMethod(
+    private static MethodCodeMetrics AnalyzeMethod(
         MethodDeclarationSyntax methodSyntax,
         SemanticModel semanticModel)
     {
@@ -197,7 +197,7 @@ public class MetricsAnalyzer
     /// <summary>
     /// 分析属性度量
     /// </summary>
-    private PropertyCodeMetrics AnalyzeProperty(
+    private static PropertyCodeMetrics AnalyzeProperty(
         PropertyDeclarationSyntax propertySyntax,
         SemanticModel semanticModel)
     {

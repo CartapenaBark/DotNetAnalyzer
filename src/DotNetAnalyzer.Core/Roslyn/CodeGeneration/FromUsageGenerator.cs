@@ -12,7 +12,7 @@ public class FromUsageGenerator
     /// <summary>
     /// 根据使用处生成类型或成员
     /// </summary>
-    public async Task<string> GenerateFromUsageAsync(
+    public static async Task<string> GenerateFromUsageAsync(
         Document document,
         int line,
         int column,
@@ -21,7 +21,7 @@ public class FromUsageGenerator
     {
         var semanticModel = await document.GetSemanticModelAsync();
         var root = await document.GetSyntaxRootAsync();
-        if (root == null) return string.Empty;
+        if (root == null || semanticModel == null) return string.Empty;
 
         // 获取指定位置的文本跨度
         var textLine = root.SyntaxTree.GetText().Lines[line];
@@ -45,7 +45,7 @@ public class FromUsageGenerator
     /// <summary>
     /// 生成声明
     /// </summary>
-    private string GenerateDeclaration(
+    private static string GenerateDeclaration(
         string memberType,
         string name,
         SemanticModel semanticModel,
@@ -128,9 +128,9 @@ public class FromUsageGenerator
     /// <summary>
     /// 根据符号使用生成声明
     /// </summary>
-    private string GenerateDeclarationFromUsage(ISymbol symbol, string memberType, string? suggestedName)
+    private static string GenerateDeclarationFromUsage(ISymbol symbol, string memberType, string? suggestedName)
     {
         var name = suggestedName ?? symbol.Name;
-        return GenerateDeclaration(memberType, name, null, null);
+        return GenerateDeclaration(memberType, name, null!, null!);
     }
 }

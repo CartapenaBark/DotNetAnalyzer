@@ -224,7 +224,7 @@ public sealed class VariableIntroducer : IRefactorer
     /// <summary>
     /// 建议变量名
     /// </summary>
-    private string SuggestVariableName(
+    private static string SuggestVariableName(
         ExpressionSyntax expression,
         TypeInfo typeInfo)
     {

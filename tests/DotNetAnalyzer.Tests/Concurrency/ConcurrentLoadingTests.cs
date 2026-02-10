@@ -26,7 +26,7 @@ public class ConcurrentLoadingTests
     /// <summary>
     /// 创建自定义配置的 WorkspaceManager
     /// </summary>
-    private WorkspaceManager CreateWorkspaceManager(int maxConcurrentLoads = 4)
+    private static WorkspaceManager CreateWorkspaceManager(int maxConcurrentLoads = 4)
     {
         var options = Options.Create(new WorkspaceManagerOptions
         {

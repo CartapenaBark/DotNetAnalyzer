@@ -20,10 +20,15 @@ public class UnusedImportRemover
     /// <summary>
     /// 移除未使用的using指令
     /// </summary>
-    public async Task<string> RemoveUnusedUsingsAsync(Document document)
+    public static async Task<string> RemoveUnusedUsingsAsync(Document document)
     {
         var semanticModel = await document.GetSemanticModelAsync();
         var root = await document.GetSyntaxRootAsync();
+        if (semanticModel == null || root == null)
+        {
+            return (await document.GetSyntaxRootAsync())?.ToString() ?? string.Empty;
+        }
+
         var usings = root.DescendantNodes().OfType<UsingDirectiveSyntax>().ToList();
 
         var unusedUsings = new List<UsingDirectiveSyntax>();
@@ -38,7 +43,7 @@ public class UnusedImportRemover
 
         // 移除未使用的using
         var newRoot = root.RemoveNodes(unusedUsings, SyntaxRemoveOptions.KeepNoTrivia);
-        return newRoot.ToFullString();
+        return newRoot?.ToFullString() ?? root.ToFullString();
     }
 
     /// <summary>
@@ -46,7 +51,11 @@ public class UnusedImportRemover
     /// </summary>
     private static bool IsUsingUsed(SemanticModel semanticModel, SyntaxNode root, UsingDirectiveSyntax usingDirective)
     {
-        var namespaceName = usingDirective.Name.ToString();
+        var namespaceName = usingDirective.Name?.ToString();
+        if (string.IsNullOrEmpty(namespaceName))
+        {
+            return false;
+        }
 
         // 检查命名空间中的类型是否被使用
         var typeNames = root.DescendantNodes()

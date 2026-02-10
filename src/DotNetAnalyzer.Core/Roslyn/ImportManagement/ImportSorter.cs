@@ -15,7 +15,7 @@ public class ImportSorter
     /// <param name="fileContent">文件内容</param>
     /// <param name="order">排序顺序</param>
     /// <returns>排序后的文件内容</returns>
-    public string SortUsings(string fileContent, ImportSortOrder order = ImportSortOrder.SystemFirst)
+    public static string SortUsings(string fileContent, ImportSortOrder order = ImportSortOrder.SystemFirst)
     {
         var tree = CSharpSyntaxTree.ParseText(fileContent);
         var root = tree.GetRoot();
@@ -46,8 +46,8 @@ public class ImportSorter
     private static List<UsingDirectiveSyntax> SortSystemFirst(List<UsingDirectiveSyntax> usings)
     {
         return usings
-            .OrderByDescending(u => u.Name.ToString().StartsWith("System"))
-            .ThenBy(u => u.Name.ToString())
+            .OrderByDescending(u => u.Name?.ToString().StartsWith("System") == true)
+            .ThenBy(u => u.Name?.ToString() ?? string.Empty)
             .ToList();
     }
 
@@ -57,7 +57,7 @@ public class ImportSorter
     private static List<UsingDirectiveSyntax> SortAlphabetically(List<UsingDirectiveSyntax> usings)
     {
         return usings
-            .OrderBy(u => u.Name.ToString())
+            .OrderBy(u => u.Name?.ToString() ?? string.Empty)
             .ToList();
     }
 
@@ -67,8 +67,8 @@ public class ImportSorter
     private static List<UsingDirectiveSyntax> SortByLength(List<UsingDirectiveSyntax> usings)
     {
         return usings
-            .OrderBy(u => u.Name.ToString().Length)
-            .ThenBy(u => u.Name.ToString())
+            .OrderBy(u => u.Name?.ToString().Length ?? 0)
+            .ThenBy(u => u.Name?.ToString() ?? string.Empty)
             .ToList();
     }
 }

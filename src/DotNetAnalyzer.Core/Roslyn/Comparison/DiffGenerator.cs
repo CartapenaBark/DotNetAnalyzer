@@ -20,7 +20,7 @@ public class DiffGenerator
     /// <summary>
     /// 生成代码差异（unified diff格式）
     /// </summary>
-    public async Task<CodeDiffResult> GetCodeDiffAsync(
+    public static async Task<CodeDiffResult> GetCodeDiffAsync(
         string beforePath,
         string afterPath,
         int contextLines = 3)
@@ -58,7 +58,7 @@ public class DiffGenerator
     /// <summary>
     /// 生成unified diff
     /// </summary>
-    private string GenerateUnifiedDiff(
+    private static string GenerateUnifiedDiff(
         string beforePath,
         string afterPath,
         string[] beforeLines,

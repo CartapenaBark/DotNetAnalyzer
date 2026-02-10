@@ -217,8 +217,8 @@ public static class RefactoringTools
                 {
                     kind = c.Kind.ToString(),
                     description = c.Description,
-                    oldText = c.OldText?.Length > 100 ? c.OldText.Substring(0, 100) + "..." : c.OldText,
-                    newText = c.NewText?.Length > 100 ? c.NewText.Substring(0, 100) + "..." : c.NewText
+                    oldText = c.OldText?.Length > 100 ? string.Concat(c.OldText.AsSpan(0, 100), "...") : c.OldText,
+                    newText = c.NewText?.Length > 100 ? string.Concat(c.NewText.AsSpan(0, 100), "...") : c.NewText
                 })
             }),
             metadata = preview.Metadata,

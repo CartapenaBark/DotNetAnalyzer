@@ -28,7 +28,7 @@ namespace DotNetAnalyzer.Core.Roslyn.ImportManagement
                 }
 
                 var usings = root.DescendantNodes().OfType<UsingDirectiveSyntax>().ToList();
-                if (!usings.Any())
+                if (usings.Count == 0)
                 {
                     return new ImportOrganizationResult
                     {
@@ -60,7 +60,7 @@ namespace DotNetAnalyzer.Core.Roslyn.ImportManagement
                 var sortedUsings = SortUsings(usings, options.SortStyle);
 
                 // 重新生成 using 列表
-                if (sortedUsings.Any())
+                if (sortedUsings.Count != 0)
                 {
                     var firstUsing = usings.First();
                     var lastUsing = usings.Last();
@@ -127,7 +127,7 @@ namespace DotNetAnalyzer.Core.Roslyn.ImportManagement
         /// <summary>
         /// 检查 using 是否被使用
         /// </summary>
-        private bool IsUsingUsed(SemanticModel semanticModel, UsingDirectiveSyntax usingDirective)
+        private static bool IsUsingUsed(SemanticModel semanticModel, UsingDirectiveSyntax usingDirective)
         {
             var name = usingDirective.Name ?? throw new ArgumentNullException(nameof(usingDirective));
             var symbolInfo = semanticModel.GetSymbolInfo(name);
@@ -146,7 +146,7 @@ namespace DotNetAnalyzer.Core.Roslyn.ImportManagement
         /// <summary>
         /// 排序 using 语句
         /// </summary>
-        private List<UsingDirectiveSyntax> SortUsings(List<UsingDirectiveSyntax> usings, ImportSortStyle sortStyle)
+        private static List<UsingDirectiveSyntax> SortUsings(List<UsingDirectiveSyntax> usings, ImportSortStyle sortStyle)
         {
             if (sortStyle == ImportSortStyle.SystemFirst)
             {
@@ -166,7 +166,7 @@ namespace DotNetAnalyzer.Core.Roslyn.ImportManagement
         /// <summary>
         /// 在分组之间插入空行
         /// </summary>
-        private List<UsingDirectiveSyntax> InsertGroupSeparators(List<UsingDirectiveSyntax> usings, bool addSeparation)
+        private static List<UsingDirectiveSyntax> InsertGroupSeparators(List<UsingDirectiveSyntax> usings, bool addSeparation)
         {
             if (!addSeparation || usings.Count == 0)
                 return usings;

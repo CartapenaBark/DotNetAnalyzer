@@ -137,7 +137,7 @@ public class DefinitionResolver
     /// <summary>
     /// 获取文件中的字符位置
     /// </summary>
-    private int GetPosition(Microsoft.CodeAnalysis.SyntaxTree syntaxTree,
+    private static int GetPosition(Microsoft.CodeAnalysis.SyntaxTree syntaxTree,
         int line, int column)
     {
         var lines = syntaxTree.GetText().Lines;
@@ -199,7 +199,7 @@ public class DefinitionResolver
     /// <summary>
     /// 映射位置信息
     /// </summary>
-    private DefinitionLocation? MapLocation(Location? location)
+    private static DefinitionLocation? MapLocation(Location? location)
     {
         if (location == null || !location.IsInSource)
         {
@@ -220,7 +220,7 @@ public class DefinitionResolver
     /// <summary>
     /// 映射符号信息
     /// </summary>
-    private SymbolInformation MapSymbolInfo(ISymbol symbol)
+    private static SymbolInformation MapSymbolInfo(ISymbol symbol)
     {
         return new SymbolInformation
         {

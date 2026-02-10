@@ -82,7 +82,7 @@ public class MemberHierarchyAnalyzer
     /// <summary>
     /// 查找成员符号
     /// </summary>
-    private ISymbol? FindMemberSymbol(INamedTypeSymbol typeSymbol,
+    private static ISymbol? FindMemberSymbol(INamedTypeSymbol typeSymbol,
         string memberName)
     {
         // 首先尝试直接查找
@@ -242,7 +242,7 @@ public class MemberHierarchyAnalyzer
     /// <summary>
     /// 异步获取实现的接口成员
     /// </summary>
-    private async Task<List<InterfaceMemberMapping>>
+    private static async Task<List<InterfaceMemberMapping>>
         GetImplementedInterfaceMembersAsync(ISymbol memberSymbol)
     {
         var mappings = new List<InterfaceMemberMapping>();
@@ -293,7 +293,7 @@ public class MemberHierarchyAnalyzer
     /// <summary>
     /// 检查是否为显式接口实现
     /// </summary>
-    private bool IsExplicitInterfaceImplementation(ISymbol memberSymbol)
+    private static bool IsExplicitInterfaceImplementation(ISymbol memberSymbol)
     {
         return memberSymbol switch
         {
@@ -307,7 +307,7 @@ public class MemberHierarchyAnalyzer
     /// <summary>
     /// 映射成员位置信息
     /// </summary>
-    private MemberLocation? MapMemberLocation(ISymbol symbol)
+    private static MemberLocation? MapMemberLocation(ISymbol symbol)
     {
         var location = symbol.Locations.FirstOrDefault(l => l.IsInSource);
         if (location == null)

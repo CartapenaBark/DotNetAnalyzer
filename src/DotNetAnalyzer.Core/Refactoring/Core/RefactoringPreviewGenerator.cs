@@ -76,7 +76,7 @@ public sealed class RefactoringPreviewGenerator : IRefactoringPreviewGenerator
     /// <summary>
     /// 应用变更到文本
     /// </summary>
-    private string ApplyChangesToText(string text, IReadOnlyList<CodeChange> changes)
+    private static string ApplyChangesToText(string text, IReadOnlyList<CodeChange> changes)
     {
         // 按照从后到前的顺序应用变更（避免位置偏移）
         var sortedChanges = changes
@@ -118,7 +118,7 @@ public sealed class RefactoringPreviewGenerator : IRefactoringPreviewGenerator
     /// <summary>
     /// 生成简单的 diff
     /// </summary>
-    private string GenerateSimpleDiff(string oldContent, string newContent)
+    private static string GenerateSimpleDiff(string oldContent, string newContent)
     {
         var oldLines = oldContent.Split('\n');
         var newLines = newContent.Split('\n');

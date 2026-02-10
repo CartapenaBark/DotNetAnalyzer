@@ -1,12 +1,13 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using System.Text.RegularExpressions;
 
 namespace DotNetAnalyzer.Core.Roslyn;
 
 /// <summary>
 /// 语义模型分析器 - 提供符号解析和类型信息推断功能
 /// </summary>
-public static class SemanticModelAnalyzer
+public static partial class SemanticModelAnalyzer
 {
     /// <summary>
     /// 解析符号并获取详细信息
@@ -190,24 +191,19 @@ public static class SemanticModelAnalyzer
 
     private static string? ExtractXmlTag(string xmlComment, string tagName)
     {
-        var match = System.Text.RegularExpressions.Regex.Match(
+        var match = Regex.Match(
             xmlComment,
             $"<{tagName}>(.*?)</{tagName}>",
-            System.Text.RegularExpressions.RegexOptions.Singleline
+            RegexOptions.Singleline
         );
         return match.Success ? match.Groups[1].Value.Trim() : null;
     }
 
     private static ParamInfo[] ExtractXmlParams(string xmlComment)
     {
-        var matches = System.Text.RegularExpressions.Regex.Matches(
-            xmlComment,
-            "<param name=\"(.*?)\">(.*?)</param>",
-            System.Text.RegularExpressions.RegexOptions.Singleline
-        );
+        var matches = MyRegex().Matches(xmlComment);
 
         return matches
-            .Cast<System.Text.RegularExpressions.Match>()
             .Select(m => new ParamInfo
             {
                 Name = m.Groups[1].Value,
@@ -215,6 +211,9 @@ public static class SemanticModelAnalyzer
             })
             .ToArray();
     }
+
+    [GeneratedRegex("<param name=\"(.*?)\">(.*?)</param>", RegexOptions.Singleline)]
+    private static partial Regex MyRegex();
 
     #endregion
 }

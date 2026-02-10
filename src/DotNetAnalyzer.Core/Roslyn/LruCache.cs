@@ -220,7 +220,7 @@ public class LruCache<TKey, TValue> where TKey : notnull
     /// <summary>
     /// 缓存项
     /// </summary>
-    private class CacheItem
+    private sealed class CacheItem
     {
         public TKey Key { get; set; } = default!;
         public TValue Value { get; set; } = default!;

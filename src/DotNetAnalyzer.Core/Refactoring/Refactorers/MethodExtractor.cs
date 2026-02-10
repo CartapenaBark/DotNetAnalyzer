@@ -206,7 +206,7 @@ public sealed class MethodExtractor : IRefactorer
     /// <summary>
     /// 确定方法参数
     /// </summary>
-    private List<ParameterInfo> DetermineParameters(
+    private static List<ParameterInfo> DetermineParameters(
         DataFlowAnalysisResult dataFlow,
         SemanticModel semanticModel)
     {
@@ -248,7 +248,7 @@ public sealed class MethodExtractor : IRefactorer
     /// <summary>
     /// 确定返回类型
     /// </summary>
-    private string DetermineReturnType(
+    private static string DetermineReturnType(
         SyntaxNode selectedNode,
         SemanticModel semanticModel,
         DataFlowAnalysisResult dataFlow)
@@ -285,7 +285,7 @@ public sealed class MethodExtractor : IRefactorer
     /// <summary>
     /// 生成方法声明
     /// </summary>
-    private string GenerateMethodDeclaration(
+    private static string GenerateMethodDeclaration(
         string methodName,
         string returnType,
         List<ParameterInfo> parameters,
@@ -330,7 +330,7 @@ public sealed class MethodExtractor : IRefactorer
     /// <summary>
     /// 生成方法调用
     /// </summary>
-    private string GenerateMethodCall(string methodName, List<ParameterInfo> parameters)
+    private static string GenerateMethodCall(string methodName, List<ParameterInfo> parameters)
     {
         var call = new System.Text.StringBuilder();
         call.Append($"{methodName}(");
@@ -349,7 +349,7 @@ public sealed class MethodExtractor : IRefactorer
                 call.Append(param.Name);
         }
 
-        call.Append(")");
+        call.Append(')');
 
         // 如果有返回值，可能需要处理
         return call.ToString();

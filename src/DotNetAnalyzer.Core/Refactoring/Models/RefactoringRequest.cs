@@ -33,7 +33,7 @@ public sealed class RefactoringRequest
     /// <summary>
     /// 获取或设置是否应用变更（false 表示只生成预览）
     /// </summary>
-    public bool ApplyChanges { get; set; } = false;
+    public bool ApplyChanges { get; set; }
 }
 
 /// <summary>

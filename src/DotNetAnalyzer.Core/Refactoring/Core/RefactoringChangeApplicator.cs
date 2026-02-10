@@ -141,7 +141,7 @@ public sealed class RefactoringChangeApplicator : IRefactoringChangeApplicator
     /// <summary>
     /// 解析新节点
     /// </summary>
-    private SyntaxNode? ParseNewNode(
+    private static SyntaxNode? ParseNewNode(
         string text,
         Document document,
         CancellationToken cancellationToken)

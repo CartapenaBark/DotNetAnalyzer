@@ -72,7 +72,7 @@ namespace DotNetAnalyzer.Core.Roslyn.CodeGeneration
 
                 // 查找可重写的成员
                 var overridableMembers = GetOverridableMembers(classSymbol);
-                if (!overridableMembers.Any())
+                if (overridableMembers.Count == 0)
                 {
                     return new GenerationResult
                     {
@@ -87,7 +87,7 @@ namespace DotNetAnalyzer.Core.Roslyn.CodeGeneration
                     ? overridableMembers
                     : overridableMembers.Where(m => m.Name == options.MemberName).ToList();
 
-                if (!membersToGenerate.Any())
+                if (membersToGenerate.Count == 0)
                 {
                     return new GenerationResult
                     {
@@ -160,7 +160,7 @@ namespace DotNetAnalyzer.Core.Roslyn.CodeGeneration
         /// <summary>
         /// 获取可重写的成员
         /// </summary>
-        private List<ISymbol> GetOverridableMembers(INamedTypeSymbol classSymbol)
+        private static List<ISymbol> GetOverridableMembers(INamedTypeSymbol classSymbol)
         {
             var overridableMembers = new List<ISymbol>();
 
@@ -259,7 +259,7 @@ namespace DotNetAnalyzer.Core.Roslyn.CodeGeneration
         /// <summary>
         /// 查找插入位置
         /// </summary>
-        private int FindInsertLocation(ClassDeclarationSyntax classDeclaration)
+        private static int FindInsertLocation(ClassDeclarationSyntax classDeclaration)
         {
             if (classDeclaration.Members.Count == 0)
             {
@@ -273,7 +273,7 @@ namespace DotNetAnalyzer.Core.Roslyn.CodeGeneration
         /// <summary>
         /// 解析类型名称（简化版）
         /// </summary>
-        private TypeSyntax ParseTypeName(ITypeSymbol typeSymbol)
+        private static TypeSyntax ParseTypeName(ITypeSymbol typeSymbol)
         {
             return SyntaxFactory.ParseTypeName(typeSymbol.ToDisplayString());
         }
@@ -281,7 +281,7 @@ namespace DotNetAnalyzer.Core.Roslyn.CodeGeneration
         /// <summary>
         /// 解析类型名称（参数版本）
         /// </summary>
-        private TypeSyntax ParseTypeName(IParameterSymbol parameterSymbol)
+        private static TypeSyntax ParseTypeName(IParameterSymbol parameterSymbol)
         {
             return SyntaxFactory.ParseTypeName(parameterSymbol.Type.ToDisplayString());
         }

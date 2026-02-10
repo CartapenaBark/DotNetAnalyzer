@@ -30,7 +30,7 @@ public interface ICompilationCache
     /// 此方法会：
     /// <list type="number">
     ///   <item>检查缓存中是否已有该项目的编译结果</item>
-///   <item>如果缓存存在且未过期，返回缓存的编译</item>
+    ///   <item>如果缓存存在且未过期，返回缓存的编译</item>
     ///   <item>否则执行新的编译并更新缓存</item>
     /// </list>
     /// </remarks>

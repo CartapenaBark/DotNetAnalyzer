@@ -81,7 +81,7 @@ public class CacheMetrics
     /// <summary>
     /// 缓存命中信息
     /// </summary>
-    private class CacheHitInfo
+    private sealed class CacheHitInfo
     {
         public int Hits { get; set; }
         public int Misses { get; set; }

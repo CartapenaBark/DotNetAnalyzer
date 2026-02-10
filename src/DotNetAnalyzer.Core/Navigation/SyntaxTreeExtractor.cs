@@ -188,7 +188,7 @@ public class SyntaxTreeExtractor
     /// <summary>
     /// 获取节点属性
     /// </summary>
-    private Dictionary<string, object?> GetNodeProperties(SyntaxNode node)
+    private static Dictionary<string, object?> GetNodeProperties(SyntaxNode node)
     {
         var properties = new Dictionary<string, object?>();
 
@@ -221,7 +221,7 @@ public class SyntaxTreeExtractor
     /// <summary>
     /// 获取祖先链
     /// </summary>
-    private List<string> GetAncestorChain(SyntaxNode node)
+    private static List<string> GetAncestorChain(SyntaxNode node)
     {
         var chain = new List<string>();
         var current = node.Parent;
@@ -245,7 +245,7 @@ public class SyntaxTreeExtractor
     /// <summary>
     /// 获取语法错误
     /// </summary>
-    private List<SyntaxErrorInfo> GetSyntaxErrors(SyntaxNode node)
+    private static List<SyntaxErrorInfo> GetSyntaxErrors(SyntaxNode node)
     {
         var errors = new List<SyntaxErrorInfo>();
 
@@ -305,7 +305,7 @@ public class SyntaxTreeExtractor
     /// <summary>
     /// 获取 trivia 信息
     /// </summary>
-    private List<TriviaInfo> GetTrivia(SyntaxNode root, TextSpan range)
+    private static List<TriviaInfo> GetTrivia(SyntaxNode root, TextSpan range)
     {
         var triviaList = new List<TriviaInfo>();
 
@@ -342,7 +342,7 @@ public class SyntaxTreeExtractor
     /// <summary>
     /// 获取跨度信息
     /// </summary>
-    private List<SpanInfo> GetSpanInfo(SyntaxNode root, TextSpan range)
+    private static List<SpanInfo> GetSpanInfo(SyntaxNode root, TextSpan range)
     {
         var spans = new List<SpanInfo>();
 
@@ -368,7 +368,7 @@ public class SyntaxTreeExtractor
     /// <summary>
     /// 计算树的度量指标
     /// </summary>
-    private (int nodeCount, int maxDepth) CalculateMetrics(SyntaxNode root)
+    private static (int nodeCount, int maxDepth) CalculateMetrics(SyntaxNode root)
     {
         int nodeCount = 0;
         int maxDepth = 0;

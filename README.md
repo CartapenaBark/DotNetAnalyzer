@@ -474,6 +474,9 @@ dotnet build -c Release
 # 运行测试
 dotnet test
 
+# 运行所有测试（包括性能测试）
+dotnet test --filter "Category=Performance"
+
 # 创建 NuGet 包
 dotnet pack -c Release
 ```
@@ -485,10 +488,12 @@ dotnet pack -c Release
 - **触发条件**: Push to main branch, 创建 Release, 手动触发
 - **构建流程**:
   1. 还原依赖
-  2. 运行测试
+  2. 运行测试（CI 环境跳过性能测试）
   3. 创建 NuGet 包
   4. 发布到 NuGet.org（仅 Release）
   5. 创建 GitHub Release
+
+> **注意**: 性能基准测试对运行环境敏感，在 CI 环境中会自动跳过。本地开发时可以使用 `dotnet test --filter "Category=Performance"` 运行性能测试。
 
 📄 [查看工作流配置](.github/workflows/build-and-publish.yml)
 

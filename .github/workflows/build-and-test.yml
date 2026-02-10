@@ -50,7 +50,7 @@ jobs:
       run: dotnet build -c Release
 
     - name: Test (${{ matrix.framework }})
-      run: dotnet test -c Release --framework ${{ matrix.framework }} --verbosity normal
+      run: dotnet test -c Release --framework ${{ matrix.framework }} --verbosity normal --filter "Category!=Performance"
 
     - name: Pack NuGet package
       run: dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release

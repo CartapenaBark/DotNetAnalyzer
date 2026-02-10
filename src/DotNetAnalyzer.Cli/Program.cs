@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -11,8 +12,6 @@ namespace DotNetAnalyzer.Cli;
 
 class Program
 {
-    private const string Version = "0.6.1";
-
     static async Task Main(string[] args)
     {
         // 处理命令行参数
@@ -22,7 +21,7 @@ class Program
             {
                 case "--version":
                 case "-v":
-                    Console.WriteLine("dotnet-analyzer version " + Version);
+                    Console.WriteLine("dotnet-analyzer version " + GetVersion());
                     return;
                 case "--help":
                 case "-h":
@@ -71,10 +70,23 @@ class Program
         await builder.Build().RunAsync();
     }
 
+    private static string GetVersion()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var assemblyVersion = assembly.GetName().Version;
+        var informationalVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+
+        // 优先使用 InformationalVersion（如果存在），否则使用 AssemblyVersion
+        // informationalVersion 通常包含语义化版本（如 0.6.1）
+        // assemblyVersion 通常只是 AssemblyVersion（如 0.6.1.0）
+        return !string.IsNullOrEmpty(informationalVersion) ? informationalVersion
+               : assemblyVersion?.ToString() ?? "unknown";
+    }
+
     private static void ShowHelp()
     {
         Console.WriteLine("DotNetAnalyzer - .NET MCP Server for Claude Code");
-        Console.WriteLine("Version: " + Version);
+        Console.WriteLine("Version: " + GetVersion());
         Console.WriteLine();
         Console.WriteLine("Usage:");
         Console.WriteLine("  dotnet-analyzer [options] [command]");

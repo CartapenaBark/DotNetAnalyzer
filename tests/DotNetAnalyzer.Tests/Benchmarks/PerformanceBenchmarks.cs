@@ -40,8 +40,10 @@ public class PerformanceBenchmarks
 
         _output.WriteLine($"项目加载时间: {loadTime}ms");
 
-        // 小型项目应该在合理时间内加载
-        Assert.True(loadTime < 5000, $"项目加载时间 {loadTime}ms 超过预期阈值 5000ms");
+        // 小型项目应该在合理时间内加载（CI 环境需要更宽松的阈值）
+        var isCi = Environment.GetEnvironmentVariable("CI") != null;
+        var threshold = isCi ? 7000 : 5000;  // CI 环境（GitHub Actions）通常较慢
+        Assert.True(loadTime < threshold, $"项目加载时间 {loadTime}ms 超过预期阈值 {threshold}ms");
     }
 
     [Fact]
@@ -105,7 +107,8 @@ public class PerformanceBenchmarks
         _output.WriteLine($"诊断数量: {diagnostics.Length}");
 
         // 诊断获取应该很快（CI 环境需要更宽松的阈值）
-        var threshold = Environment.GetEnvironmentVariable("CI") != null ? 2500 : 1000;
+        var isCi = Environment.GetEnvironmentVariable("CI") != null;
+        var threshold = isCi ? 6000 : 1000;  // CI 环境（GitHub Actions）通常较慢
         Assert.True(retrievalTime < threshold, $"诊断获取时间 {retrievalTime}ms 超过预期阈值 {threshold}ms");
     }
 

@@ -759,6 +759,14 @@ dotnet tool uninstall --global DotNetAnalyzer
 ### 项目文档
 - [CHANGELOG](CHANGELOG.md) - 版本更新历史
 - [CONTRIBUTING.md](CONTRIBUTING.md) - 贡献指南
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) - 行为准则
+- [SECURITY.md](SECURITY.md) - 安全政策
+
+### 社区
+- [报告 Bug](https://github.com/CartapenaBark/DotNetAnalyzer/issues/new?template=bug_report.yml) - 使用 Bug 报告模板
+- [功能请求](https://github.com/CartapenaBark/DotNetAnalyzer/issues/new?template=feature_request.yml) - 使用功能请求模板
+- [文档改进](https://github.com/CartapenaBark/DotNetAnalyzer/issues/new?template=documentation.yml) - 使用文档改进模板
+- [提问咨询](https://github.com/CartapenaBark/DotNetAnalyzer/issues/new?template=question.yml) - 使用问题咨询模板
 
 ## 🙏 致谢
 

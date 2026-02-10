@@ -1,0 +1,95 @@
+name: 文档改进
+description: 报告文档问题或建议文档改进
+title: "[Docs]: "
+labels: ["documentation", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢帮助改进文档！请告诉我们需要如何改进。
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: 文档类型
+      description: 哪个文档需要改进？
+      options:
+        - README.md
+        - API 指南 (docs/api-guide.md)
+        - 编码标准 (docs/CODING_STANDARDS.md)
+        - 开发工作流 (docs/development-workflow.md)
+        - 使用示例 (docs/examples.md)
+        - 配置说明 (CONFIGURATION.md)
+        - XML 代码注释
+        - 其他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: 问题类型
+      description: 什么类型的文档问题？
+      options:
+        - 信息过时/不准确
+        - 难以理解
+        - 缺少信息
+        - 错别字/语法错误
+        - 缺少示例
+        - 示例代码不工作
+        - 格式/排版问题
+        - 链接失效
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: 问题位置
+      description: 请具体指出问题所在的章节或行号
+      placeholder: |
+        文件: docs/api-guide.md
+        章节: 2.3 代码分析工具
+        行号: 约 45-50 行
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述
+      description: 描述文档存在的问题
+      placeholder: 这段描述不清楚...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: 改进建议
+      description: 您建议如何改进？
+      placeholder: 建议修改为...
+    validations:
+      required: false
+
+  - type: textarea
+    id: proposed-content
+    attributes:
+      label: 建议的内容（可选）
+      description: 如果您有改进的具体文本，请在这里提供
+      placeholder: |
+        ## 新的标题
+        新的内容...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: 贡献意愿
+      options:
+        - label: 我愿意提交 PR 来修复这个文档问题
+          required: false
+        - label: 我需要帮助来撰写改进内容
+          required: false

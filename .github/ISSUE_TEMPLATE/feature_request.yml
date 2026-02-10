@@ -1,0 +1,117 @@
+name: 功能请求
+description: 为 DotNetAnalyzer 建议新功能或改进
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您的功能请求！请填写以下信息，帮助我们理解和评估您的建议。
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 问题描述
+      description: 您遇到了什么问题或痛点？这个功能试图解决什么问题？
+      placeholder: 在使用 DotNetAnalyzer 时...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 建议的解决方案
+      description: 您希望如何解决这个问题？描述您希望的功能或改进
+      placeholder: 我希望能够...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 备选方案
+      description: 您考虑过哪些其他解决方案或变通方法？
+      placeholder: 我尝试过...
+    validations:
+      required: false
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: 使用场景
+      description: 描述具体的使用场景，帮助理解功能的价值
+      placeholder: |
+        场景 1：当我想分析大型代码库时...
+        场景 2：在重构特定类型的代码时...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: 功能类别
+      description: 这个功能属于哪个类别？
+      options:
+        - 新的 MCP 工具
+        - 现有工具的改进
+        - 性能优化
+        - 文档改进
+        - 开发者体验
+        - 其他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 优先级
+      description: 这个功能对您有多重要？
+      options:
+        - 🔴 必需 - 没有这个功能我无法使用项目
+        - 🟡 重要 - 大幅改善使用体验
+        - 🟢 期望 - 有会更好，但不是必需的
+        - ⚪ 可选 - 锦上添花的功能
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: 实现思路（可选）
+      description: 如果您有实现思路或技术建议，请在这里分享
+      placeholder: 我认为可以这样做...
+    validations:
+      required: false
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: 示例或参考（可选）
+      description: 是否有类似的工具或实现可以参考？
+      placeholder: |
+        - Roslyn 的 xxx API
+        - ReSharper 的 xxx 功能
+        - 其他类似工具...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: 贡献意愿
+      options:
+        - label: 我愿意实现这个功能（需要指导）
+          required: false
+        - label: 我愿意帮助测试和验证这个功能
+          required: false
+        - label: 我愿意编写相关文档
+          required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 其他信息
+      description: 任何其他有助于理解该请求的信息
+      placeholder: 截图、链接、示例代码等...
+    validations:
+      required: false

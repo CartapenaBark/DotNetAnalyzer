@@ -1,0 +1,117 @@
+# DotNetAnalyzer Editor Config
+# 遵循 Linux 内核编码风格和 C# 最佳实践
+# 详见: docs/CODING_STANDARDS.md
+
+# 默认设置
+root = true
+
+# 所有文件
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# C# 文件
+[*.cs]
+
+# 缩进：4 个空格（Linux 标准）
+indent_style = space
+indent_size = 4
+
+# 最大行长度
+max_line_length = 100
+
+# 命名约定
+dotnet_naming_rule.private_constants_with_underscore.severity = warning
+dotnet_naming_rule.private_constants_with_underscore.symbols = private_constants
+dotnet_naming_rule.private_constants_with_underscore.style = underscore_camel_case
+dotnet_naming_symbols.private_constants.applicable_kinds = constant, field
+dotnet_naming_symbols.private_constants.applicable_accessibilities = private
+
+dotnet_naming_rule.private_fields_with_underscore.severity = warning
+dotnet_naming_rule.private_fields_with_underscore.symbols = private_fields
+dotnet_naming_rule.private_fields_with_underscore.style = underscore_camel_case
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+
+# 限定符
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+dotnet_style_qualification_for_method = false:suggestion
+dotnet_style_qualification_for_event = false:suggestion
+
+# 语言关键字 vs 框架类型
+dotnet_style_predefined_type_for_locals_parameters_members = true:suggestion
+dotnet_style_predefined_type_for_member_access = true:suggestion
+
+# 括号
+dotnet_style_prefer_auto_properties = true:silent
+dotnet_style_prefer_conditional_expression_over_assignment = true:silent
+dotnet_style_prefer_conditional_expression_over_return = true:silent
+
+# 参数
+dotnet_code_quality_unused_parameters = all:suggestion
+
+# 表达式级首选项
+dotnet_style_coalesce_expression = true:suggestion
+dotnet_style_collection_initializer = true:suggestion
+dotnet_style_explicit_tuple_names = true:suggestion
+dotnet_style_null_propagation = true:suggestion
+dotnet_style_object_initializer = true:suggestion
+
+# NuGet 样式规则
+dotnet_style_namespace_match_folder = true:suggestion
+
+# 换行偏好
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+
+# 缩进选项
+csharp_indent_case_contents = true
+csharp_indent_switch_labels = true
+
+# 空格偏好
+csharp_space_after_cast = false
+csharp_space_after_keywords_in_control_flow_statements = true
+
+# 代码块首选项
+csharp_prefer_braces = true:silent
+csharp_prefer_simple_using_statement = true:suggestion
+
+# XML 文档注释
+dotnet_style_require_accessibility_modifiers = always:suggestion
+
+# 性能
+dotnet_analyzer_diagnostic.category-performance.severity = warning
+
+# 安全
+dotnet_analyzer_diagnostic.category-security.severity = warning
+
+# 可靠性
+dotnet_analyzer_diagnostic.category-reliability.severity = suggestion
+
+# JSON 文件
+[*.json]
+indent_style = space
+indent_size = 2
+
+# YAML 文件
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Markdown 文件
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# 项目文件
+[*.csproj]
+indent_size = 2
+
+# 解决方案文件
+[*.sln]
+indent_size = 2

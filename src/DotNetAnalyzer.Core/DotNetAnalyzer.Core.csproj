@@ -9,6 +9,8 @@
     <IsPackable>false</IsPackable>
     <!-- 自动定义条件编译符号 -->
     <DefineConstants>$(DefineConstants);$(TargetFramework.Replace('NET', 'NET').Replace('.', '_'))</DefineConstants>
+    <!-- 禁用自动生成的 AssemblyInfo，使用项目中的自定义版本 -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>

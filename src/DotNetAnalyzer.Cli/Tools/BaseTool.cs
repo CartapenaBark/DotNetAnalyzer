@@ -29,11 +29,16 @@ public static class BaseTool
     /// </remarks>
     public static string CreateErrorResponse(string message)
     {
+        var options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = false
+        };
         return JsonSerializer.Serialize(new
         {
             success = false,
             error = message
-        }, JsonOptions.Default);
+        }, options);
     }
 
     /// <summary>

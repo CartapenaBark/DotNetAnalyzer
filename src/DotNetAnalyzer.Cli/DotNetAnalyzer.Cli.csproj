@@ -122,6 +122,8 @@
     <Company>CartapenaBark</Company>
     <Product>DotNetAnalyzer - MCP Code Analysis Server</Product>
     <Copyright>Copyright (c) 2026 CartapenaBark</Copyright>
+    <!-- 禁用自动生成的 AssemblyInfo -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>

@@ -54,7 +54,7 @@ public class AdaptiveCacheManagerTests : IDisposable
     public void RegisterCache_WithValidParameters_ShouldSucceed()
     {
         // Arrange
-        LruCache<string, string> cache = new(capacity: 10);
+        LruCache<string, string> cache = new LruCache<string, string>(capacity: 10);
 
         // Act & Assert
         var exception = Record.Exception(() =>
@@ -79,7 +79,7 @@ public class AdaptiveCacheManagerTests : IDisposable
     public void RegisterCache_WithEmptyName_ShouldThrowArgumentException()
     {
         // Arrange
-        LruCache<string, string> cache = new(capacity: 10);
+        LruCache<string, string> cache = new LruCache<string, string>(capacity: 10);
 
         // Act & Assert
         Assert.Throws<ArgumentException>(() =>

@@ -98,6 +98,107 @@ namespace Test
 
         // Assert
         node.Should().NotBeNull();
+        node.Kind().ToString().Should().Contain("Method");
+    }
+
+    [Fact]
+    public void FindNodeAtPosition_WithInvalidLine_ShouldHandleGracefully()
+    {
+        // Arrange
+        var code = @"
+namespace Test
+{
+    public class MyClass
+    {
+        public void MyMethod() {}
+    }
+}";
+        var syntaxTree = CSharpSyntaxTree.ParseText(code);
+
+        // Act & Assert - 行号超出范围应该抛出异常
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            SyntaxTreeAnalyzer.FindNodeAtPosition(syntaxTree, 100, 10));
+    }
+
+    [Fact]
+    public void ExtractHierarchy_WithMultipleNamespaces_ShouldReturnAllNamespaces()
+    {
+        // Arrange
+        var code = @"
+namespace NS1
+{
+    public class Class1 {}
+}
+
+namespace NS2
+{
+    public class Class2 {}
+}
+";
+        var syntaxTree = CSharpSyntaxTree.ParseText(code);
+        var root = syntaxTree.GetRoot();
+
+        // Act
+        var hierarchy = SyntaxTreeAnalyzer.ExtractHierarchy(root);
+
+        // Assert
+        hierarchy.Namespaces.Should().HaveCount(2);
+        hierarchy.Namespaces[0].Name.Should().Be("NS1");
+        hierarchy.Namespaces[1].Name.Should().Be("NS2");
+        hierarchy.Namespaces[0].Types.Should().HaveCount(1);
+        hierarchy.Namespaces[1].Types.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public void ExtractHierarchy_WithDifferentMemberTypes_ShouldExtractAllMembers()
+    {
+        // Arrange
+        var code = @"
+namespace Test
+{
+    public class MyClass
+    {
+        private int _field;
+        public string Property { get; set; }
+        public MyClass() {}
+        public void Method() {}
+    }
+}";
+        var syntaxTree = CSharpSyntaxTree.ParseText(code);
+        var root = syntaxTree.GetRoot();
+
+        // Act
+        var hierarchy = SyntaxTreeAnalyzer.ExtractHierarchy(root);
+        var classInfo = hierarchy.Namespaces[0].Types[0];
+
+        // Assert
+        classInfo.Members.Should().HaveCount(4);
+        classInfo.Members[0].Kind.Should().Contain("Field");
+        classInfo.Members[0].Name.Should().Be("_field");
+        classInfo.Members[1].Kind.Should().Contain("Property");
+        classInfo.Members[1].Name.Should().Be("Property");
+        classInfo.Members[2].Kind.Should().Contain("Constructor");
+        classInfo.Members[2].Name.Should().Be("MyClass");
+        classInfo.Members[3].Kind.Should().Contain("Method");
+        classInfo.Members[3].Name.Should().Be("Method");
+    }
+
+    [Fact]
+    public void AnalyzeTree_WithEmptyCode_ShouldReturnZeroCounts()
+    {
+        // Arrange
+        var code = @"";
+        var syntaxTree = CSharpSyntaxTree.ParseText(code);
+
+        // Act
+        var result = SyntaxTreeAnalyzer.AnalyzeTree(syntaxTree);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.UsingsCount.Should().Be(0);
+        result.NamespacesCount.Should().Be(0);
+        result.TypeDeclarationsCount.Should().Be(0);
+        result.MethodDeclarationsCount.Should().Be(0);
     }
 
     [Fact]

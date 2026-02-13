@@ -1,0 +1,112 @@
+name: Bug 报告
+description: 报告 DotNetAnalyzer 中的问题
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您报告问题！请填写以下信息，帮助我们快速定位和解决问题。
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述
+      description: 简要描述遇到的问题
+      placeholder: 发生了什么？
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤
+      description: 如何复现这个问题
+      placeholder: |
+        1. 使用 '...' 命令
+        2. 选择 '....' 文件
+        3. 滚动到 '....' 位置
+        4. 出现错误
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为
+      description: 您期望发生什么
+      placeholder: 应该发生什么？
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为
+      description: 实际发生了什么
+      placeholder: 实际发生了什么？
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境信息
+      description: 运行环境信息
+      placeholder: |
+        - OS: [例如 Windows 11, Ubuntu 22.04]
+        - .NET Version: [例如 8.0.301]
+        - DotNetAnalyzer Version: [例如 v0.8.0]
+        - MCP Client: [例如 Claude Code, VSCode Extension]
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志/输出
+      description: 相关的日志或错误信息
+      render: shell
+      placeholder: |
+        错误信息或堆栈跟踪...
+    validations:
+      required: false
+
+  - type: textarea
+    id: config
+    attributes:
+      label: 配置文件
+      description: 如果相关，请提供 MCP 配置文件
+      render: yaml
+      placeholder: |
+        .mcp.json 内容...
+    validations:
+      required: false
+
+  - type: textarea
+    id: project
+    attributes:
+      label: 测试项目
+      description: 如果可能，提供一个最小可复现的测试项目
+      placeholder: 链接到 GitHub 仓库或描述项目结构
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: additional
+    attributes:
+      label: 附加信息
+      options:
+        - label: 我已搜索现有的 issues，没有找到相同的问题
+          required: true
+        - label: 我愿意帮助修复这个问题
+          required: false
+        - label: 这是一个安全问题（请勿在 GitHub 上公开报告安全问题）
+          required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        **提示**：如果这是一个安全问题，请不要提交 issue。请参阅 [SECURITY.md](../../SECURITY.md) 了解如何私下报告安全漏洞。

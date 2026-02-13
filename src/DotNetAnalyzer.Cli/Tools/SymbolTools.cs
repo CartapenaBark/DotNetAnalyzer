@@ -1,6 +1,8 @@
 using System.ComponentModel;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Microsoft.CodeAnalysis;
+using DotNetAnalyzer.Core.Abstractions;
+using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Roslyn;
 using ModelContextProtocol.Server;
 
@@ -10,14 +12,14 @@ namespace DotNetAnalyzer.Cli.Tools;
 /// MCP 工具类：提供符号查询功能
 /// </summary>
 [McpServerToolType]
-public static class SymbolTools
+public static partial class SymbolTools
 {
     /// <summary>
     /// 查找符号的所有引用
     /// </summary>
     [McpServerTool, Description("查找符号的所有引用位置，包括跨文件引用")]
     public static async Task<string> FindReferences(
-        WorkspaceManager workspaceManager,
+        IWorkspaceManager workspaceManager,
         [Description("项目或解决方案路径")] string projectPath,
         [Description("文件路径")] string filePath,
         [Description("行号（从0开始）")] int line,
@@ -104,7 +106,7 @@ public static class SymbolTools
                 }
             }
 
-            var result = JsonConvert.SerializeObject(new
+            var result = JsonSerializer.Serialize(new
             {
                 success = true,
                 symbol = new
@@ -126,7 +128,7 @@ public static class SymbolTools
                     totalReferences = referencesList.Count,
                     definitionLocation = referencesList.Count(r => (bool)((dynamic)r).isDefinition)
                 }
-            }, Formatting.Indented);
+            }, JsonOptions.Default);
 
             return result;
         }
@@ -141,7 +143,7 @@ public static class SymbolTools
     /// </summary>
     [McpServerTool, Description("查找符号的声明位置，包括基类成员和接口成员")]
     public static async Task<string> FindDeclarations(
-        WorkspaceManager workspaceManager,
+        IWorkspaceManager workspaceManager,
         [Description("项目或解决方案路径")] string projectPath,
         [Description("文件路径")] string filePath,
         [Description("行号（从0开始）")] int line,
@@ -274,7 +276,7 @@ public static class SymbolTools
                 });
             }
 
-            var result = JsonConvert.SerializeObject(new
+            var result = JsonSerializer.Serialize(new
             {
                 success = true,
                 symbol = new
@@ -291,7 +293,7 @@ public static class SymbolTools
                     isVirtual = symbol.IsVirtual,
                     isExtensionMethod = (symbol as IMethodSymbol)?.IsExtensionMethod ?? false
                 }
-            }, Formatting.Indented);
+            }, JsonOptions.Default);
 
             return result;
         }
@@ -306,7 +308,7 @@ public static class SymbolTools
     /// </summary>
     [McpServerTool, Description("获取符号的详细信息，包括类型、修饰符、参数等")]
     public static async Task<string> GetSymbolInfo(
-        WorkspaceManager workspaceManager,
+        IWorkspaceManager workspaceManager,
         [Description("项目或解决方案路径")] string projectPath,
         [Description("文件路径")] string filePath,
         [Description("行号（从0开始）")] int line,
@@ -454,7 +456,7 @@ public static class SymbolTools
                 };
             }
 
-            var result = JsonConvert.SerializeObject(symbolData, Formatting.Indented);
+            var result = JsonSerializer.Serialize(symbolData, JsonOptions.Default);
             return result;
         }
         catch (Exception ex)
@@ -465,7 +467,7 @@ public static class SymbolTools
 
     #region Helper Methods
 
-    private static async Task<Solution?> LoadSolutionAsync(WorkspaceManager workspaceManager, string projectPath)
+    private static async Task<Solution?> LoadSolutionAsync(IWorkspaceManager workspaceManager, string projectPath)
     {
         var isSolution = projectPath.EndsWith(".sln", StringComparison.OrdinalIgnoreCase);
 
@@ -488,11 +490,11 @@ public static class SymbolTools
 
     private static string CreateErrorResponse(string message)
     {
-        return JsonConvert.SerializeObject(new
+        return JsonSerializer.Serialize(new
         {
             success = false,
             error = message
-        }, Formatting.Indented);
+        }, JsonOptions.Default);
     }
 
     private static string ExtractContext(Document? document, int lineNumber)
@@ -518,23 +520,32 @@ public static class SymbolTools
 
     private static string? ExtractXmlSummary(string xmlComment)
     {
-        var match = System.Text.RegularExpressions.Regex.Match(xmlComment, "<summary>(.*?)</summary>", System.Text.RegularExpressions.RegexOptions.Singleline);
+        var match = SummaryRegex().Match(xmlComment);
         return match.Success ? match.Groups[1].Value.Trim() : null;
     }
 
     private static string? ExtractXmlReturns(string xmlComment)
     {
-        var match = System.Text.RegularExpressions.Regex.Match(xmlComment, "<returns>(.*?)</returns>", System.Text.RegularExpressions.RegexOptions.Singleline);
+        var match = ReturnsRegex().Match(xmlComment);
         return match.Success ? match.Groups[1].Value.Trim() : null;
     }
 
     private static object[] ExtractXmlParams(string xmlComment)
     {
-        var matches = System.Text.RegularExpressions.Regex.Matches(xmlComment, "<param name=\"(.*?)\">(.*?)</param>", System.Text.RegularExpressions.RegexOptions.Singleline);
+        var matches = ParamsRegex().Matches(xmlComment);
         return matches.Cast<System.Text.RegularExpressions.Match>()
             .Select(m => new { name = m.Groups[1].Value, description = m.Groups[2].Value.Trim() })
             .ToArray();
     }
+
+    [System.Text.RegularExpressions.GeneratedRegex("<summary>(.*?)</summary>", System.Text.RegularExpressions.RegexOptions.Singleline)]
+    private static partial System.Text.RegularExpressions.Regex SummaryRegex();
+
+    [System.Text.RegularExpressions.GeneratedRegex("<returns>(.*?)</returns>", System.Text.RegularExpressions.RegexOptions.Singleline)]
+    private static partial System.Text.RegularExpressions.Regex ReturnsRegex();
+
+    [System.Text.RegularExpressions.GeneratedRegex("<param name=\"(.*?)\">(.*?)</param>", System.Text.RegularExpressions.RegexOptions.Singleline)]
+    private static partial System.Text.RegularExpressions.Regex ParamsRegex();
 
     #endregion
 }

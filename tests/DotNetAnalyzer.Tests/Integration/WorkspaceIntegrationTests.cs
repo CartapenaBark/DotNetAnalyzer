@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using DotNetAnalyzer.Core.Roslyn;
+using DotNetAnalyzer.Tests.Helpers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -7,10 +8,9 @@ namespace DotNetAnalyzer.Tests.Integration;
 
 /// <summary>
 /// Workspace 管理器集成测试
-/// 测试真实的 .csproj 和 .sln 文件加载
-/// 使用 NonParallelCollection 来顺序运行测试，避免并发访问 MSBuildWorkspace
+/// 测试真实的 .csproj、.sln 和 .slnx 文件加载
+/// 每个 WorkspaceManager 实例拥有独立的工作区，支持并行测试
 /// </summary>
-[Collection("Non-Parallel Tests")]
 public class WorkspaceIntegrationTests
 {
     private readonly string _testAssetsPath;
@@ -19,23 +19,16 @@ public class WorkspaceIntegrationTests
     public WorkspaceIntegrationTests(ITestOutputHelper output)
     {
         _output = output;
-
-        // 获取测试资产路径
-        // 测试在: tests/DotNetAnalyzer.Tests/bin/Debug/net8.0
-        // 资产在: tests/TestAssets (需要回到上级目录)
-        var currentDir = Directory.GetCurrentDirectory();
-        var testsDir = Path.GetFullPath(Path.Combine(currentDir, "..", "..", "..", ".."));
-        _testAssetsPath = Path.Combine(testsDir, "TestAssets");
+        _testAssetsPath = TestHelper.GetTestAssetsPath();
 
         _output.WriteLine($"测试资产路径: {_testAssetsPath}");
-        _output.WriteLine($"当前目录: {currentDir}");
-        _output.WriteLine($"Tests目录: {testsDir}");
+        _output.WriteLine($"当前目录: {Directory.GetCurrentDirectory()}");
         _output.WriteLine($"资产存在: {Directory.Exists(_testAssetsPath)}");
     }
 
-    private WorkspaceManager CreateWorkspaceManager()
+    private static WorkspaceManager CreateWorkspaceManager()
     {
-        return new WorkspaceManager();
+        return TestHelper.CreateWorkspaceManager();
     }
 
     [Fact]
@@ -53,7 +46,7 @@ public class WorkspaceIntegrationTests
         // Assert
         Assert.NotNull(project);
         Assert.Equal("ConsoleApp", project.Name);
-        Assert.True(project.Documents.Count() > 0, "项目应包含文档");
+        Assert.True(project.Documents.Any(), "项目应包含文档");
 
         _output.WriteLine($"✅ 成功加载项目: {project.Name}");
         _output.WriteLine($"   文档数量: {project.Documents.Count()}");
@@ -98,7 +91,7 @@ public class WorkspaceIntegrationTests
 
         // Assert
         Assert.NotNull(solution);
-        Assert.True(solution.Projects.Count() > 0, "解决方案应包含项目");
+        Assert.True(solution.Projects.Any(), "解决方案应包含项目");
 
         _output.WriteLine($"✅ 成功加载解决方案");
         _output.WriteLine($"   项目数量: {solution.Projects.Count()}");
@@ -166,14 +159,107 @@ public class WorkspaceIntegrationTests
         // Act
         var dependencyInfo = DependencyAnalyzer.AnalyzeDependencies(project);
 
-        // Assert
+        // Assert - 先输出信息
+        _output.WriteLine($"✅ 成功分析依赖");
+        _output.WriteLine($"   项目名称: {dependencyInfo.ProjectName}");
+        _output.WriteLine($"   项目路径: {dependencyInfo.ProjectFilePath}");
+        _output.WriteLine($"   目标框架: {dependencyInfo.TargetFramework}");
+        _output.WriteLine($"   包引用数量: {dependencyInfo.PackageReferences.Length}");
+
         Assert.NotNull(dependencyInfo);
         Assert.Equal("ClassLibrary", dependencyInfo.ProjectName);
         Assert.Contains("net8.0", dependencyInfo.TargetFramework);
+    }
 
-        _output.WriteLine($"✅ 成功分析依赖");
-        _output.WriteLine($"   项目名称: {dependencyInfo.ProjectName}");
-        _output.WriteLine($"   目标框架: {dependencyInfo.TargetFramework}");
-        _output.WriteLine($"   包引用数量: {dependencyInfo.PackageReferences.Length}");
+    [Fact]
+    public async Task GetSolutionAsync_ShouldLoadSlnxFormat()
+    {
+        // Arrange
+        var solutionPath = Path.Combine(_testAssetsPath, "TestSolution.slnx");
+        _output.WriteLine($"解决方案路径: {solutionPath}");
+
+        if (!File.Exists(solutionPath))
+        {
+            _output.WriteLine($"⚠️ .slnx 文件不存在，跳过测试");
+            return;
+        }
+
+        using var workspaceManager = CreateWorkspaceManager();
+
+        // Act
+        var solution = await workspaceManager.GetSolutionAsync(solutionPath);
+
+        // Assert
+        Assert.NotNull(solution);
+        Assert.True(solution.Projects.Any(), "解决方案应包含项目");
+
+        _output.WriteLine($"✅ 成功加载 .slnx 解决方案");
+        _output.WriteLine($"   项目数量: {solution.Projects.Count()}");
+        foreach (var project in solution.Projects)
+        {
+            _output.WriteLine($"   - {project.Name}");
+        }
+    }
+
+    [Fact]
+    public async Task GetSolutionAsync_ShouldStillSupportSln()
+    {
+        // Arrange
+        var solutionPath = Path.Combine(_testAssetsPath, "TestSolution.sln");
+        _output.WriteLine($"解决方案路径: {solutionPath}");
+
+        if (!File.Exists(solutionPath))
+        {
+            _output.WriteLine($"⚠️ .sln 文件不存在，跳过测试");
+            return;
+        }
+
+        using var workspaceManager = CreateWorkspaceManager();
+
+        // Act
+        var solution = await workspaceManager.GetSolutionAsync(solutionPath);
+
+        // Assert
+        Assert.NotNull(solution);
+        Assert.True(solution.Projects.Any(), "解决方案应包含项目");
+
+        _output.WriteLine($"✅ 成功加载 .sln 解决方案（向后兼容）");
+        _output.WriteLine($"   项目数量: {solution.Projects.Count()}");
+    }
+
+    [Fact]
+    public async Task GetSolutionAsync_ShouldRejectInvalidExtension()
+    {
+        // Arrange
+        var tempDir = Path.Combine(_testAssetsPath, "TempInvalid");
+        Directory.CreateDirectory(tempDir);
+        var invalidSolutionPath = Path.Combine(tempDir, "TestSolution.txt");
+        File.WriteAllText(invalidSolutionPath, "invalid content");
+
+        try
+        {
+            _output.WriteLine($"无效解决方案路径: {invalidSolutionPath}");
+
+            using var workspaceManager = CreateWorkspaceManager();
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<ProjectLoadException>(
+                async () => await workspaceManager.GetSolutionAsync(invalidSolutionPath));
+
+            _output.WriteLine($"✅ 正确拒绝无效扩展名");
+            _output.WriteLine($"   错误消息: {exception.Message}");
+
+            Assert.Contains("有效的解决方案文件", exception.Message);
+            Assert.Contains(".sln", exception.Message);
+            Assert.Contains(".slnx", exception.Message);
+        }
+        finally
+        {
+            // Cleanup
+            if (Directory.Exists(tempDir))
+            {
+                Directory.Delete(tempDir, true);
+            }
+        }
     }
 }

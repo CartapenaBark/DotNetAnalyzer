@@ -1,6 +1,8 @@
 using System.ComponentModel;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Microsoft.CodeAnalysis;
+using DotNetAnalyzer.Core.Abstractions;
+using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Roslyn;
 using ModelContextProtocol.Server;
 
@@ -21,7 +23,7 @@ public static class DiagnosticsTools
     /// <returns>诊断信息的 JSON 字符串</returns>
     [McpServerTool, Description("获取 C# 代码的编译器诊断信息（错误、警告、信息）")]
     public static async Task<string> GetDiagnostics(
-        WorkspaceManager workspaceManager,
+        IWorkspaceManager workspaceManager,
         [Description("项目或解决方案路径")] string projectPath,
         [Description("可选：特定文件的诊断")] string? filePath = null)
     {
@@ -29,7 +31,7 @@ public static class DiagnosticsTools
         {
             if (string.IsNullOrEmpty(projectPath))
             {
-                return JsonConvert.SerializeObject(new { success = false, error = "projectPath is required" });
+                return JsonSerializer.Serialize(new { success = false, error = "projectPath is required" }, JsonOptions.Default);
             }
 
             // 判断是解决方案还是项目
@@ -44,11 +46,11 @@ public static class DiagnosticsTools
         }
         catch (Exception ex)
         {
-            return JsonConvert.SerializeObject(new { success = false, error = ex.Message });
+            return JsonSerializer.Serialize(new { success = false, error = ex.Message }, JsonOptions.Default);
         }
     }
 
-    private static async Task<string> GetSolutionDiagnosticsAsync(WorkspaceManager workspaceManager, string solutionPath, string? filePath)
+    private static async Task<string> GetSolutionDiagnosticsAsync(IWorkspaceManager workspaceManager, string solutionPath, string? filePath)
     {
         var solution = await workspaceManager.GetSolutionAsync(solutionPath);
         var allDiagnostics = new List<object>();
@@ -67,22 +69,22 @@ public static class DiagnosticsTools
             }
         }
 
-        return JsonConvert.SerializeObject(new
+        return JsonSerializer.Serialize(new
         {
             success = true,
             diagnostics = allDiagnostics,
             count = allDiagnostics.Count
-        });
+        }, JsonOptions.Default);
     }
 
-    private static async Task<string> GetProjectDiagnosticsAsync(WorkspaceManager workspaceManager, string projectPath, string? filePath)
+    private static async Task<string> GetProjectDiagnosticsAsync(IWorkspaceManager workspaceManager, string projectPath, string? filePath)
     {
         var project = await workspaceManager.GetProjectAsync(projectPath);
         var compilation = await project.GetCompilationAsync();
 
         if (compilation == null)
         {
-            return JsonConvert.SerializeObject(new { success = false, error = "Failed to get compilation" });
+            return JsonSerializer.Serialize(new { success = false, error = "Failed to get compilation" }, JsonOptions.Default);
         }
 
         var diagnostics = compilation.GetDiagnostics();
@@ -92,12 +94,12 @@ public static class DiagnosticsTools
             .Select(SerializeDiagnostic)
             .ToList();
 
-        return JsonConvert.SerializeObject(new
+        return JsonSerializer.Serialize(new
         {
             success = true,
             diagnostics = serializedDiagnostics,
             count = serializedDiagnostics.Count
-        });
+        }, JsonOptions.Default);
     }
 
     private static IEnumerable<Diagnostic> FilterDiagnostics(IEnumerable<Diagnostic> diagnostics, string? filePath)

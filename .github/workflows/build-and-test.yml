@@ -9,7 +9,12 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        framework: ['net8.0', 'net9.0', 'net10.0']
+      fail-fast: false
 
     steps:
     - name: Checkout code
@@ -20,20 +25,39 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
+    - name: Setup .NET 9.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Setup .NET 10.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/*.targets') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
     - name: Restore dependencies
       run: dotnet restore
 
     - name: Build
-      run: dotnet build -c Release --no-restore
+      run: dotnet build -c Release
 
-    - name: Test
-      run: dotnet test -c Release --no-build --verbosity normal
+    - name: Test (${{ matrix.framework }})
+      run: dotnet test -c Release --framework ${{ matrix.framework }} --verbosity normal --filter "Category!=Performance"
 
     - name: Pack NuGet package
-      run: dotnet pack -c Release --no-build --output ./nupkg
+      run: dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release
 
     - name: Upload NuGet package
       uses: actions/upload-artifact@v4
       with:
         name: nuget-package
-        path: ./nupkg/*.nupkg
+        path: Bin/nupkg/*.nupkg
+        retention-days: 7

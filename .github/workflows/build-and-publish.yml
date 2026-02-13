@@ -21,23 +21,31 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/*.targets') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
     - name: Restore dependencies
       run: dotnet restore
 
     - name: Build
-      run: dotnet build -c Release --no-restore
+      run: dotnet build -c Release
 
     - name: Test
-      run: dotnet test -c Release --no-build --verbosity normal
+      run: dotnet test -c Release --verbosity normal
 
     - name: Pack
-      run: dotnet pack -c Release --no-build
+      run: dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release
 
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v4
       with:
         name: nuget-packages
-        path: src/DotNetAnalyzer.Cli/bin/Release/*.nupkg
+        path: Bin/nupkg/*.nupkg
         retention-days: 7
 
   publish_nuget:

@@ -1,2 +1,5 @@
 <Solution>
+  <Project Path="ConsoleApp/ConsoleApp.csproj" />
+  <Project Path="ClassLibrary/ClassLibrary.csproj" />
+  <Project Path="WebApi/WebApi.csproj" />
 </Solution>

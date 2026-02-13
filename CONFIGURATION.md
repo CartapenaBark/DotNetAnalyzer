@@ -1,14 +1,62 @@
 # DotNetAnalyzer 配置指南
 
-本文档介绍如何配置和自定义 DotNetAnalyzer MCP 服务器的行为。
+本文档介绍如何获取、安装和配置 DotNetAnalyzer MCP 服务器。
 
 ## 目录
 
+- [获取 DotNetAnalyzer](#获取-dotnetanalyzer)
 - [环境变量](#环境变量)
 - [MCP 服务器配置](#mcp-服务器配置)
 - [Claude Code 集成](#claude-code-集成)
 - [日志和调试](#日志和调试)
 - [高级配置](#高级配置)
+
+---
+
+## 获取 DotNetAnalyzer
+
+### 从 NuGet 安装（推荐）
+
+DotNetAnalyzer 已发布到 [NuGet.org](https://www.nuget.org/packages/DotNetAnalyzer)，这是最简单的安装方式。
+
+**安装**:
+```bash
+dotnet tool install --global DotNetAnalyzer
+```
+
+**更新**:
+```bash
+dotnet tool update --global DotNetAnalyzer
+```
+
+**卸载**:
+```bash
+dotnet tool uninstall --global DotNetAnalyzer
+```
+
+### 从源码构建
+
+如果您想从源码构建或开发 DotNetAnalyzer：
+
+```bash
+# 克隆仓库
+git clone https://github.com/CartapenaBark/DotNetAnalyzer.git
+cd DotNetAnalyzer
+
+# 还原依赖
+dotnet restore
+
+# 构建
+dotnet build -c Release
+
+# 运行测试
+dotnet test
+
+# 打包
+dotnet pack -c Release
+```
+
+---
 
 ## 环境变量
 
@@ -351,6 +399,56 @@ dotnet tool uninstall -g DotNetAnalyzer
 Remove-Item $env:APPDATA\DotNetAnalyzer  # Windows
 rm -rf ~/.config/DotNetAnalyzer           # Linux/macOS
 ```
+
+## 系统要求和依赖
+
+### .NET 运行时
+
+- **最低版本**: .NET 8.0 SDK
+- **推荐版本**: .NET 8.0 SDK 或更高
+- **安装**: [dotnet.microsoft.com/download](https://dotnet.microsoft.com/download)
+
+### 主要依赖包
+
+DotNetAnalyzer 依赖以下 NuGet 包：
+
+#### Roslyn 代码分析平台
+```xml
+<PackageReference Include="Microsoft.CodeAnalysis" Version="5.0.0" />
+<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
+<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="5.0.0" />
+```
+
+**说明**:
+- 使用 Roslyn 5.0.0 提供代码分析和语义理解功能
+- 支持最新的 C# 语言特性
+- 支持 Visual Studio 2022 的 .slnx XML 格式解决方案
+
+#### MCP 协议支持
+```xml
+<PackageReference Include="ModelContextProtocol" Version="0.8.0-preview.1" />
+```
+
+#### 其他依赖
+```xml
+<PackageReference Include="System.CommandLine" Version="2.*" />
+<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+```
+
+### 支持的解决方案格式
+
+DotNetAnalyzer 支持以下 Visual Studio 解决方案格式：
+
+- ✅ **传统 .sln 格式**（文本格式）
+  - Visual Studio 2010-2019 默认格式
+  - 完全向后兼容
+
+- ✅ **新一代 .slnx 格式**（XML 格式）
+  - Visual Studio 2022 17.8+ 引入
+  - 更简洁的 XML 语法
+  - .NET CLI 9.0.200+ 默认格式
+
+**注意**: 两种格式可以无缝共存，DotNetAnalyzer 会自动识别和处理。
 
 ## 更多资源
 

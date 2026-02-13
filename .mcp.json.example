@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "dotnet-analyzer": {
+      "command": "dotnet-analyzer",
+      "args": [
+        "mcp",
+        "serve"
+      ],
+      "env": {
+        "DOTNET_ENVIRONMENT": "Production",
+        "DOTNET_ANALYZER_LOG_LEVEL": "Information"
+      }
+    }
+  }
+}

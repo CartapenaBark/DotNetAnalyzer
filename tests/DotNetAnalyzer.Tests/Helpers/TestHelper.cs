@@ -22,9 +22,14 @@ public static class TestHelper
             MaxConcurrentLoads = 4
         });
 
-        using var loggerFactory = LoggerFactory.Create(builder => { });
+        var loggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole();
+            builder.SetMinimumLevel(LogLevel.Information);
+        });
         var logger = loggerFactory.CreateLogger<WorkspaceManager>();
         return new WorkspaceManager(options, logger);
+        // 注意: 不使用 using 语句,由 WorkspaceManager 管理 logger 的生命周期
     }
 
     /// <summary>

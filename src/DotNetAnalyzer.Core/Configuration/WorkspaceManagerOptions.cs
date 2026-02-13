@@ -16,7 +16,20 @@ public class WorkspaceManagerOptions
     public TimeSpan CacheExpiration { get; set; } = TimeSpan.FromMinutes(30);
 
     /// <summary>
-    /// 最大并发加载数，默认值为 4
+    /// 最大并发加载数，根据 CPU 核心数动态计算
+    /// 默认值为 CPU 核心数 * 2，最大不超过 8
     /// </summary>
-    public int MaxConcurrentLoads { get; set; } = 4;
+    /// <remarks>
+    /// 计算公式: Math.Min(Environment.ProcessorCount * 2, 8)
+    /// - 现代计算机通常有 4-16 个逻辑核心
+    /// - 每个核心可以处理 2 个并发加载操作
+    /// - 限制最大值为 8 以避免过度并发
+    /// - 可通过配置文件覆盖此计算值
+    /// </remarks>
+    public int MaxConcurrentLoads
+    {
+        get => _maxConcurrentLoads ?? Math.Min(Environment.ProcessorCount * 2, 8);
+        set => _maxConcurrentLoads = value;
+    }
+    private int? _maxConcurrentLoads;
 }

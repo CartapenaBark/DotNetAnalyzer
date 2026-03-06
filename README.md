@@ -3,7 +3,7 @@
 > 一个强大的 MCP (Model Context Protocol) 服务器工具，将 Roslyn 的代码分析能力引入 Claude Code
 
 [![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet)
-[![NuGet](https://img.shields.io/badge/nuget-0.8.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
+[![NuGet](https://img.shields.io/badge/nuget-0.9.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 📖 简介
@@ -29,7 +29,22 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 ## 🎯 核心功能
 
-**当前版本 (v0.8.0)** 提供 **70 个 MCP 工具**，支持强命名：
+**当前版本 (v0.9.0)** 提供 **74 个 MCP 工具**，支持强命名：
+
+### ✨ v0.9.0 新特性 (即将发布)
+
+**代码质量分析和可视化增强：**
+- ✅ **测试覆盖率分析** - 项目级别测试覆盖率统计和分析
+- ✅ **死代码检测** - 自动识别未使用的类型和方法
+- ✅ **性能瓶颈分析** - 圈复杂度、方法长度、深度嵌套检测
+- ✅ **文档生成器** - 从 XML 注释自动生成项目文档
+- ✅ **调用图可视化** - 支持 SVG、JSON、Mermaid 格式导出
+- ✅ **错误消息本地化** - 支持中英文错误消息
+
+**支持框架：**
+- .NET 8.0 (C# 12)
+- .NET 9.0 (C# 13)
+- .NET 10.0 (C# 14)
 
 ### ✨ v0.8.0 新特性
 
@@ -165,7 +180,7 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 - `format_document` - 格式化文档
 - `format_selection` - 格式化选定范围
 
-**高级分析** (✅ 完整实现 - Phase 5):
+**高级分析** (✅ 完整实现 - Phase 5/6):
 - `get_caller_info` - 获取调用者信息
   - ✅ 调用位置分析
   - ✅ 调用类型识别
@@ -175,6 +190,9 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
   - ✅ 方法调用链
 - `get_call_graph` - 生成调用图
   - ✅ DOT 格式导出
+  - ✅ ✨ **SVG 可视化** - 矢量图形输出
+  - ✅ ✨ **JSON 格式** - 结构化数据
+  - ✅ ✨ **Mermaid 格式** - Markdown 集成
   - ✅ 节点和边分析
   - ✅ 复杂度度量
 - `compare_syntax_trees` - 比较语法树
@@ -185,6 +203,25 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 - `apply_code_change` - 应用代码修改
   - ✅ 可选格式化
   - ✅ 诊断信息返回
+
+**代码质量分析** (✨ 新增 - Phase 6):
+- `get_test_coverage` - 获取测试覆盖率
+  - ✅ 项目级别覆盖率统计
+  - ✅ 文件级别覆盖率分析
+  - ✅ 行覆盖率、分支覆盖率、方法覆盖率
+- `find_dead_code` - 查找死代码
+  - ✅ 未使用的类型检测
+  - ✅ 未使用的方法检测
+  - ✅ 删除建议
+- `analyze_performance` - 分析性能瓶颈
+  - ✅ 圈复杂度分析
+  - ✅ 方法长度检测
+  - ✅ 深度嵌套检测
+  - ✅ 优化建议
+- `generate_documentation` - 生成项目文档
+  - ✅ 从 XML 注释生成文档
+  - ✅ 支持 Markdown 格式
+  - ✅ 类和成员文档提取
 
 **代码操作** (✅ 完整实现):
 - `get_code_actions` - 获取代码操作
@@ -214,6 +251,9 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 #### Advanced Query Tools (✅ 100% 完成)
 **5 个高级查询工具** - 符号解析、定义和引用、文档列表
+
+#### Phase 6: Code Quality and Visualization (✅ 100% 完成)
+**4 个新工具 + 可视化增强** - 测试覆盖率、死代码检测、性能分析、文档生成、调用图可视化
 
 ## 🏗️ 架构
 
@@ -621,7 +661,7 @@ MCP 服务器基础架构，实现核心的代码分析能力。
 
 ## 📊 当前进度
 
-**最后更新**: 2026-02-10
+**最后更新**: 2026-03-07
 
 | Phase | 名称 | 状态 | 进度 | MCP 工具数 |
 |-------|------|------|------|-----------|
@@ -632,8 +672,9 @@ MCP 服务器基础架构，实现核心的代码分析能力。
 | 5 | Advanced Features | ✅ 完成 | 100% | 7/7 个 |
 | - | Code Actions | ✅ 完成 | 100% | 3/3 个 |
 | - | Advanced Query | ✅ 完成 | 100% | 5/5 个 |
+| 6 | Code Quality and Visualization | ✅ 完成 | 100% | 4/4 个 |
 
-**总计**: 70 个 MCP 工具已实现并暴露
+**总计**: 74 个 MCP 工具已实现并暴露
 
 ### 版本里程碑
 

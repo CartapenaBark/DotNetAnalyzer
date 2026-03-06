@@ -5,6 +5,7 @@
     <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RollForward>Major</RollForward>
     <!-- 自动定义条件编译符号 -->
     <DefineConstants>$(DefineConstants);$(TargetFramework.Replace('NET', 'NET').Replace('.', '_'))</DefineConstants>
 

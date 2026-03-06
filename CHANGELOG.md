@@ -7,6 +7,123 @@
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-03-07
+
+### 🎯 发布亮点
+
+- ✅ **代码质量分析** - 4 个新分析工具（测试覆盖率、死代码检测、性能分析、文档生成）
+- ✅ **可视化增强** - 调用图支持 SVG、JSON、Mermaid 格式
+- ✅ **本地化支持** - 错误消息支持中英文
+- ✅ **基础设施优化** - ToolBase 基类减少代码重复
+- ✅ **0 警告 0 错误** - 完全消除编译警告和错误
+- ✅ **74 个工具** - 从 70 个增加到 74 个 MCP 工具
+
+### 新增功能
+
+#### 📊 代码质量分析 (Phase 6)
+
+**测试覆盖率分析**:
+- ✅ `get_test_coverage` - 项目级别测试覆盖率统计
+  - 行覆盖率、分支覆盖率、方法覆盖率
+  - 文件级别覆盖率分析
+  - 未覆盖方法列表
+
+**死代码检测**:
+- ✅ `find_dead_code` - 自动识别未使用的代码
+  - 未使用的类型检测
+  - 未使用的方法检测
+  - 删除建议和优化提示
+
+**性能瓶颈分析**:
+- ✅ `analyze_performance` - 识别性能问题
+  - 圈复杂度分析
+  - 方法长度检测
+  - 深度嵌套检测
+  - 优化建议
+
+**文档生成器**:
+- ✅ `generate_documentation` - 自动生成项目文档
+  - 从 XML 注释生成 Markdown 文档
+  - 类和成员文档提取
+  - 支持自定义格式
+
+#### 🎨 可视化增强
+
+**调用图可视化**:
+- ✅ SVG 格式 - 矢量图形，适合嵌入
+- ✅ JSON 格式 - 结构化数据，易于处理
+- ✅ Mermaid 格式 - Markdown 原生支持
+- ✅ DOT 格式 - Graphviz 标准
+
+#### 🌍 本地化支持
+
+**错误消息本地化**:
+- ✅ 中英文错误消息支持
+- ✅ ErrorMessages 本地化类
+- ✅ CultureInfo 参数支持
+
+#### 🏗️ 基础设施优化
+
+**公共基类**:
+- ✅ ToolBase 基类减少重复代码
+- ✅ 统一错误处理模式
+- ✅ 统一响应序列化
+
+**新 Core 库文件**:
+- ✅ `CodeChangeApplicator.cs` - 代码变更应用器
+- ✅ `TestCoverageAnalyzer.cs` - 测试覆盖率分析器
+- ✅ `DeadCodeAnalyzer.cs` - 死代码分析器
+- ✅ `PerformanceAnalyzer.cs` - 性能分析器
+- ✅ `DocumentationGenerator.cs` - 文档生成器
+- ✅ `CallGraphVisualizer.cs` - 调用图可视化器
+- ✅ `ToolBase.cs` - 工具基类
+- ✅ `ErrorMessages.cs` - 错误消息本地化
+
+### 改进
+
+**代码质量**:
+- ✅ 使用 SymbolEqualityComparer 替代 Equals
+- ✅ 缓存 JsonSerializerOptions 实例
+- ✅ 使用 TryGetValue 优化字典访问
+- ✅ 修复所有 CA1854 和 CA1869 警告
+
+**MCP 工具增强**:
+- ✅ `get_call_graph` 添加 format 参数
+- ✅ `generate_documentation` 添加 format 参数
+- ✅ 所有工具支持多语言错误消息
+
+### 文件变更
+
+**新增文件**:
+- `src/DotNetAnalyzer.Core/Roslyn/Comparison/CodeChangeApplicator.cs`
+- `src/DotNetAnalyzer.Core/Analysis/TestCoverageAnalyzer.cs`
+- `src/DotNetAnalyzer.Core/Analysis/DeadCodeAnalyzer.cs`
+- `src/DotNetAnalyzer.Core/Analysis/PerformanceAnalyzer.cs`
+- `src/DotNetAnalyzer.Core/Generation/DocumentationGenerator.cs`
+- `src/DotNetAnalyzer.Core/Roslyn/CallAnalysis/CallGraphVisualizer.cs`
+- `src/DotNetAnalyzer.Core/Tools/ToolBase.cs`
+- `src/DotNetAnalyzer.Core/Localization/ErrorMessages.cs`
+
+**修改文件**:
+- `src/DotNetAnalyzer.Cli/Tools/AnalysisTools.cs` - 添加 4 个新工具
+- `src/DotNetAnalyzer.Cli/Tools/CallAnalysisTools.cs` - 添加 format 参数
+- `src/DotNetAnalyzer.Core/Roslyn/CallAnalysis/CallGraphBuilder.cs` - 集成可视化器
+
+### 测试结果
+
+| 框架 | 测试数 | 通过 | 失败 |
+|------|--------|------|------|
+| .NET 8.0 | 190 | ✅ 190 | 0 |
+| .NET 9.0 | 190 | ✅ 190 | 0 |
+| .NET 10.0 | 190 | ✅ 190 | 0 |
+
+### 技术细节
+
+**新增工具数量**: 4 个
+**工具总数**: 74 个（从 70 个增加）
+**代码质量**: 0 警告，0 错误
+**测试通过率**: 100% (190/190)
+
 ---
 
 ## [0.8.0] - 2026-02-10

@@ -25,11 +25,12 @@ public class CallGraphBuilder
         Document document,
         int line,
         int column,
-        int maxDepth = 10)
+        int maxDepth = 10,
+        string format = "dot")
     {
         var semanticModel = await document.GetSemanticModelAsync();
         var root = await document.GetSyntaxRootAsync();
-        if (root == null) return new CallGraphResult { Graph = new CallGraph { Nodes = new List<CallGraphNode>(), Edges = new List<CallGraphEdge>() }, Visualization = new CallGraphVisualization { Format = "dot", Content = "digraph CallGraph { }" } };
+        if (root == null) return new CallGraphResult { Graph = new CallGraph { Nodes = new List<CallGraphNode>(), Edges = new List<CallGraphEdge>() }, Visualization = CallGraphVisualizer.GenerateVisualization(new CallGraph(), format) };
 
         // 获取指定位置的文本跨度
         var textLine = root.SyntaxTree.GetText().Lines[line];
@@ -42,18 +43,15 @@ public class CallGraphBuilder
 
         if (symbol == null)
         {
+            var emptyGraph = new CallGraph
+            {
+                Nodes = new List<CallGraphNode>(),
+                Edges = new List<CallGraphEdge>()
+            };
             return new CallGraphResult
             {
-                Graph = new CallGraph
-                {
-                    Nodes = new List<CallGraphNode>(),
-                    Edges = new List<CallGraphEdge>()
-                },
-                Visualization = new CallGraphVisualization
-                {
-                    Format = "dot",
-                    Content = "digraph CallGraph { }"
-                }
+                Graph = emptyGraph,
+                Visualization = CallGraphVisualizer.GenerateVisualization(emptyGraph, format)
             };
         }
 
@@ -64,7 +62,7 @@ public class CallGraphBuilder
         CalculateMetrics(graph);
 
         // 生成可视化
-        var visualization = GenerateDotVisualization(graph);
+        var visualization = CallGraphVisualizer.GenerateVisualization(graph, format);
 
         return new CallGraphResult
         {
@@ -240,36 +238,5 @@ public class CallGraphBuilder
     {
         // 简化实现：扇出度作为复杂度
         return outgoingEdges.Count + 1;
-    }
-
-    /// <summary>
-    /// 生成DOT可视化
-    /// </summary>
-    private static CallGraphVisualization GenerateDotVisualization(CallGraph graph)
-    {
-        var dot = new System.Text.StringBuilder();
-        dot.AppendLine("digraph CallGraph {");
-        dot.AppendLine("  node [shape=box];");
-
-        // 添加节点
-        foreach (var node in graph.Nodes)
-        {
-            var label = $"{node.Name}\\n(FanIn: {node.Metrics.FanIn}, FanOut: {node.Metrics.FanOut})";
-            dot.AppendLine($"  \"{node.Id}\" [label=\"{label}\"];");
-        }
-
-        // 添加边
-        foreach (var edge in graph.Edges)
-        {
-            dot.AppendLine($"  \"{edge.From}\" -> \"{edge.To}\" [label=\"{edge.CallCount}\"];");
-        }
-
-        dot.AppendLine("}");
-
-        return new CallGraphVisualization
-        {
-            Format = "dot",
-            Content = dot.ToString()
-        };
     }
 }

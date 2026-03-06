@@ -24,7 +24,7 @@
     <PackageId>DotNetAnalyzer</PackageId>
     <Version>0.9.0</Version>
     <Authors>CartapenaBark</Authors>
-    <Description>MCP server with 70 tools for .NET code analysis, refactoring, and code generation</Description>
+    <Description>MCP server with 74 tools for .NET code analysis, refactoring, and code generation</Description>
     <PackageTags>mcp;roslyn;code-analysis;claude;dotnet</PackageTags>
     <PackageProjectUrl>https://github.com/CartapenaBark/DotNetAnalyzer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/CartapenaBark/DotNetAnalyzer</RepositoryUrl>
@@ -32,6 +32,21 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes><![CDATA[
+      v0.9.0 - Code Quality Analysis & Visualization Enhancement
+
+      🎯 MAJOR IMPROVEMENTS:
+        • ✨ Added 4 code quality analysis tools (test coverage, dead code detection, performance analysis, documentation generation)
+        • 📊 Call graph visualization supports SVG, JSON, Mermaid formats
+        • 🌐 Localization support - error messages in Chinese and English
+        • 🔧 ToolBase base class reduces code duplication
+        • ⚡ Achieved 0 warnings, 0 errors build
+        • ✅ All tests passing
+
+      📊 STATISTICS:
+        • MCP Tools: 70 → 74 (+4)
+        • New Analysis Tools: 4
+        • Test Pass Rate: 100%
+
       v0.8.0 - Framework Expansion & Dependency Optimization
 
       🎯 MAJOR IMPROVEMENTS:

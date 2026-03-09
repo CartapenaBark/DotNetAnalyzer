@@ -2,6 +2,81 @@
 
 本文档提供 DotNetAnalyzer MCP 服务器的完整 API 参考，帮助开发者了解和使用所有可用的工具。
 
+## API 调用流程
+
+```mermaid
+sequenceDiagram
+    participant User as 用户
+    participant CC as Claude Code
+    participant MCP as MCP 服务器
+    participant API as API 层
+    participant Core as 核心层
+
+    User->>CC: 1. 自然语言请求
+    Note over User,CC: "分析这个项目的诊断信息"
+
+    CC->>MCP: 2. JSON-RPC 调用
+    Note over CC,MCP: { "method": "tools/call",<br/>  "params": {<br/>    "name": "get_diagnostics",<br/>    "arguments": {<br/>      "projectPath": "/path/to/project.csproj"<br/>    }<br/>  }<br/>}
+
+    MCP->>API: 3. 路由到对应工具
+    Note over MCP,API: ToolRegistry.GetTool("get_diagnostics")
+
+    API->>Core: 4. 执行核心逻辑
+    Note over API,Core: WorkspaceManager.GetProjectAsync()<br/>Compilation.GetDiagnostics()
+
+    Core-->>API: 5. 返回结果
+    API-->>MCP: 6. 格式化 JSON 响应
+    MCP-->>CC: 7. JSON-RPC 响应
+    CC-->>User: 8. 自然语言回复
+    Note over CC,User: "发现 3 个错误和 15 个警告"
+```
+
+## API 工具分类
+
+```mermaid
+mindmap
+    root((DotNetAnalyzer<br/>API))
+        代码分析
+            analyze_code
+            get_syntax_tree
+            get_semantic_model
+        符号查询
+            find_references
+            find_declarations
+            get_symbol_info
+            resolve_symbol
+        项目管理
+            list_projects
+            get_project_info
+            get_solution_info
+            get_document_list
+        代码诊断
+            get_diagnostics
+            get_code_metrics
+        导航工具
+            go_to_definition
+            get_type_hierarchy
+            get_member_hierarchy
+        代码重构
+            extract_method
+            rename_symbol
+            introduce_variable
+            encapsulate_field
+        代码生成
+            generate_interface_impl
+            generate_constructor
+            remove_unused_usings
+        高级分析
+            get_call_graph
+            get_caller_info
+            get_callee_info
+            compare_syntax_trees
+        代码质量
+            get_test_coverage
+            find_dead_code
+            analyze_performance
+```
+
 ## 目录
 
 - [快速开始](#快速开始)

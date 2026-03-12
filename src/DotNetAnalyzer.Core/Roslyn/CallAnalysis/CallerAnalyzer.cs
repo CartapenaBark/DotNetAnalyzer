@@ -40,10 +40,29 @@ public class CallerAnalyzer(IWorkspaceManager workspaceManager)
         var position = textLine.Start + column;
         var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
 
-        // 获取方法符号
-        var node = root.FindNode(span);
+        // 获取方法符号 - 尝试多种方法找到正确的方法声明
+        var node = root.FindNode(span, getInnermostNodeForTie: true);
 
-        if (semanticModel?.GetSymbolInfo(node).Symbol is not IMethodSymbol symbol)
+        // 如果找到的不是方法声明，尝试向上查找
+        if (node is not Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax)
+        {
+            node = node.AncestorsAndSelf()
+                .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax>()
+                .FirstOrDefault();
+        }
+
+        IMethodSymbol? symbol = null;
+        if (node is Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax methodDecl)
+        {
+            symbol = semanticModel?.GetDeclaredSymbol(methodDecl);
+        }
+        else if (node != null)
+        {
+            // 最后尝试：使用 GetSymbolInfo
+            symbol = semanticModel?.GetSymbolInfo(node).Symbol as IMethodSymbol;
+        }
+
+        if (symbol == null)
         {
             return new CallerAnalysisResult
             {
@@ -101,6 +120,16 @@ public class CallerAnalyzer(IWorkspaceManager workspaceManager)
             if (semanticModel.GetSymbolInfo(invocation).Symbol is IMethodSymbol invokedSymbol &&
                 SymbolEqualityComparer.Default.Equals(invokedSymbol, methodSymbol))
             {
+                // 查找调用者的方法符号 - 向上查找方法声明
+                var callerMethodDecl = invocation.Ancestors()
+                    .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax>()
+                    .FirstOrDefault();
+
+                if (callerMethodDecl == null) continue;
+
+                var callerSymbol = semanticModel.GetDeclaredSymbol(callerMethodDecl);
+                if (callerSymbol == null) continue;
+
                 var lineSpan = root.SyntaxTree.GetLineSpan(invocation.Span);
                 var callerInfo = new CallerInfo
                 {
@@ -112,10 +141,10 @@ public class CallerAnalyzer(IWorkspaceManager workspaceManager)
                     },
                     CallerSymbol = new Models.CallAnalysis.SymbolInfo
                     {
-                        Name = invokedSymbol.Name,
-                        Kind = invokedSymbol.Kind.ToString(),
-                        ContainingType = invokedSymbol.ContainingType?.Name ?? "",
-                        Namespace = invokedSymbol.ContainingNamespace?.ToString() ?? ""
+                        Name = callerSymbol.Name,
+                        Kind = callerSymbol.Kind.ToString(),
+                        ContainingType = callerSymbol.ContainingType?.Name ?? "",
+                        Namespace = callerSymbol.ContainingNamespace?.ToString() ?? ""
                     },
                     CallKind = CallKind.Direct,
                     Context = GetCallContext(invocation)

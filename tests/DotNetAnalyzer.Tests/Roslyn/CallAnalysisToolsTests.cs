@@ -50,11 +50,26 @@ namespace Test
 }";
         var document = CreateTestDocument(callerCode);
 
+        // 动态查找 MethodB 的位置
+        var root = await document.GetSyntaxRootAsync();
+        var semanticModel = await document.GetSemanticModelAsync();
+        var methodBNode = root.DescendantNodes()
+            .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax>()
+            .FirstOrDefault(m => m.Identifier.Text == "MethodB");
+
+        methodBNode.Should().NotBeNull("MethodB 节点应该存在");
+
+        var methodBSpan = methodBNode.SyntaxTree.GetLineSpan(methodBNode.Span);
+        var line = methodBSpan.StartLinePosition.Line;
+        var column = methodBSpan.StartLinePosition.Character;
+
+        _output.WriteLine($"MethodB 位置: 行={line}, 列={column}");
+
         // Act - 获取 MethodB 的调用者信息
         var result = await CallerAnalyzer.GetCallerInfoAsync(
             document,
-            line: 8, // MethodB 声明行
-            column: 17, // MethodB 名称位置
+            line: line,
+            column: column,
             includeIndirect: false);
 
         // Assert
@@ -86,11 +101,23 @@ namespace Test
 }";
         var document = CreateTestDocument(code);
 
+        // 动态查找 UnusedMethod 的位置
+        var root = await document.GetSyntaxRootAsync();
+        var methodNode = root.DescendantNodes()
+            .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax>()
+            .FirstOrDefault(m => m.Identifier.Text == "UnusedMethod");
+
+        methodNode.Should().NotBeNull("UnusedMethod 节点应该存在");
+
+        var methodSpan = methodNode.SyntaxTree.GetLineSpan(methodNode.Span);
+        var line = methodSpan.StartLinePosition.Line;
+        var column = methodSpan.StartLinePosition.Character;
+
         // Act
         var result = await CallerAnalyzer.GetCallerInfoAsync(
             document,
-            line: 5,
-            column: 21,
+            line: line,
+            column: column,
             includeIndirect: false);
 
         // Assert
@@ -122,12 +149,24 @@ namespace Test
 }";
         var document = CreateTestDocument(code);
 
-        // Act - 获取 MainMethod 的被调用者信息
+        // 动态查找 MainMethod 的位置
+        var root = await document.GetSyntaxRootAsync();
+        var methodNode = root.DescendantNodes()
+            .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax>()
+            .FirstOrDefault(m => m.Identifier.Text == "MainMethod");
+
+        methodNode.Should().NotBeNull("MainMethod 节点应该存在");
+
+        var methodSpan = methodNode.SyntaxTree.GetLineSpan(methodNode.Span);
+        var line = methodSpan.StartLinePosition.Line;
+        var column = methodSpan.StartLinePosition.Character;
+
+        // Act - 使用 depth: 1 来查找直接调用的方法
         var result = await CalleeAnalyzer.GetCalleeInfoAsync(
             document,
-            line: 5,
-            column: 20,
-            depth: 0);
+            line: line,
+            column: column,
+            depth: 1);
 
         // Assert
         result.Should().NotBeNull();
@@ -167,11 +206,23 @@ namespace Test
 }";
         var document = CreateTestDocument(code);
 
+        // 动态查找 MethodA 的位置
+        var root = await document.GetSyntaxRootAsync();
+        var methodNode = root.DescendantNodes()
+            .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax>()
+            .FirstOrDefault(m => m.Identifier.Text == "MethodA");
+
+        methodNode.Should().NotBeNull("MethodA 节点应该存在");
+
+        var methodSpan = methodNode.SyntaxTree.GetLineSpan(methodNode.Span);
+        var line = methodSpan.StartLinePosition.Line;
+        var column = methodSpan.StartLinePosition.Character;
+
         // Act - 使用深度 1 获取调用信息
         var result = await CalleeAnalyzer.GetCalleeInfoAsync(
             document,
-            line: 5,
-            column: 20,
+            line: line,
+            column: column,
             depth: 1);
 
         // Assert
@@ -209,11 +260,23 @@ namespace Test
 }";
         var document = CreateTestDocument(code);
 
+        // 动态查找 MethodA 的位置
+        var root = await document.GetSyntaxRootAsync();
+        var methodNode = root.DescendantNodes()
+            .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax>()
+            .FirstOrDefault(m => m.Identifier.Text == "MethodA");
+
+        methodNode.Should().NotBeNull("MethodA 节点应该存在");
+
+        var methodSpan = methodNode.SyntaxTree.GetLineSpan(methodNode.Span);
+        var line = methodSpan.StartLinePosition.Line;
+        var column = methodSpan.StartLinePosition.Character;
+
         // Act
         var result = await CallGraphBuilder.GetCallGraphAsync(
             document,
-            line: 5,
-            column: 20,
+            line: line,
+            column: column,
             maxDepth: 10,
             format: "dot");
 

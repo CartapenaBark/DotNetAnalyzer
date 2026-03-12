@@ -37,9 +37,27 @@ public class CallGraphBuilder
         var position = textLine.Start + column;
         var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
 
-        // 获取方法符号
-        var node = root.FindNode(span);
-        var symbol = semanticModel?.GetSymbolInfo(node).Symbol as IMethodSymbol;
+        // 获取方法符号 - 使用与 CallerAnalyzer 相同的方法
+        var node = root.FindNode(span, getInnermostNodeForTie: true);
+
+        // 如果找到的不是方法声明，尝试向上查找
+        if (node is not Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax)
+        {
+            node = node.AncestorsAndSelf()
+                .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax>()
+                .FirstOrDefault();
+        }
+
+        IMethodSymbol? symbol = null;
+        if (node is Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax methodDecl)
+        {
+            symbol = semanticModel?.GetDeclaredSymbol(methodDecl);
+        }
+        else if (node != null)
+        {
+            // 最后尝试：使用 GetSymbolInfo
+            symbol = semanticModel?.GetSymbolInfo(node).Symbol as IMethodSymbol;
+        }
 
         if (symbol == null)
         {

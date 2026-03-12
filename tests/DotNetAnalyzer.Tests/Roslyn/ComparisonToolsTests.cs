@@ -314,7 +314,7 @@ namespace Test
     /// <summary>
     /// 创建语法树的辅助方法
     /// </summary>
-    private SyntaxTree CreateSyntaxTree(string code)
+    private static SyntaxTree CreateSyntaxTree(string code)
     {
         return CSharpSyntaxTree.ParseText(code);
     }
@@ -353,7 +353,7 @@ namespace Test
     /// <summary>
     /// 创建临时测试文件的辅助方法
     /// </summary>
-    private string CreateTestFile(string content, string fileName)
+    private static string CreateTestFile(string content, string fileName)
     {
         var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(tempDir);

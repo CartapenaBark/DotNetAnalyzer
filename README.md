@@ -3,7 +3,7 @@
 > 一个强大的 MCP (Model Context Protocol) 服务器工具，将 Roslyn 的代码分析能力引入 Claude Code
 
 [![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet)
-[![NuGet](https://img.shields.io/badge/nuget-0.8.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
+[![NuGet](https://img.shields.io/badge/nuget-1.0.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 📖 简介
@@ -29,7 +29,22 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 ## 🎯 核心功能
 
-**当前版本 (v0.8.0)** 提供 **47 个 MCP 工具**，支持强命名：
+**当前版本 (v1.0.0)** 提供 **74 个 MCP 工具**，支持强命名：
+
+### ✨ v1.0.0 正式版 (2026-03-12)
+
+**代码质量分析和可视化增强：**
+- ✅ **测试覆盖率分析** - 项目级别测试覆盖率统计和分析
+- ✅ **死代码检测** - 自动识别未使用的类型和方法
+- ✅ **性能瓶颈分析** - 圈复杂度、方法长度、深度嵌套检测
+- ✅ **文档生成器** - 从 XML 注释自动生成项目文档
+- ✅ **调用图可视化** - 支持 SVG、JSON、Mermaid 格式导出
+- ✅ **错误消息本地化** - 支持中英文错误消息
+
+**支持框架：**
+- .NET 8.0 (C# 12)
+- .NET 9.0 (C# 13)
+- .NET 10.0 (C# 14)
 
 ### ✨ v0.8.0 新特性
 
@@ -165,7 +180,7 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 - `format_document` - 格式化文档
 - `format_selection` - 格式化选定范围
 
-**高级分析** (✅ 完整实现 - Phase 5):
+**高级分析** (✅ 完整实现 - Phase 5/6):
 - `get_caller_info` - 获取调用者信息
   - ✅ 调用位置分析
   - ✅ 调用类型识别
@@ -175,6 +190,9 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
   - ✅ 方法调用链
 - `get_call_graph` - 生成调用图
   - ✅ DOT 格式导出
+  - ✅ ✨ **SVG 可视化** - 矢量图形输出
+  - ✅ ✨ **JSON 格式** - 结构化数据
+  - ✅ ✨ **Mermaid 格式** - Markdown 集成
   - ✅ 节点和边分析
   - ✅ 复杂度度量
 - `compare_syntax_trees` - 比较语法树
@@ -185,6 +203,25 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 - `apply_code_change` - 应用代码修改
   - ✅ 可选格式化
   - ✅ 诊断信息返回
+
+**代码质量分析** (✨ 新增 - Phase 6):
+- `get_test_coverage` - 获取测试覆盖率
+  - ✅ 项目级别覆盖率统计
+  - ✅ 文件级别覆盖率分析
+  - ✅ 行覆盖率、分支覆盖率、方法覆盖率
+- `find_dead_code` - 查找死代码
+  - ✅ 未使用的类型检测
+  - ✅ 未使用的方法检测
+  - ✅ 删除建议
+- `analyze_performance` - 分析性能瓶颈
+  - ✅ 圈复杂度分析
+  - ✅ 方法长度检测
+  - ✅ 深度嵌套检测
+  - ✅ 优化建议
+- `generate_documentation` - 生成项目文档
+  - ✅ 从 XML 注释生成文档
+  - ✅ 支持 Markdown 格式
+  - ✅ 类和成员文档提取
 
 **代码操作** (✅ 完整实现):
 - `get_code_actions` - 获取代码操作
@@ -215,70 +252,337 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 #### Advanced Query Tools (✅ 100% 完成)
 **5 个高级查询工具** - 符号解析、定义和引用、文档列表
 
+#### Phase 6: Code Quality and Visualization (✅ 100% 完成)
+**4 个新工具 + 可视化增强** - 测试覆盖率、死代码检测、性能分析、文档生成、调用图可视化
+
 ## 🏗️ 架构
 
-### 部署架构
+### 系统架构图
 
+```mermaid
+graph TB
+    subgraph "用户层"
+        A[Claude Code]
+    end
+
+    subgraph "MCP 协议层"
+        B[MCP Protocol<br/>stdio]
+        C[dotnet-analyzer<br/>.NET 全局工具]
+    end
+
+    subgraph "DotNetAnalyzer 内部"
+        D[MCP 服务器]
+        E[JSON-RPC 消息路由]
+        F[工具注册与调用]
+        G[Roslyn 集成层]
+    end
+
+    subgraph "代码分析层"
+        H[Roslyn APIs<br/>编译器平台]
+        I[MSBuildWorkspace<br/>工作区管理]
+        J[CompilationCache<br/>编译缓存]
+    end
+
+    subgraph "项目层"
+        K[.NET 解决方案/项目]
+        L[.sln / .slnx<br/>/ .csproj]
+    end
+
+    A -->|MCP 请求| B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+    G --> H
+    H --> I
+    I --> J
+    J --> K
+    K --> L
+
+    style A fill:#e1f5ff
+    style C fill:#c8e6c9
+    style D fill:#fff9c4
+    style H fill:#ffccbc
+    style K fill:#f3e5f5
 ```
-┌─────────────────────────────────────────┐
-│         Claude Code                     │
-└──────────────┬──────────────────────────┘
-               │
-               │ MCP Protocol (stdio)
-               ▼
-┌─────────────────────────────────────────┐
-│    dotnet-analyzer (CLI 工具)            │
-│  ├─ .NET 8.0 全局工具                   │
-│  ├─ 通过 NuGet 安装                     │
-│  └─ 命令: dotnet-analyzer               │
-└──────────────┬──────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────┐
-│    DotNetAnalyzer 内部架构              │
-│  ├─ MCP 协议处理                        │
-│  ├─ JSON-RPC 消息路由                   │
-│  ├─ 工具注册与调用                      │
-│  └─ Roslyn 集成层                       │
-└──────────────┬──────────────────────────┘
-               │
-               ▼
-         ┌─────────────┐
-         │   Roslyn    │
-         │    APIs     │
-         └─────────────┘
+
+### 核心组件关系图
+
+```mermaid
+classDiagram
+    class IWorkspaceManager {
+        <<interface>>
+        +GetProjectAsync(path)
+        +GetCurrentSolutionAsync()
+        +Dispose()
+    }
+
+    class WorkspaceManager {
+        -LRUCache~string, Project~ _cache
+        -SemaphoreSlim _semaphore
+        -ILogger _logger
+        +GetProjectAsync(path)
+        +GetCurrentSolutionAsync()
+        -LoadProjectAsync(path)
+    }
+
+    class ICompilationCache {
+        <<interface>>
+        +GetOrAddAsync(key, factory)
+        +InvalidateAsync(key)
+        +ClearAsync()
+    }
+
+    class CompilationCache {
+        -ConcurrentDictionary _cache
+        -ILogger _logger
+        +GetOrAddAsync(key, factory)
+        +InvalidateAsync(key)
+    }
+
+    class IMcpServer {
+        <<interface>>
+        +StartAsync(token)
+        +StopAsync()
+    }
+
+    class McpServer {
+        -IWorkspaceManager _workspaceManager
+        -ToolRegistry _registry
+        +StartAsync(token)
+        -InitializeToolsAsync()
+    }
+
+    class ToolRegistry {
+        -Dictionary~string, ToolDelegate~ _tools
+        +RegisterTool(name, handler)
+        +GetTool(name)
+        +ListTools()
+    }
+
+    class RoslynAnalyzer {
+        +AnalyzeCode(project, file)
+        +FindReferences(symbol)
+        +GetDiagnostics(project)
+    }
+
+    IWorkspaceManager <|.. WorkspaceManager : implements
+    ICompilationCache <|.. CompilationCache : implements
+    IMcpServer <|.. McpServer : implements
+    WorkspaceManager --> ICompilationCache : uses
+    WorkspaceManager --> CompilationCache : creates
+    McpServer --> IWorkspaceManager : uses
+    McpServer --> ToolRegistry : owns
+    ToolRegistry --> RoslynAnalyzer : invokes
 ```
 
 ### 项目结构
 
+```mermaid
+graph TB
+    subgraph "DotNetAnalyzer 项目"
+        A[src/]
+
+        subgraph "DotNetAnalyzer.Cli - CLI 工具"
+            B[Program.cs<br/>主程序入口]
+            C[Tools/<br/>MCP 工具实现]
+            D[appsettings.json<br/>配置文件]
+        end
+
+        subgraph "DotNetAnalyzer.Core - 核心库"
+            E[McpServer/<br/>MCP 服务器]
+            F[Abstractions/<br/>接口抽象层]
+            G[Roslyn/<br/>Roslyn 集成]
+            H[Refactoring/<br/>重构框架]
+            I[Models/<br/>数据模型]
+            J[Configuration/<br/>配置管理]
+            K[Security/<br/>安全验证]
+        end
+
+        subgraph "Roslyn 集成层"
+            L[WorkspaceManager<br/>工作区管理]
+            M[CompilationCache<br/>编译缓存]
+            N[Refactoring/<br/>重构器]
+            O[CodeGeneration/<br/>代码生成]
+            P[CallAnalysis/<br/>调用分析]
+            Q[Navigation/<br/>导航工具]
+        end
+
+        A --> B
+        A --> E
+        B --> C
+        B --> D
+        E --> F
+        E --> G
+        E --> H
+        E --> I
+        E --> J
+        E --> K
+        G --> L
+        G --> M
+        G --> N
+        G --> O
+        G --> P
+        G --> Q
+
+        style B fill:#c8e6c9
+        style E fill:#fff9c4
+        style G fill:#ffccbc
+    end
 ```
-DotNetAnalyzer/
-├── src/
-│   ├── DotNetAnalyzer.Cli/              # CLI 工具入口
-│   │   └── DotNetAnalyzer.Cli.csproj    # 工具打包配置
-│   │
-│   ├── DotNetAnalyzer.Core/             # 核心库
-│   │   ├── McpServer/                   # MCP 服务器实现
-│   │   │   ├── McpServer.cs
-│   │   │   ├── ToolRegistry.cs
-│   │   │   └── Handlers/
-│   │   │
-│   │   └── Roslyn/                      # Roslyn 集成
-│   │       ├── WorkspaceManager.cs
-│   │       ├── SymbolAnalyzer.cs
-│   │       ├── Refactoring/
-│   │       ├── CodeGeneration/
-│   │       └── CallAnalysis/
-│   │
-│   └── DotNetAnalyzer.Tests/            # 测试项目
-│
-├── .github/
-│   └── workflows/
-│       └── build-and-publish.yml        # CI/CD 工作流
-│
-├── README.md
-├── LICENSE
-└── DotNetAnalyzer.sln
+
+### MCP 工具分类层次图
+
+```mermaid
+graph TB
+    subgraph "DotNetAnalyzer MCP 工具集 (74 个工具)"
+        A[代码诊断<br/>1 个工具]
+        B[项目管理<br/>3 个工具]
+        C[代码分析<br/>1 个工具]
+        D[符号查询<br/>3 个工具]
+        E[导航工具<br/>7 个工具]
+        F[重构工具<br/>15 个工具]
+        G[代码生成<br/>11 个工具]
+        H[高级分析<br/>7 个工具]
+        I[代码质量<br/>4 个工具]
+        J[代码操作<br/>3 个工具]
+        K[高级查询<br/>5 个工具]
+
+        A1[get_diagnostics]
+        B1[list_projects]
+        B2[get_project_info]
+        B3[get_solution_info]
+        C1[analyze_code]
+        D1[find_references]
+        D2[find_declarations]
+        D3[get_symbol_info]
+        E1[go_to_definition]
+        E2[get_type_hierarchy]
+        E3[get_member_hierarchy]
+        E4[get_semantic_model]
+        E5[get_syntax_tree]
+        E6[get_code_metrics]
+        E7[get_document_list]
+        F1[extract_method]
+        F2[rename_symbol]
+        F3[introduce_variable]
+        F4[encapsulate_field]
+        F5[extract_interface]
+        F6[change_signature]
+        F7[add_parameter]
+        F8[inline_temporary]
+        F9[safely_remove_as]
+        F10[remove_unnecessary_code]
+        F11[convert_for_to_foreach]
+        F12[convert_foreach_to_for]
+        F13[convert_if_to_switch]
+        F14[reverse_for_statement]
+        F15[list_refactorers]
+        G1[generate_interface_impl]
+        G2[generate_constructor]
+        G3[generate_property]
+        G4[generate_deconstructor]
+        G5[generate_from_usage]
+        G6[remove_unused_usings]
+        G7[sort_usings]
+        G8[add_missing_imports]
+        G9[organize_imports]
+        G10[format_document]
+        G11[format_selection]
+        H1[get_caller_info]
+        H2[get_callee_info]
+        H3[get_call_graph]
+        H4[compare_syntax_trees]
+        H5[get_code_diff]
+        H6[apply_code_change]
+        H7[resolve_symbol]
+        I1[get_test_coverage]
+        I2[find_dead_code]
+        I3[analyze_performance]
+        I4[generate_documentation]
+        J1[get_code_actions]
+        J2[get_refactorings]
+        J3[get_completion_list]
+        K1[get_definition_and_references]
+        K2[resolve_symbol]
+        K3[get_document_list]
+        K4[get_completion_list]
+        K5[get_refactorings]
+
+        A --> A1
+        B --> B1
+        B --> B2
+        B --> B3
+        C --> C1
+        D --> D1
+        D --> D2
+        D --> D3
+        E --> E1
+        E --> E2
+        E --> E3
+        E --> E4
+        E --> E5
+        E --> E6
+        E --> E7
+        F --> F1
+        F --> F2
+        F --> F3
+        F --> F4
+        F --> F5
+        F --> F6
+        F --> F7
+        F --> F8
+        F --> F9
+        F --> F10
+        F --> F11
+        F --> F12
+        F --> F13
+        F --> F14
+        F --> F15
+        G --> G1
+        G --> G2
+        G --> G3
+        G --> G4
+        G --> G5
+        G --> G6
+        G --> G7
+        G --> G8
+        G --> G9
+        G --> G10
+        G --> G11
+        H --> H1
+        H --> H2
+        H --> H3
+        H --> H4
+        H --> H5
+        H --> H6
+        H --> H7
+        I --> I1
+        I --> I2
+        I --> I3
+        I --> I4
+        J --> J1
+        J --> J2
+        J --> J3
+        K --> K1
+        K --> K2
+        K --> K3
+        K --> K4
+        K --> K5
+
+        style A fill:#ffcdd2
+        style B fill:#f8bbd0
+        style C fill:#e1bee7
+        style D fill:#d1c4e9
+        style E fill:#c5cae9
+        style F fill:#bbdefb
+        style G fill:#b3e5fc
+        style H fill:#b2ebf2
+        style I fill:#b2dfdb
+        style J fill:#c8e6c9
+        style K fill:#dcedc8
+    end
 ```
 
 ## 🚀 快速开始
@@ -485,7 +789,7 @@ dotnet pack -c Release
 
 项目使用 GitHub Actions 自动化构建和发布：
 
-- **触发条件**: Push to main branch, 创建 Release, 手动触发
+- **触发条件**: Push to develop branch, 创建 Release, 手动触发
 - **构建流程**:
   1. 还原依赖
   2. 运行测试（CI 环境跳过性能测试）
@@ -621,7 +925,7 @@ MCP 服务器基础架构，实现核心的代码分析能力。
 
 ## 📊 当前进度
 
-**最后更新**: 2026-02-10
+**最后更新**: 2026-03-07
 
 | Phase | 名称 | 状态 | 进度 | MCP 工具数 |
 |-------|------|------|------|-----------|
@@ -632,8 +936,9 @@ MCP 服务器基础架构，实现核心的代码分析能力。
 | 5 | Advanced Features | ✅ 完成 | 100% | 7/7 个 |
 | - | Code Actions | ✅ 完成 | 100% | 3/3 个 |
 | - | Advanced Query | ✅ 完成 | 100% | 5/5 个 |
+| 6 | Code Quality and Visualization | ✅ 完成 | 100% | 4/4 个 |
 
-**总计**: 47 个 MCP 工具已实现并暴露
+**总计**: 74 个 MCP 工具已实现并暴露
 
 ### 版本里程碑
 

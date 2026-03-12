@@ -2,6 +2,159 @@
 
 本文档介绍如何获取、安装和配置 DotNetAnalyzer MCP 服务器。
 
+## 配置架构概览
+
+```mermaid
+graph TB
+    subgraph "配置层级"
+        A[企业管理策略<br/>最高优先级]
+        B[命令行参数<br/>高优先级]
+        C[.claude/settings.local.json<br/>本地项目]
+        D[.claude/settings.json<br/>共享项目]
+        E[~/.claude/settings.json<br/>用户级<br/>最低优先级]
+    end
+
+    subgraph "MCP 服务器配置"
+        F[.mcp.json<br/>项目级]
+        G[claude_desktop_config.json<br/>用户级]
+    end
+
+    subgraph "环境变量"
+        H[DOTNET_ANALYZER_LOG_LEVEL]
+        I[DOTNET_ANALYZER_WORKSPACE_DIR]
+    end
+
+    subgraph "应用配置"
+        J[appsettings.json<br/>应用内配置]
+        K[WorkspaceManagerOptions]
+        L[CompilationCacheOptions]
+        M[MemoryMonitoringOptions]
+    end
+
+    A --> Z[最终配置]
+    B --> Z
+    C --> Z
+    D --> Z
+    E --> Z
+    F --> Z
+    G --> Z
+    H --> Z
+    I --> Z
+    J --> K
+    J --> L
+    J --> M
+    K --> Z
+    L --> Z
+    M --> Z
+
+    style A fill:#ffcdd2
+    style B fill:#f8bbd0
+    style C fill:#e1bee7
+    style D fill:#d1c4e9
+    style E fill:#c5cae9
+    style F fill:#bbdefb
+    style G fill:#b3e5fc
+    style H fill:#b2ebf2
+    style I fill:#b2dfdb
+    style J fill:#c8e6c9
+    style Z fill:#fff9c4
+```
+
+## MCP 服务器连接流程
+
+```mermaid
+sequenceDiagram
+    participant U as 用户
+    participant CC as Claude Code
+    participant CFG as 配置系统
+    participant MCP as MCP 服务器
+    participant WS as WorkspaceManager
+
+    U->>CC: 1. 启动 Claude Code
+    CC->>CFG: 2. 读取配置文件
+    Note over CFG: 按优先级读取:<br/>1. 企业管理策略<br/>2. .claude/settings.local.json<br/>3. .claude/settings.json<br/>4. ~/.claude/settings.json<br/>5. .mcp.json
+
+    CFG-->>CC: 3. 返回配置
+    CC->>MCP: 4. 启动 MCP 服务器
+    Note over CC,MCP: dotnet-analyzer mcp serve
+
+    MCP->>MCP: 5. 读取环境变量
+    Note over MCP: DOTNET_ANALYZER_LOG_LEVEL<br/>DOTNET_ANALYZER_WORKSPACE_DIR
+
+    MCP->>MCP: 6. 加载 appsettings.json
+    Note over MCP: WorkspaceManagerOptions<br/>CompilationCacheOptions<br/>MemoryMonitoringOptions
+
+    MCP->>WS: 7. 初始化 WorkspaceManager
+    WS-->>MCP: 8. 初始化完成
+
+    MCP-->>CC: 9. 注册工具成功
+    CC-->>U: 10. 准备就绪
+
+    Note over U,WS: MCP 服务器现在可以接收工具调用
+```
+
+## 配置选项层次结构
+
+```mermaid
+graph TB
+    subgraph "DotNetAnalyzer 配置系统"
+        A[配置根节点]
+
+        subgraph "MCP 服务器配置"
+            B1[type: stdio]
+            B2[command: dotnet-analyzer]
+            B3[args: []]
+            B4[env: {}]
+        end
+
+        subgraph "日志配置"
+            C1[LogLevel: None/Error/<br/>Warning/Information/Debug]
+            C2[LogOutput: stderr]
+        end
+
+        subgraph "工作区配置"
+            D1[CacheCapacity: 50]
+            D2[MaxConcurrentLoads: 4]
+            D3[WorkspaceDir: TEMP]
+        end
+
+        subgraph "编译缓存配置"
+            E1[CacheSize: 100]
+            E2[ExpirationMinutes: 30]
+            E3[EnableCache: true]
+        end
+
+        subgraph "内存监控配置"
+            F1[HighMemoryThreshold: 85%]
+            F2[CriticalMemoryThreshold: 90%]
+            F3[MonitorIntervalSeconds: 60]
+        end
+
+        A --> B1
+        A --> B2
+        A --> B3
+        A --> B4
+        A --> C1
+        A --> C2
+        A --> D1
+        A --> D2
+        A --> D3
+        A --> E1
+        A --> E2
+        A --> E3
+        A --> F1
+        A --> F2
+        A --> F3
+
+        style A fill:#fff9c4
+        style B1 fill:#c8e6c9
+        style C1 fill:#ffcdd2
+        style D1 fill:#ffccbc
+        style E1 fill:#b2dfdb
+        style F1 fill:#c5cae9
+    end
+```
+
 ## 目录
 
 - [获取 DotNetAnalyzer](#获取-dotnetanalyzer)

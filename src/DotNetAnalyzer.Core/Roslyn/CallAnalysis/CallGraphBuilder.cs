@@ -25,35 +25,51 @@ public class CallGraphBuilder
         Document document,
         int line,
         int column,
-        int maxDepth = 10)
+        int maxDepth = 10,
+        string format = "dot")
     {
         var semanticModel = await document.GetSemanticModelAsync();
         var root = await document.GetSyntaxRootAsync();
-        if (root == null) return new CallGraphResult { Graph = new CallGraph { Nodes = new List<CallGraphNode>(), Edges = new List<CallGraphEdge>() }, Visualization = new CallGraphVisualization { Format = "dot", Content = "digraph CallGraph { }" } };
+        if (root == null) return new CallGraphResult { Graph = new CallGraph { Nodes = new List<CallGraphNode>(), Edges = new List<CallGraphEdge>() }, Visualization = CallGraphVisualizer.GenerateVisualization(new CallGraph(), format) };
 
         // 获取指定位置的文本跨度
         var textLine = root.SyntaxTree.GetText().Lines[line];
         var position = textLine.Start + column;
         var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
 
-        // 获取方法符号
-        var node = root.FindNode(span);
-        var symbol = semanticModel?.GetSymbolInfo(node).Symbol as IMethodSymbol;
+        // 获取方法符号 - 使用与 CallerAnalyzer 相同的方法
+        var node = root.FindNode(span, getInnermostNodeForTie: true);
+
+        // 如果找到的不是方法声明，尝试向上查找
+        if (node is not Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax)
+        {
+            node = node.AncestorsAndSelf()
+                .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax>()
+                .FirstOrDefault();
+        }
+
+        IMethodSymbol? symbol = null;
+        if (node is Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax methodDecl)
+        {
+            symbol = semanticModel?.GetDeclaredSymbol(methodDecl);
+        }
+        else if (node != null)
+        {
+            // 最后尝试：使用 GetSymbolInfo
+            symbol = semanticModel?.GetSymbolInfo(node).Symbol as IMethodSymbol;
+        }
 
         if (symbol == null)
         {
+            var emptyGraph = new CallGraph
+            {
+                Nodes = new List<CallGraphNode>(),
+                Edges = new List<CallGraphEdge>()
+            };
             return new CallGraphResult
             {
-                Graph = new CallGraph
-                {
-                    Nodes = new List<CallGraphNode>(),
-                    Edges = new List<CallGraphEdge>()
-                },
-                Visualization = new CallGraphVisualization
-                {
-                    Format = "dot",
-                    Content = "digraph CallGraph { }"
-                }
+                Graph = emptyGraph,
+                Visualization = CallGraphVisualizer.GenerateVisualization(emptyGraph, format)
             };
         }
 
@@ -64,7 +80,7 @@ public class CallGraphBuilder
         CalculateMetrics(graph);
 
         // 生成可视化
-        var visualization = GenerateDotVisualization(graph);
+        var visualization = CallGraphVisualizer.GenerateVisualization(graph, format);
 
         return new CallGraphResult
         {
@@ -240,36 +256,5 @@ public class CallGraphBuilder
     {
         // 简化实现：扇出度作为复杂度
         return outgoingEdges.Count + 1;
-    }
-
-    /// <summary>
-    /// 生成DOT可视化
-    /// </summary>
-    private static CallGraphVisualization GenerateDotVisualization(CallGraph graph)
-    {
-        var dot = new System.Text.StringBuilder();
-        dot.AppendLine("digraph CallGraph {");
-        dot.AppendLine("  node [shape=box];");
-
-        // 添加节点
-        foreach (var node in graph.Nodes)
-        {
-            var label = $"{node.Name}\\n(FanIn: {node.Metrics.FanIn}, FanOut: {node.Metrics.FanOut})";
-            dot.AppendLine($"  \"{node.Id}\" [label=\"{label}\"];");
-        }
-
-        // 添加边
-        foreach (var edge in graph.Edges)
-        {
-            dot.AppendLine($"  \"{edge.From}\" -> \"{edge.To}\" [label=\"{edge.CallCount}\"];");
-        }
-
-        dot.AppendLine("}");
-
-        return new CallGraphVisualization
-        {
-            Format = "dot",
-            Content = dot.ToString()
-        };
     }
 }

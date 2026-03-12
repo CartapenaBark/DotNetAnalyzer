@@ -3,6 +3,7 @@ using System.Text.Json;
 using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Models.CallAnalysis;
+using Microsoft.CodeAnalysis;
 using ModelContextProtocol.Server;
 
 namespace DotNetAnalyzer.Cli.Tools;
@@ -26,18 +27,38 @@ public static class CallAnalysisTools
     {
         try
         {
-            // TODO: 实现实际的调用者分析逻辑
-            // 当前返回桩实现结果
-            var result = new CallerAnalysisResult
+            // 验证参数
+            if (string.IsNullOrEmpty(filePath))
             {
-                Callers = new List<CallerInfo>(),
-                CallCount = 0
-            };
+                return CreateErrorResponse("文件路径不能为空");
+            }
+
+            if (line < 0 || column < 0)
+            {
+                return CreateErrorResponse("行号和列号必须大于或等于0");
+            }
+
+            // 获取项目
+            var project = await workspaceManager.GetProjectAsync(filePath);
+            if (project == null)
+            {
+                return CreateErrorResponse($"无法加载项目: {filePath}");
+            }
+
+            // 查找文档
+            var document = project.Documents.FirstOrDefault(d => d.FilePath == filePath);
+            if (document == null)
+            {
+                return CreateErrorResponse($"找不到文件: {filePath}");
+            }
+
+            // 调用 Core 库的实现
+            var result = await DotNetAnalyzer.Core.Roslyn.CallAnalysis.CallerAnalyzer.GetCallerInfoAsync(
+                document, line, column, includeIndirect);
 
             return JsonSerializer.Serialize(new
             {
                 success = true,
-                message = "调用者分析功能正在开发中，当前返回桩实现结果",
                 data = result
             }, JsonOptions.Default);
         }
@@ -60,23 +81,43 @@ public static class CallAnalysisTools
     {
         try
         {
-            // TODO: 实现实际的被调用者分析逻辑
-            // 当前返回桩实现结果
-            var result = new CalleeAnalysisResult
+            // 验证参数
+            if (string.IsNullOrEmpty(filePath))
             {
-                Callees = new List<CalleeInfo>(),
-                CallTree = new CallTreeNode
-                {
-                    Method = "Root",
-                    Depth = 0,
-                    Children = new List<CallTreeNode>()
-                }
-            };
+                return CreateErrorResponse("文件路径不能为空");
+            }
+
+            if (line < 0 || column < 0)
+            {
+                return CreateErrorResponse("行号和列号必须大于或等于0");
+            }
+
+            if (depth < 0)
+            {
+                return CreateErrorResponse("递归深度必须大于或等于0");
+            }
+
+            // 获取项目
+            var project = await workspaceManager.GetProjectAsync(filePath);
+            if (project == null)
+            {
+                return CreateErrorResponse($"无法加载项目: {filePath}");
+            }
+
+            // 查找文档
+            var document = project.Documents.FirstOrDefault(d => d.FilePath == filePath);
+            if (document == null)
+            {
+                return CreateErrorResponse($"找不到文件: {filePath}");
+            }
+
+            // 调用 Core 库的实现
+            var result = await DotNetAnalyzer.Core.Roslyn.CallAnalysis.CalleeAnalyzer.GetCalleeInfoAsync(
+                document, line, column, depth);
 
             return JsonSerializer.Serialize(new
             {
                 success = true,
-                message = "被调用者分析功能正在开发中，当前返回桩实现结果",
                 data = result
             }, JsonOptions.Default);
         }
@@ -89,36 +130,55 @@ public static class CallAnalysisTools
     /// <summary>
     /// 生成完整的调用图
     /// </summary>
-    [McpServerTool, Description("生成完整的调用图，包括节点、边和度量指标，支持 DOT 格式可视化")]
+    [McpServerTool, Description("生成完整的调用图，包括节点、边和度量指标，支持多种可视化格式 (dot, svg, json, mermaid)")]
     public static async Task<string> GetCallGraph(
         IWorkspaceManager workspaceManager,
         [Description("文件路径")] string filePath,
         [Description("行号（从0开始）")] int line,
         [Description("列号（从0开始）")] int column,
-        [Description("最大深度")] int maxDepth = 10)
+        [Description("最大深度")] int maxDepth = 10,
+        [Description("可视化格式 (dot, svg, json, mermaid)")] string format = "dot")
     {
         try
         {
-            // TODO: 实现实际的调用图构建逻辑
-            // 当前返回桩实现结果
-            var result = new CallGraphResult
+            // 验证参数
+            if (string.IsNullOrEmpty(filePath))
             {
-                Graph = new CallGraph
-                {
-                    Nodes = new List<CallGraphNode>(),
-                    Edges = new List<CallGraphEdge>()
-                },
-                Visualization = new CallGraphVisualization
-                {
-                    Format = "dot",
-                    Content = "digraph CallGraph {\n}"
-                }
-            };
+                return CreateErrorResponse("文件路径不能为空");
+            }
+
+            if (line < 0 || column < 0)
+            {
+                return CreateErrorResponse("行号和列号必须大于或等于0");
+            }
+
+            if (maxDepth < 1)
+            {
+                return CreateErrorResponse("最大深度必须大于或等于1");
+            }
+
+            // 获取项目
+            var project = await workspaceManager.GetProjectAsync(filePath);
+            if (project == null)
+            {
+                return CreateErrorResponse($"无法加载项目: {filePath}");
+            }
+
+            // 查找文档
+            var document = project.Documents.FirstOrDefault(d => d.FilePath == filePath);
+            if (document == null)
+            {
+                return CreateErrorResponse($"找不到文件: {filePath}");
+            }
+
+            // 调用 Core 库的实现
+            var normalizedFormat = string.IsNullOrEmpty(format) ? "dot" : format.ToLowerInvariant();
+            var result = await DotNetAnalyzer.Core.Roslyn.CallAnalysis.CallGraphBuilder.GetCallGraphAsync(
+                document, line, column, maxDepth, normalizedFormat);
 
             return JsonSerializer.Serialize(new
             {
                 success = true,
-                message = "调用图分析功能正在开发中，当前返回桩实现结果",
                 data = result
             }, JsonOptions.Default);
         }

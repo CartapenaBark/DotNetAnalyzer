@@ -2,13 +2,25 @@ name: Build and Publish
 
 on:
   push:
-    branches: [ main ]
     tags: ['v*.*.*']
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
+  extract_version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+
+    steps:
+    - name: Extract version from tag
+      id: get_version
+      run: |
+        # 从 GITHUB_REF 获取 tag 名称，格式如 refs/tags/v1.0.0
+        TAG_NAME=${GITHUB_REF#refs/tags/}
+        VERSION=${TAG_NAME#v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Tag: $TAG_NAME, Version: $VERSION"
+
   build:
     runs-on: ubuntu-latest
 
@@ -16,10 +28,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup .NET 8.0
+    - name: Setup .NET 10.0
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: '10.0.x'
 
     - name: Cache NuGet packages
       uses: actions/cache@v4
@@ -35,8 +47,8 @@ jobs:
     - name: Build
       run: dotnet build -c Release
 
-    - name: Test
-      run: dotnet test -c Release --verbosity normal
+    - name: Test (.NET 10.0)
+      run: dotnet test -c Release --framework net10.0 --verbosity normal
 
     - name: Pack
       run: dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release
@@ -49,7 +61,7 @@ jobs:
         retention-days: 7
 
   publish_nuget:
-    needs: build
+    needs: [build, extract_version]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 
@@ -71,7 +83,7 @@ jobs:
         done
 
   create_github_release:
-    needs: build
+    needs: [build, extract_version]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 

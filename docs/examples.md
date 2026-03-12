@@ -2,6 +2,114 @@
 
 本文档提供 DotNetAnalyzer 的实际使用示例，展示如何通过 Claude Code 与 MCP 工具交互。
 
+## 典型使用场景
+
+### 场景 1: 代码审查流程
+
+```mermaid
+graph LR
+    A[开始代码审查] --> B[获取诊断信息<br/>get_diagnostics]
+    B --> C{有错误?}
+    C -->|是| D[分析错误<br/>analyze_code]
+    C -->|否| E[检查警告<br/>get_code_metrics]
+    D --> F[修复错误]
+    F --> E
+    E --> G[检查代码质量<br/>find_dead_code]
+    G --> H[生成报告<br/>generate_documentation]
+    H --> I[完成审查]
+
+    style A fill:#e1f5fe
+    style B fill:#fff9c4
+    style D fill:#ffcdd2
+    style F fill:#c8e6c9
+    style H fill:#b2dfdb
+    style I fill:#c5cae9
+```
+
+### 场景 2: 依赖分析流程
+
+```mermaid
+graph TB
+    A[开始依赖分析] --> B[列出所有项目<br/>list_projects]
+    B --> C[获取解决方案信息<br/>get_solution_info]
+    C --> D[分析项目依赖<br/>get_project_info]
+    D --> E{有循环依赖?}
+    E -->|是| F[标记循环依赖<br/>analyze_dependencies]
+    E -->|否| G[检查构建顺序]
+    F --> G
+    G --> H[生成依赖图<br/>get_call_graph]
+    H --> I[完成分析]
+
+    style A fill:#e1f5fe
+    style B fill:#fff9c4
+    style C fill:#fff9c4
+    style D fill:#fff9c4
+    style F fill:#ffcdd2
+    style H fill:#b2dfdb
+    style I fill:#c5cae9
+```
+
+### 场景 3: 符号查询流程
+
+```mermaid
+sequenceDiagram
+    participant U as 用户
+    participant C as Claude Code
+    participant G as go_to_definition
+    participant R as find_references
+    participant H as get_type_hierarchy
+
+    U->>C: 1. "这个方法在哪里定义的?"
+    C->>G: 2. 跳转到定义
+    G-->>C: 3. 返回定义位置
+    C-->>U: 4. "定义在 src/Services/UserService.cs:45"
+
+    U->>C: 5. "这个方法被哪些地方调用?"
+    C->>R: 6. 查找引用
+    R-->>C: 7. 返回所有引用
+    C-->>U: 8. "被 5 个位置调用..."
+
+    U->>C: 9. "这个类继承自什么?"
+    C->>H: 10. 获取类型层次
+    H-->>C: 11. 返回继承关系
+    C-->>U: 12. "继承自 BaseService<T>"
+```
+
+### 场景 4: 代码重构流程
+
+```mermaid
+graph TB
+    A[识别重构机会] --> B[分析代码质量<br/>analyze_performance]
+    B --> C{需要重构?}
+    C -->|是| D[选择重构操作]
+    C -->|否| E[完成分析]
+
+    D --> F1[提取方法<br/>extract_method]
+    D --> F2[重命名符号<br/>rename_symbol]
+    D --> F3[封装字段<br/>encapsulate_field]
+    D --> F4[提取接口<br/>extract_interface]
+
+    F1 --> G[预览变更<br/>Preview]
+    F2 --> G
+    F3 --> G
+    F4 --> G
+
+    G --> H{确认变更?}
+    H -->|是| I[应用重构<br/>Apply]
+    H -->|否| E
+
+    I --> J[验证结果<br/>get_diagnostics]
+    J --> K[运行测试]
+    K --> E
+
+    style A fill:#e1f5fe
+    style B fill:#fff9c4
+    style D fill:#c8e6c9
+    style G fill:#ffccbc
+    style I fill:#c8e6c9
+    style E fill:#c5cae9
+```
+
 ## 目录
 
 - [基础示例](#基础示例)

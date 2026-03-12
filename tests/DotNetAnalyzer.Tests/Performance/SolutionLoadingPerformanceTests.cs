@@ -9,6 +9,7 @@ namespace DotNetAnalyzer.Tests.Performance;
 /// 解决方案加载性能测试
 /// 验证 .slnx 加载性能符合要求（≤ .sln + 10%）
 /// </summary>
+[Trait("Category", "Performance")]
 public class SolutionLoadingPerformanceTests
 {
     private readonly string _testAssetsPath;

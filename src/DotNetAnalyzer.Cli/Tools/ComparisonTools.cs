@@ -26,18 +26,66 @@ public static class ComparisonTools
     {
         try
         {
-            // TODO: 实现实际的语法树比较逻辑
-            // 当前返回桩实现结果
-            var result = new SyntaxTreeDiffResult
+            // 验证参数
+            if (string.IsNullOrEmpty(tree1Path) || string.IsNullOrEmpty(tree2Path))
             {
-                Differences = new List<SyntaxTreeDifference>(),
-                Summary = new DiffSummary()
-            };
+                return CreateErrorResponse("文件路径不能为空");
+            }
+
+            if (!File.Exists(tree1Path))
+            {
+                return CreateErrorResponse($"文件不存在: {tree1Path}");
+            }
+
+            if (!File.Exists(tree2Path))
+            {
+                return CreateErrorResponse($"文件不存在: {tree2Path}");
+            }
+
+            // 获取项目
+            var project1 = await workspaceManager.GetProjectAsync(tree1Path);
+            var project2 = await workspaceManager.GetProjectAsync(tree2Path);
+
+            if (project1 == null)
+            {
+                return CreateErrorResponse($"无法加载项目: {tree1Path}");
+            }
+
+            if (project2 == null)
+            {
+                return CreateErrorResponse($"无法加载项目: {tree2Path}");
+            }
+
+            // 查找文档
+            var document1 = project1.Documents.FirstOrDefault(d => d.FilePath == tree1Path);
+            var document2 = project2.Documents.FirstOrDefault(d => d.FilePath == tree2Path);
+
+            if (document1 == null)
+            {
+                return CreateErrorResponse($"找不到文件: {tree1Path}");
+            }
+
+            if (document2 == null)
+            {
+                return CreateErrorResponse($"找不到文件: {tree2Path}");
+            }
+
+            // 获取语法树
+            var tree1 = await document1.GetSyntaxTreeAsync();
+            var tree2 = await document2.GetSyntaxTreeAsync();
+
+            if (tree1 == null || tree2 == null)
+            {
+                return CreateErrorResponse("无法获取语法树");
+            }
+
+            // 调用 Core 库的实现
+            var result = await DotNetAnalyzer.Core.Roslyn.Comparison.SyntaxTreeComparer.CompareAsync(
+                tree1, tree2, ignoreWhitespace, ignoreComments);
 
             return JsonSerializer.Serialize(new
             {
                 success = true,
-                message = "语法树比较功能正在开发中，当前返回桩实现结果",
                 data = result
             }, JsonOptions.Default);
         }
@@ -59,19 +107,34 @@ public static class ComparisonTools
     {
         try
         {
-            // TODO: 实现实际的代码差异生成逻辑
-            // 当前返回桩实现结果
-            var result = new CodeDiffResult
+            // 验证参数
+            if (string.IsNullOrEmpty(beforePath) || string.IsNullOrEmpty(afterPath))
             {
-                Diff = $"--- {beforePath}\n+++ {afterPath}\n",
-                FileChanges = new List<FileChange>(),
-                Stats = new DiffStatistics()
-            };
+                return CreateErrorResponse("文件路径不能为空");
+            }
+
+            if (!File.Exists(beforePath))
+            {
+                return CreateErrorResponse($"文件不存在: {beforePath}");
+            }
+
+            if (!File.Exists(afterPath))
+            {
+                return CreateErrorResponse($"文件不存在: {afterPath}");
+            }
+
+            if (contextLines < 0)
+            {
+                return CreateErrorResponse("上下文行数必须大于或等于0");
+            }
+
+            // 调用 Core 库的实现
+            var result = await DotNetAnalyzer.Core.Roslyn.Comparison.DiffGenerator.GetCodeDiffAsync(
+                beforePath, afterPath, contextLines);
 
             return JsonSerializer.Serialize(new
             {
                 success = true,
-                message = "代码差异生成功能正在开发中，当前返回桩实现结果",
                 data = result
             }, JsonOptions.Default);
         }
@@ -93,33 +156,43 @@ public static class ComparisonTools
     {
         try
         {
-            // TODO: 实现实际的代码变更应用逻辑
-            // 当前返回桩实现结果
-            var result = new CodeChangeResult
+            // 验证参数
+            if (string.IsNullOrEmpty(filePath))
             {
-                Success = false,
-                NewContent = string.Empty,
-                Diagnostics = new List<CodeChangeDiagnostic>
-                {
-                    new CodeChangeDiagnostic
-                    {
-                        Severity = DiagnosticSeverity.Info,
-                        Message = "代码变更应用功能正在开发中，当前返回桩实现结果",
-                        Location = new SourceLocation
-                        {
-                            FilePath = filePath,
-                            Line = 0,
-                            Column = 0
-                        }
-                    }
-                },
-                AppliedChanges = 0
-            };
+                return CreateErrorResponse("文件路径不能为空");
+            }
+
+            if (string.IsNullOrEmpty(changesJson))
+            {
+                return CreateErrorResponse("变更列表不能为空");
+            }
+
+            if (!File.Exists(filePath))
+            {
+                return CreateErrorResponse($"文件不存在: {filePath}");
+            }
+
+            // 获取项目
+            var project = await workspaceManager.GetProjectAsync(filePath);
+            if (project == null)
+            {
+                return CreateErrorResponse($"无法加载项目: {filePath}");
+            }
+
+            // 查找文档
+            var document = project.Documents.FirstOrDefault(d => d.FilePath == filePath);
+            if (document == null)
+            {
+                return CreateErrorResponse($"找不到文件: {filePath}");
+            }
+
+            // 调用 Core 库的实现
+            var result = await DotNetAnalyzer.Core.Roslyn.Comparison.CodeChangeApplicator.ApplyChangesAsync(
+                document, changesJson, format);
 
             return JsonSerializer.Serialize(new
             {
-                success = true,
-                message = "代码变更应用功能正在开发中，当前返回桩实现结果",
+                success = result.Success,
                 data = result
             }, JsonOptions.Default);
         }

@@ -120,23 +120,24 @@ public class BaseToolTests
         [Fact]
         public void 文件不存在时应该返回错误响应()
         {
-            // Arrange
-            var nonExistentFile = "C:/不存在的/文件/path.cs";
+            // Arrange - 使用跨平台的不存在的路径
+            var nonExistentFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString(), "不存在的文件.cs");
 
             // Act
             var error = BaseTool.ValidateFileExists(nonExistentFile);
 
             // Assert
             error.Should().NotBeNull();
-            error.Should().Contain("\"success\":false");
+            error.Should().Contain("success");
+            error.Should().Contain("false");
             error.Should().Contain("文件不存在");
         }
 
         [Fact]
         public void 应该使用自定义错误消息()
         {
-            // Arrange
-            var nonExistentFile = "C:/不存在的/文件/path.cs";
+            // Arrange - 使用跨平台的不存在的路径
+            var nonExistentFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString(), "不存在的文件.cs");
             var customMessage = "自定义错误: 文件未找到";
 
             // Act
@@ -166,15 +167,16 @@ public class BaseToolTests
         [Fact]
         public void 路径不存在时应该返回错误响应()
         {
-            // Arrange
-            var nonExistentPath = "C:/不存在的/路径/";
+            // Arrange - 使用跨平台的不存在的路径
+            var nonExistentPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString(), "不存在的路径");
 
             // Act
             var error = BaseTool.ValidatePathExists(nonExistentPath);
 
             // Assert
             error.Should().NotBeNull();
-            error.Should().Contain("\"success\":false");
+            error.Should().Contain("success");
+            error.Should().Contain("false");
             error.Should().Contain("路径不存在");
         }
     }

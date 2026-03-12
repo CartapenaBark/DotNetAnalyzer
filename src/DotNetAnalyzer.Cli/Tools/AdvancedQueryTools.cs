@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Text.Json;
 using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Json;
+using Microsoft.CodeAnalysis;
 using ModelContextProtocol.Server;
 
 namespace DotNetAnalyzer.Cli.Tools;
@@ -26,26 +27,85 @@ public static class AdvancedQueryTools
     {
         try
         {
-            // TODO: 实现实际的符号解析逻辑
-            // 当前返回桩实现结果
-            var result = new
+            // 验证参数
+            if (string.IsNullOrEmpty(filePath))
             {
-                symbol = new
-                {
-                    name = "PlaceholderSymbol",
-                    kind = "Method",
-                    containingType = "PlaceholderType",
-                    @namespace = "PlaceholderNamespace"
-                },
-                resolutionPath = new List<string>(),
-                alternatives = new List<object>()
+                return CreateErrorResponse("文件路径不能为空");
+            }
+
+            if (line < 0 || column < 0)
+            {
+                return CreateErrorResponse("行号和列号必须大于或等于0");
+            }
+
+            // 获取项目
+            var project = await workspaceManager.GetProjectAsync(filePath);
+            if (project == null)
+            {
+                return CreateErrorResponse($"无法加载项目: {filePath}");
+            }
+
+            // 查找文档
+            var document = project.Documents.FirstOrDefault(d => d.FilePath == filePath);
+            if (document == null)
+            {
+                return CreateErrorResponse($"找不到文件: {filePath}");
+            }
+
+            // 获取语义模型
+            var semanticModel = await document.GetSemanticModelAsync();
+            var root = await document.GetSyntaxRootAsync();
+            if (semanticModel == null || root == null)
+            {
+                return CreateErrorResponse("无法获取语义模型或语法根");
+            }
+
+            // 获取指定位置的符号
+            var textLine = root.SyntaxTree.GetText().Lines[line];
+            var position = textLine.Start + column;
+            var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
+            var node = root.FindNode(span);
+            var symbol = semanticModel.GetSymbolInfo(node).Symbol;
+
+            if (symbol == null)
+            {
+                return CreateErrorResponse("无法解析该位置的符号");
+            }
+
+            // 构建符号信息
+            var symbolInfo = new
+            {
+                name = symbol.Name,
+                kind = symbol.Kind.ToString(),
+                containingType = symbol.ContainingType?.Name,
+                @namespace = symbol.ContainingNamespace?.ToString()
             };
+
+            // 解析重写
+            var resolutionPath = new List<string>();
+            if (resolveOverrides && symbol.IsOverride)
+            {
+                resolutionPath.Add("Overrides: base member");
+            }
+
+            // 解析接口实现
+            if (resolveOverrides && symbol is IMethodSymbol methodSymbol)
+            {
+                foreach (var iface in methodSymbol.ExplicitInterfaceImplementations)
+                {
+                    resolutionPath.Add($"Implements: {iface.Name}");
+                }
+            }
 
             return JsonSerializer.Serialize(new
             {
                 success = true,
-                message = "符号解析功能正在开发中，当前返回桩实现结果",
-                data = result
+                data = new
+                {
+                    symbol = symbolInfo,
+                    resolutionPath,
+                    alternatives = new List<object>()
+                }
             }, JsonOptions.Default);
         }
         catch (Exception ex)
@@ -68,33 +128,132 @@ public static class AdvancedQueryTools
     {
         try
         {
-            // TODO: 实现实际的定义和引用获取逻辑
-            // 当前返回桩实现结果
-            var result = new
+            // 验证参数
+            if (string.IsNullOrEmpty(filePath))
             {
-                definition = new
+                return CreateErrorResponse("文件路径不能为空");
+            }
+
+            if (line < 0 || column < 0)
+            {
+                return CreateErrorResponse("行号和列号必须大于或等于0");
+            }
+
+            // 获取项目
+            var project = await workspaceManager.GetProjectAsync(filePath);
+            if (project == null)
+            {
+                return CreateErrorResponse($"无法加载项目: {filePath}");
+            }
+
+            // 查找文档
+            var document = project.Documents.FirstOrDefault(d => d.FilePath == filePath);
+            if (document == null)
+            {
+                return CreateErrorResponse($"找不到文件: {filePath}");
+            }
+
+            // 获取语义模型
+            var semanticModel = await document.GetSemanticModelAsync();
+            var root = await document.GetSyntaxRootAsync();
+            if (semanticModel == null || root == null)
+            {
+                return CreateErrorResponse("无法获取语义模型或语法根");
+            }
+
+            // 获取符号
+            var textLine = root.SyntaxTree.GetText().Lines[line];
+            var position = textLine.Start + column;
+            var span = new Microsoft.CodeAnalysis.Text.TextSpan(position, 0);
+            var symbol = semanticModel.GetSymbolInfo(root.FindNode(span)).Symbol;
+
+            if (symbol == null)
+            {
+                return CreateErrorResponse("无法解析该位置的符号");
+            }
+
+            // 获取定义位置
+            var locations = symbol.Locations;
+            var definition = locations.FirstOrDefault();
+            var definitionInfo = new
+            {
+                name = symbol.Name,
+                location = new
                 {
-                    name = "PlaceholderSymbol",
-                    location = new
-                    {
-                        filePath = filePath,
-                        line = line,
-                        column = column
-                    }
-                },
-                references = new List<object>(),
-                hierarchy = new object(),
-                summary = new
-                {
-                    referenceCount = 0
+                    filePath = definition?.GetLineSpan().Path ?? filePath,
+                    line = definition?.GetLineSpan().StartLinePosition.Line ?? 0,
+                    column = definition?.GetLineSpan().StartLinePosition.Character ?? 0
                 }
             };
+
+            // 获取引用（简化实现）
+            var references = new List<object>();
+            if (includeReferences)
+            {
+                // 简化实现：在当前项目中查找引用
+                // 完整实现需要使用 RenameTracking 或 SymbolFinder
+                var documents = project.Documents;
+                foreach (var doc in documents)
+                {
+                    var docTree = await doc.GetSyntaxTreeAsync();
+                    if (docTree == null) continue;
+
+                    var docRoot = await doc.GetSyntaxRootAsync();
+                    if (docRoot == null) continue;
+
+                    var docSemanticModel = await doc.GetSemanticModelAsync();
+                    if (docSemanticModel == null) continue;
+
+                    // 查找所有与符号匹配的标识符
+                    var identifierNodes = docRoot.DescendantNodes()
+                        .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.IdentifierNameSyntax>();
+
+                    foreach (var identifier in identifierNodes)
+                    {
+                        var identifierSymbol = docSemanticModel.GetSymbolInfo(identifier).Symbol;
+                        if (identifierSymbol != null && SymbolEqualityComparer.Default.Equals(identifierSymbol, symbol))
+                        {
+                            var location = identifier.GetLocation();
+                            if (location.SourceSpan.Start > 0)
+                            {
+                                var lineSpan = location.GetLineSpan();
+                                references.Add(new
+                                {
+                                    filePath = doc.FilePath,
+                                    line = lineSpan.StartLinePosition.Line,
+                                    column = lineSpan.StartLinePosition.Character
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 获取层次结构
+            object? hierarchy = null;
+            if (includeHierarchy)
+            {
+                hierarchy = new
+                {
+                    containingType = symbol.ContainingType?.Name,
+                    containingNamespace = symbol.ContainingNamespace?.ToString(),
+                    baseType = (symbol as INamedTypeSymbol)?.BaseType?.Name
+                };
+            }
 
             return JsonSerializer.Serialize(new
             {
                 success = true,
-                message = "定义和引用获取功能正在开发中，当前返回桩实现结果",
-                data = result
+                data = new
+                {
+                    definition = definitionInfo,
+                    references,
+                    hierarchy,
+                    summary = new
+                    {
+                        referenceCount = references.Count
+                    }
+                }
             }, JsonOptions.Default);
         }
         catch (Exception ex)
@@ -114,24 +273,64 @@ public static class AdvancedQueryTools
     {
         try
         {
-            // TODO: 实现实际的文档列表获取逻辑
-            // 当前返回桩实现结果
-            var result = new
+            // 验证参数
+            if (string.IsNullOrEmpty(projectPath))
             {
-                documents = new List<object>(),
-                summary = new
+                return CreateErrorResponse("项目路径不能为空");
+            }
+
+            // 获取项目
+            var project = await workspaceManager.GetProjectAsync(projectPath);
+            if (project == null)
+            {
+                return CreateErrorResponse($"无法加载项目: {projectPath}");
+            }
+
+            // 获取文档列表
+            var documents = project.Documents;
+            var documentList = new List<object>();
+            var totalLines = 0;
+            var errorCount = 0;
+
+            foreach (var doc in documents)
+            {
+                if (!string.IsNullOrEmpty(filter) && !doc.FilePath?.EndsWith(filter.Replace("*", "")) == true)
                 {
-                    totalFiles = 0,
-                    totalLines = 0,
-                    errorCount = 0
+                    continue;
                 }
-            };
+
+                var tree = await doc.GetSyntaxTreeAsync();
+                if (tree == null) continue;
+
+                var lines = tree.GetText().Lines.Count;
+                totalLines += lines;
+
+                var diagnostics = tree.GetDiagnostics();
+                var errors = diagnostics.Count(d => d.Severity == DiagnosticSeverity.Error);
+                errorCount += errors;
+
+                documentList.Add(new
+                {
+                    filePath = doc.FilePath,
+                    lineCount = lines,
+                    errorCount = errors,
+                    hasErrors = errors > 0
+                });
+            }
 
             return JsonSerializer.Serialize(new
             {
                 success = true,
-                message = "文档列表获取功能正在开发中，当前返回桩实现结果",
-                data = result
+                data = new
+                {
+                    documents = documentList,
+                    summary = new
+                    {
+                        totalFiles = documentList.Count,
+                        totalLines,
+                        errorCount
+                    }
+                }
             }, JsonOptions.Default);
         }
         catch (Exception ex)

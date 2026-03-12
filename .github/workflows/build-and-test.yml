@@ -2,9 +2,9 @@ name: Build and Test
 
 on:
   push:
-    branches: [ main, feature ]
+    branches: [ develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ develop ]
   workflow_dispatch:
 
 jobs:
@@ -13,22 +13,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        framework: ['net8.0', 'net9.0', 'net10.0']
       fail-fast: false
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
-    - name: Setup .NET 8.0
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-
-    - name: Setup .NET 9.0
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
 
     - name: Setup .NET 10.0
       uses: actions/setup-dotnet@v4
@@ -49,8 +38,8 @@ jobs:
     - name: Build
       run: dotnet build -c Release
 
-    - name: Test (${{ matrix.framework }})
-      run: dotnet test -c Release --framework ${{ matrix.framework }} --verbosity normal --filter "Category!=Performance"
+    - name: Test (.NET 10.0)
+      run: dotnet test -c Release --framework net10.0 --verbosity normal --filter "Category!=Performance"
 
     - name: Pack NuGet package
       run: dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release

@@ -29,17 +29,25 @@ public static class BaseTool
     /// </remarks>
     public static string CreateErrorResponse(string message)
     {
-        var options = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = false,
-            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        };
         return JsonSerializer.Serialize(new
         {
             success = false,
             error = message
-        }, options);
+        }, JsonOptions.Default);
+    }
+
+    /// <summary>
+    /// 创建成功响应
+    /// </summary>
+    /// <param name="data">响应数据</param>
+    /// <returns>JSON 成功响应</returns>
+    public static string CreateSuccessResponse(object data)
+    {
+        return JsonSerializer.Serialize(new
+        {
+            success = true,
+            data
+        }, JsonOptions.Default);
     }
 
     /// <summary>
@@ -76,6 +84,53 @@ public static class BaseTool
         if (!Path.Exists(path))
         {
             return CreateErrorResponse($"路径不存在: {path}");
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 验证数值参数范围
+    /// </summary>
+    /// <param name="value">参数值</param>
+    /// <param name="min">最小值</param>
+    /// <param name="max">最大值</param>
+    /// <param name="parameterName">参数名称</param>
+    /// <returns>如果验证失败返回错误响应，否则返回 null</returns>
+    public static string? ValidateRange(int value, int min, int max, string parameterName)
+    {
+        if (value < min || value > max)
+        {
+            return CreateErrorResponse($"{parameterName}必须在 {min} 到 {max} 之间");
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 验证数值非负
+    /// </summary>
+    /// <param name="value">参数值</param>
+    /// <param name="parameterName">参数名称</param>
+    /// <returns>如果验证失败返回错误响应，否则返回 null</returns>
+    public static string? ValidateNonNegative(int value, string parameterName)
+    {
+        if (value < 0)
+        {
+            return CreateErrorResponse($"{parameterName}必须大于或等于0");
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 验证字符串非空
+    /// </summary>
+    /// <param name="value">参数值</param>
+    /// <param name="parameterName">参数名称</param>
+    /// <returns>如果验证失败返回错误响应，否则返回 null</returns>
+    public static string? ValidateNotEmpty(string? value, string parameterName)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return CreateErrorResponse($"{parameterName}不能为空");
         }
         return null;
     }

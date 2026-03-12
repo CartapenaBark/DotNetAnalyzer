@@ -31,38 +31,25 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 **当前版本 (v1.0.1)** 提供 **74 个 MCP 工具**，支持强命名、完整的代码分析和可视化能力。
 
-### 主要功能类别
+### 功能概览
 
-**代码诊断**: 编译器诊断信息、错误修复建议
-**项目管理**: 解决方案分析、依赖关系、构建顺序、启动项目识别
-**代码分析**: 语法树解析、类型信息、命名空间分析、语义模型集成
-**符号查询**: 查找引用、符号声明、符号详情、XML 文档提取
-**代码重构**: 15 个重构器（提取方法、重命名、字段封装、接口提取等）
-**代码生成**: 11 个生成器（接口实现、构造函数、导入管理、格式化等）
-**高级分析**: 调用图（SVG/JSON/Mermaid）、调用者/被调用者分析、语法树比较
-**代码质量**: 测试覆盖率、死代码检测、性能瓶颈分析、文档生成
+| 类别 | 工具数 | 说明 |
+|:----:|:------:|:-----|
+| 🔍 **代码诊断** | 1 | 编译器诊断、错误修复 |
+| 📁 **项目管理** | 3 | 依赖分析、构建顺序、.slnx 支持 |
+| 🔬 **代码分析** | 1 | 语法树、类型分析 |
+| 🎯 **符号查询** | 3 | 引用查找、符号定位 |
+| 🧭 **导航工具** | 7 | 跳转定义、类型层次、代码度量 |
+| 🔧 **重构工具** | 15 | 提取方法、重命名、接口提取 |
+| ✨ **代码生成** | 11 | 接口实现、构造函数、格式化 |
+| 📊 **高级分析** | 7 | 调用图（SVG/JSON/Mermaid）、语法树比较 |
+| 🧪 **代码质量** | 4 | 测试覆盖率、死代码检测、性能分析 |
+| ⚡ **代码操作** | 3 | 代码操作、重构建议、补全 |
+| 🔎 **高级查询** | 5 | 符号解析、文档列表 |
 
-**支持框架**: .NET 8.0 (C# 12)、.NET 9.0 (C# 13)、.NET 10.0 (C# 14)
+📄 **[完整 API 文档](docs/api-guide.md)** | 🏗️ **[系统架构](docs/ARCHITECTURE.md)**
 
-**完整工具列表**: 见下方 [MCP 工具分类](#mcp-工具分类层次图)
-
-### 🛠️ 工具列表
-
-| 类别 | 工具数 | 主要功能 |
-|------|--------|----------|
-| **代码诊断** | 1 | `get_diagnostics` - 编译器诊断、错误修复建议 |
-| **项目管理** | 3 | `list_projects`、`get_project_info`、`get_solution_info` - 依赖分析、构建顺序、.slnx 支持 |
-| **代码分析** | 1 | `analyze_code` - 语法树解析、类型分析、命名空间提取 |
-| **符号查询** | 3 | `find_references`、`find_declarations`、`get_symbol_info` - 引用查找、符号定位、详情获取 |
-| **导航工具** | 7 | `go_to_definition`、`get_type_hierarchy`、`get_member_hierarchy`、`get_semantic_model`、`get_syntax_tree`、`get_code_metrics`、`get_document_list` |
-| **重构工具** | 15 | `extract_method`、`rename_symbol`、`introduce_variable`、`encapsulate_field`、`extract_interface`、`change_signature` 等 |
-| **代码生成** | 11 | `generate_interface_impl`、`generate_constructor`、`remove_unused_usings`、`sort_usings`、`format_document` 等 |
-| **高级分析** | 7 | `get_caller_info`、`get_callee_info`、`get_call_graph`、`compare_syntax_trees`、`get_code_diff`、`apply_code_change`、`resolve_symbol` |
-| **代码质量** | 4 | `get_test_coverage`、`find_dead_code`、`analyze_performance`、`generate_documentation` |
-| **代码操作** | 3 | `get_code_actions`、`get_refactorings`、`get_completion_list` |
-| **高级查询** | 5 | `get_definition_and_references`、`resolve_symbol`、`get_document_list` 等 |
-
-📄 **[完整 API 文档](docs/api-guide.md)** - 所有工具的详细参数和返回值说明
+**支持框架**: .NET 8.0 (C# 12) / .NET 9.0 (C# 13) / .NET 10.0 (C# 14)
 
 ## 🏗️ 架构
 

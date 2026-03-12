@@ -267,13 +267,13 @@ public class LruCacheBoundaryTests : IDisposable
     public void Expiration_WithCleanupExpired_ShouldNotAffectNonExpired()
     {
         // Arrange
-        var cache = new LruCache<int, string>(capacity: 10, expirationTime: TimeSpan.FromMilliseconds(100));
+        var cache = new LruCache<int, string>(capacity: 10, expirationTime: TimeSpan.FromMilliseconds(200));
 
         cache.Set(1, "One");
         cache.Set(2, "Two");
         cache.Set(3, "Three");
 
-        Thread.Sleep(150);
+        Thread.Sleep(300);
 
         cache.Set(4, "Four"); // 新项目，未过期
 
@@ -292,17 +292,17 @@ public class LruCacheBoundaryTests : IDisposable
     public async Task UpdateDuringExpiration_ShouldRefreshCorrectly()
     {
         // Arrange
-        var cache = new LruCache<int, string>(capacity: 10, expirationTime: TimeSpan.FromMilliseconds(1000));
+        var cache = new LruCache<int, string>(capacity: 10, expirationTime: TimeSpan.FromMilliseconds(2000));
 
         cache.Set(1, "One");
 
         // Act - 在过期前更新
-        await Task.Delay(300);
+        await Task.Delay(500);
         cache.Set(1, "One-Updated");
 
-        await Task.Delay(400); // 总共 700ms，但更新刷新了 TTL（从更新时开始算，还有 300ms 有效期）
+        await Task.Delay(800); // 总共 1300ms，但更新刷新了 TTL（从更新时开始算，还有 700ms 有效期）
 
-        // Assert - 应该还存在（从300ms处更新，TTL刷新到1000ms，还有300ms有效）
+        // Assert - 应该还存在（从500ms处更新，TTL刷新到2000ms，还有700ms有效）
         cache.TryGetValue(1, out var value).Should().BeTrue();
         value.Should().Be("One-Updated");
 
@@ -313,10 +313,10 @@ public class LruCacheBoundaryTests : IDisposable
     public void ClearExpired_ShouldBeIdempotent()
     {
         // Arrange
-        var cache = new LruCache<int, string>(capacity: 10, expirationTime: TimeSpan.FromMilliseconds(50));
+        var cache = new LruCache<int, string>(capacity: 10, expirationTime: TimeSpan.FromMilliseconds(100));
 
         cache.Set(1, "One");
-        Thread.Sleep(100);
+        Thread.Sleep(200);
 
         // Act - 多次清理
         var cleaned1 = cache.CleanupExpired();

@@ -29,63 +29,22 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 ## 🎯 核心功能
 
-**当前版本 (v1.0.0)** 提供 **74 个 MCP 工具**，支持强命名：
+**当前版本 (v1.0.0)** 提供 **74 个 MCP 工具**，支持强命名、完整的代码分析和可视化能力。
 
-### ✨ v1.0.0 正式版 (2026-03-12)
+### 主要功能类别
 
-**代码质量分析和可视化增强：**
-- ✅ **测试覆盖率分析** - 项目级别测试覆盖率统计和分析
-- ✅ **死代码检测** - 自动识别未使用的类型和方法
-- ✅ **性能瓶颈分析** - 圈复杂度、方法长度、深度嵌套检测
-- ✅ **文档生成器** - 从 XML 注释自动生成项目文档
-- ✅ **调用图可视化** - 支持 SVG、JSON、Mermaid 格式导出
-- ✅ **错误消息本地化** - 支持中英文错误消息
+**代码诊断**: 编译器诊断信息、错误修复建议
+**项目管理**: 解决方案分析、依赖关系、构建顺序、启动项目识别
+**代码分析**: 语法树解析、类型信息、命名空间分析、语义模型集成
+**符号查询**: 查找引用、符号声明、符号详情、XML 文档提取
+**代码重构**: 15 个重构器（提取方法、重命名、字段封装、接口提取等）
+**代码生成**: 11 个生成器（接口实现、构造函数、导入管理、格式化等）
+**高级分析**: 调用图（SVG/JSON/Mermaid）、调用者/被调用者分析、语法树比较
+**代码质量**: 测试覆盖率、死代码检测、性能瓶颈分析、文档生成
 
-**支持框架：**
-- .NET 8.0 (C# 12)
-- .NET 9.0 (C# 13)
-- .NET 10.0 (C# 14)
+**支持框架**: .NET 8.0 (C# 12)、.NET 9.0 (C# 13)、.NET 10.0 (C# 14)
 
-### ✨ v0.8.0 新特性
-
-**框架扩展和依赖优化：**
-- ✅ **.NET 10.0 支持** - 新增 C# 14 语言版本支持
-- ✅ **Roslyn 统一** - 所有框架统一使用 Roslyn 5.0.0
-- ✅ **项目简化** - 移除条件编译，统一依赖版本
-- ✅ **0 警告 0 错误** - 完全消除编译警告和错误
-- ✅ **测试通过** - 所有框架测试全部通过 (190/190)
-- ✅ **依赖清理** - 移除未使用的包，解决版本冲突
-
-**支持框架：**
-- .NET 8.0 (C# 12)
-- .NET 9.0 (C# 13)
-- .NET 10.0 (C# 14)
-
-### ✨ v0.7.0 新特性
-
-**功能扩展（Phase 3/4/5 完成）：**
-- ✅ **代码重构工具** - 14 个重构器完全实现（提取方法、重命名、字段封装、接口提取等）
-- ✅ **代码生成工具** - 11 个生成器（接口实现、构造函数、属性生成、导入管理等）
-- ✅ **高级分析工具** - 7 个分析器（调用图、调用者/被调用者分析、语法树比较等）
-- ✅ **代码操作工具** - 完整的代码修复和快速修复支持
-- ✅ **完善文档** - 所有工具包含 XML 文档注释
-
-### ✨ v0.6.0/v0.6.1 新特性
-
-**架构优化和CI/CD：**
-- **统一输出目录** - 所有构建产物集中到 Bin 目录
-- **路径验证和安全** - PathValidator 防止路径遍历攻击
-- **接口抽象层** - IWorkspaceManager 和依赖注入支持
-- **结构化日志** - ILogger 集成，支持可配置日志级别
-- **并发和性能** - LRU缓存、内存监控、System.Text.Json优化
-- **CI/CD优化** - 多平台构建、NuGet包缓存加速
-
-### ✨ v0.5.0 特性
-
-- **.slnx 解决方案格式支持** - 完全支持 Visual Studio 2022 的 XML 格式解决方案文件
-- **Roslyn 5.0 升级** - 升级到最新的 Roslyn 版本，提升稳定性和性能
-- **并发测试优化** - 改进测试并发支持，提升 CI/CD 效率
-- **性能基准测试** - 新增完整的性能测试套件，确保持续高性能
+**完整工具列表**: 见下方 [MCP 工具分类](#mcp-工具分类层次图)
 
 ### ✅ 已实现的工具
 
@@ -612,7 +571,7 @@ dotnet-tool list --global
 
 **NuGet 包信息**:
 - 📦 包名: `DotNetAnalyzer`
-- 🏷️ 版本: `0.8.0`
+- 🏷️ 版本: `1.0.0`
 - 🔗 链接: [https://www.nuget.org/packages/DotNetAnalyzer](https://www.nuget.org/packages/DotNetAnalyzer)
 - .NET 8.0 或更高版本
 
@@ -809,175 +768,17 @@ dotnet pack -c Release
 
 ## 🗺️ 开发路线图
 
-DotNetAnalyzer 的开发分为多个阶段，逐步构建完整的代码分析能力。
+所有 6 个 Phase 已完成，共实现 **74 个 MCP 工具**。
 
-### ✅ Phase 1: MCP Server Foundation (已完成)
-**状态**: ✅ 完成 | **进度**: 275% (22/8 工具)
-
-MCP 服务器基础架构，实现核心的代码分析能力。
-
-**已完成 (22 个工具)**:
-- ✅ MCP stdio 协议实现（使用官方 SDK）
-- ✅ MSBuildWorkspace 集成
-- ✅ 项目加载和缓存机制
-- ✅ 错误处理和友好错误消息
-- ✅ 代码诊断、项目管理、符号查询、文档比较等 22 个工具
-- ✅ .NET CLI 工具打包配置
-- ✅ 190 个单元测试，100% 通过率
-- ✅ GitHub Actions CI/CD
-
-📄 [查看详细提案](openspec/changes/archive/2026-02-08-mcp-server-foundation/proposal.md)
-
----
-
-### ✅ Phase 2: Navigation Enhancement (已完成)
-**状态**: ✅ 完成 | **进度**: 117% (7/6 工具)
-
-增强代码导航和语义查询能力。
-
-**已完成 (7 个工具)**:
-- ✅ `go_to_definition` - 跳转到定义
-- ✅ `get_type_hierarchy` - 类型继承层次（含基类型、派生类型、接口）
-- ✅ `get_member_hierarchy` - 成员层次结构（重写、隐藏、接口实现）
-- ✅ `get_semantic_model` - 语义模型访问（符号、类型、常量值）
-- ✅ `get_syntax_tree` - 语法树详细信息（JSON 格式，支持范围限制）
-- ✅ `get_code_metrics` - 代码复杂度指标（圈复杂度、可维护性指数等）
-- ✅ 完整的数据模型和测试覆盖
-
-📄 [查看详细提案](openspec/changes/archive/2026-02-09-mcp-navigation-enhancement/proposal.md)
-
----
-
-### ✅ Phase 3: Code Refactoring (已完成)
-**状态**: ✅ 完成 | **进度**: 100% (15/15 工具) | **优先级**: 重要
-
-实现常见的代码重构操作。
-
-**已完成 (15 个工具)**:
-- ✅ `extract_method` - 提取方法（完整实现，含预览和应用）
-- ✅ `rename_symbol` - 重命名符号（跨文件，支持注释和字符串）
-- ✅ `introduce_variable` - 引入变量
-- ✅ `encapsulate_field` - 字段封装
-- ✅ `extract_interface` - 提取接口
-- ✅ `change_signature` - 修改签名
-- ✅ `add_parameter` - 添加参数
-- ✅ `inline_temporary` - 内联临时变量
-- ✅ `safely_remove_as` - 安全移除 as 转换
-- ✅ `remove_unnecessary_code` - 移除不必要代码
-- ✅ `convert_for_to_foreach` - for 转 foreach
-- ✅ `convert_foreach_to_for` - foreach 转 for
-- ✅ `convert_if_to_switch` - if 转 switch
-- ✅ `reverse_for_statement` - 反转 for 循环
-- ✅ `list_refactorers` - 列出所有重构器
-
-**框架状态**: ✅ 完整 - RefactoringEngine、Validator、PreviewGenerator 已就绪
-
-📄 [查看详细提案](openspec/changes/archive/2026-02-09-mcp-code-refactoring/proposal.md)
-
----
-
-### ✅ Phase 4: Code Generation and Fixing (已完成)
-**状态**: ✅ 完成 | **进度**: 100% (11/11 工具) | **优先级**: 增值功能
-
-自动生成样板代码和修复常见问题。
-
-**已完成 (11 个工具)**:
-- ✅ `generate_interface_impl` - 生成接口实现
-- ✅ `generate_constructor` - 生成构造函数
-- ✅ `generate_property` - 生成属性
-- ✅ `generate_deconstructor` - 生成解构函数
-- ✅ `generate_from_usage` - 从使用处生成
-- ✅ `remove_unused_usings` - 移除未使用的 using
-- ✅ `sort_usings` - 排序 using 指令
-- ✅ `add_missing_imports` - 添加缺失的导入
-- ✅ `organize_imports` - 组织导入（移除未使用 + 排序）
-- ✅ `format_document` - 格式化文档
-- ✅ `format_selection` - 格式化选定范围
-
-**代码操作 (3 个工具)**:
-- ✅ `get_code_actions` - 获取代码操作
-- ✅ `get_refactorings` - 获取重构操作
-- ✅ `get_completion_list` - 获取补全列表
-
-📄 [查看详细提案](openspec/changes/archive/2026-02-09-mcp-code-generation-fixing/proposal.md)
-
----
-
-### ✅ Phase 5: Advanced Features (已完成)
-**状态**: ✅ 完成 | **进度**: 100% (7/7 工具) | **优先级**: 锦上添花
-
-提供高级代码分析和洞察功能。
-
-**已完成 (7 个工具)**:
-- ✅ `get_caller_info` - 调用者分析（调用位置、类型、上下文）
-- ✅ `get_callee_info` - 被调用者分析（递归深度分析）
-- ✅ `get_call_graph` - 调用图生成（DOT 格式、节点分析）
-- ✅ `compare_syntax_trees` - 比较语法树（结构化差异）
-- ✅ `get_code_diff` - 生成代码差异（unified diff）
-- ✅ `apply_code_change` - 应用代码修改（可选格式化）
-- ✅ `get_document_list` - 文档列表
-- ✅ `resolve_symbol` - 符号解析
-- ✅ `get_definition_and_references` - 一次性获取定义和引用
-
-📄 [查看详细提案](openspec/changes/archive/2026-02-09-mcp-advanced-features/proposal.md)
-
----
-
-## 📊 当前进度
-
-**最后更新**: 2026-03-07
-
-| Phase | 名称 | 状态 | 进度 | MCP 工具数 |
-|-------|------|------|------|-----------|
-| 1 | MCP Server Foundation | ✅ 完成 | 275% | 22/8 个 |
-| 2 | Navigation Enhancement | ✅ 完成 | 117% | 7/6 个 |
-| 3 | Code Refactoring | ✅ 完成 | 100% | 15/15 个 |
-| 4 | Code Generation and Fixing | ✅ 完成 | 100% | 11/11 个 |
-| 5 | Advanced Features | ✅ 完成 | 100% | 7/7 个 |
-| - | Code Actions | ✅ 完成 | 100% | 3/3 个 |
-| - | Advanced Query | ✅ 完成 | 100% | 5/5 个 |
-| 6 | Code Quality and Visualization | ✅ 完成 | 100% | 4/4 个 |
-
-**总计**: 74 个 MCP 工具已实现并暴露
-
-### 版本里程碑
-
-#### v0.7.0 里程碑 (✅ 已完成)
-- ✅ **Phase 3 完整实现**（15 个重构工具）
-- ✅ **Phase 4 完整实现**（11 个代码生成工具）
-- ✅ **Phase 5 完整实现**（7 个高级分析工具）
-- ✅ 代码质量提升（完整 XML 文档、代码规范）
-- ✅ 总计 **47 个 MCP 工具**
-
-#### v0.6.1 里程碑 (✅ 已完成)
-- ✅ CI/CD 全面优化（多平台构建、NuGet 缓存）
-- ✅ **Phase 2 完整实现**（7 个导航工具）
-
-#### v0.6.0 里程碑 (✅ 已完成)
-- ✅ 统一输出目录优化
-- ✅ 架构改进（接口抽象、依赖注入、结构化日志）
-- ✅ 并发项目加载和内存监控
-- ✅ JSON 序列化优化（System.Text.Json）
-- ✅ 190 个单元测试，100% 通过率
-- ✅ 完整 API 文档和示例
-- ✅ 路径安全验证
-- ✅ 增量分析优化
-
-### v0.5.0 里程碑 (✅ 已完成)
-- ✅ .slnx XML 格式支持
-- ✅ Roslyn 5.0 升级
-- ✅ 并发测试优化
-- ✅ 性能基准测试套件
-
-### v0.4.0 里程碑 (✅ 已完成)
-- ✅ 8个核心MCP工具全部实现
-- ✅ LRU缓存和性能优化
-- ✅ 项目依赖关系分析
-- ✅ 构建顺序计算
-- ✅ 启动项目识别
-- ✅ 集成测试框架
-- ✅ 性能基准测试
-- ✅ 完整文档（README、CHANGELOG、CONFIGURATION、INTEGRATION_TESTING）
+| Phase | 状态 | 工具数 |
+|-------|------|--------|
+| 1: MCP Server Foundation | ✅ | 22 |
+| 2: Navigation Enhancement | ✅ | 7 |
+| 3: Code Refactoring | ✅ | 15 |
+| 4: Code Generation and Fixing | ✅ | 11 |
+| 5: Advanced Features | ✅ | 7 |
+| 6: Code Quality and Visualization | ✅ | 4 |
+| 附加: Code Actions + Advanced Query | ✅ | 8 |
 
 ## 🤝 贡献
 
@@ -1088,9 +889,12 @@ dotnet tool uninstall --global DotNetAnalyzer
 
 ---
 
-## 📊 项目状态
+## 📜 版本历史
 
-- ✅ **v0.8.0 已发布** - 所有 47 个 MCP 工具已实现
-- ✅ **0 警告 0 错误** - 代码质量达到生产标准
-- ✅ **190/190 测试通过** - 所有框架 100% 通过率
-- ✅ **已发布到 NuGet** - 可通过 `dotnet tool install --global DotNetAnalyzer` 安装
+详细版本更新历史请查看 [CHANGELOG.md](CHANGELOG.md)
+
+**最新版本**:
+- **v1.0.0** (2026-03-12) - 正式版，74 个 MCP 工具，代码质量分析和可视化增强
+- **v0.8.0** - .NET 10.0 支持，框架统一，代码质量提升
+- **v0.7.0** - 重构、生成和高级分析工具完整实现
+- **v0.6.0/v0.6.1** - 架构优化和 CI/CD 完善

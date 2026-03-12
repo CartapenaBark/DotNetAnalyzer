@@ -47,14 +47,14 @@ namespace Test
         // Act - 动态查找 TestMethod 的位置
         var root = await document.GetSyntaxRootAsync();
         var semanticModel = await document.GetSemanticModelAsync();
-        var methodNode = root.DescendantNodes()
+        var methodNode = root!.DescendantNodes()
             .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax>()
             .FirstOrDefault(m => m.Identifier.Text == "TestMethod");
 
         methodNode.Should().NotBeNull("TestMethod 节点应该存在");
 
         // 直接从方法声明节点获取符号
-        var symbol = semanticModel.GetDeclaredSymbol(methodNode);
+        var symbol = semanticModel.GetDeclaredSymbol(methodNode!);
 
         // Assert
         symbol.Should().NotBeNull();

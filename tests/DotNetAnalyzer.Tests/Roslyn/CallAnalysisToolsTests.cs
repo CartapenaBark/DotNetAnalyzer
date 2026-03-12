@@ -53,13 +53,13 @@ namespace Test
         // 动态查找 MethodB 的位置
         var root = await document.GetSyntaxRootAsync();
         var semanticModel = await document.GetSemanticModelAsync();
-        var methodBNode = root.DescendantNodes()
+        var methodBNode = root!.DescendantNodes()
             .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax>()
             .FirstOrDefault(m => m.Identifier.Text == "MethodB");
 
         methodBNode.Should().NotBeNull("MethodB 节点应该存在");
 
-        var methodBSpan = methodBNode.SyntaxTree.GetLineSpan(methodBNode.Span);
+        var methodBSpan = methodBNode!.SyntaxTree.GetLineSpan(methodBNode.Span);
         var line = methodBSpan.StartLinePosition.Line;
         var column = methodBSpan.StartLinePosition.Character;
 
@@ -103,13 +103,13 @@ namespace Test
 
         // 动态查找 UnusedMethod 的位置
         var root = await document.GetSyntaxRootAsync();
-        var methodNode = root.DescendantNodes()
+        var methodNode = root!.DescendantNodes()
             .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax>()
             .FirstOrDefault(m => m.Identifier.Text == "UnusedMethod");
 
         methodNode.Should().NotBeNull("UnusedMethod 节点应该存在");
 
-        var methodSpan = methodNode.SyntaxTree.GetLineSpan(methodNode.Span);
+        var methodSpan = methodNode!.SyntaxTree.GetLineSpan(methodNode.Span);
         var line = methodSpan.StartLinePosition.Line;
         var column = methodSpan.StartLinePosition.Character;
 
@@ -151,13 +151,13 @@ namespace Test
 
         // 动态查找 MainMethod 的位置
         var root = await document.GetSyntaxRootAsync();
-        var methodNode = root.DescendantNodes()
+        var methodNode = root!.DescendantNodes()
             .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax>()
             .FirstOrDefault(m => m.Identifier.Text == "MainMethod");
 
         methodNode.Should().NotBeNull("MainMethod 节点应该存在");
 
-        var methodSpan = methodNode.SyntaxTree.GetLineSpan(methodNode.Span);
+        var methodSpan = methodNode!.SyntaxTree.GetLineSpan(methodNode.Span);
         var line = methodSpan.StartLinePosition.Line;
         var column = methodSpan.StartLinePosition.Character;
 
@@ -208,13 +208,13 @@ namespace Test
 
         // 动态查找 MethodA 的位置
         var root = await document.GetSyntaxRootAsync();
-        var methodNode = root.DescendantNodes()
+        var methodNode = root!.DescendantNodes()
             .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax>()
             .FirstOrDefault(m => m.Identifier.Text == "MethodA");
 
         methodNode.Should().NotBeNull("MethodA 节点应该存在");
 
-        var methodSpan = methodNode.SyntaxTree.GetLineSpan(methodNode.Span);
+        var methodSpan = methodNode!.SyntaxTree.GetLineSpan(methodNode.Span);
         var line = methodSpan.StartLinePosition.Line;
         var column = methodSpan.StartLinePosition.Character;
 
@@ -262,13 +262,13 @@ namespace Test
 
         // 动态查找 MethodA 的位置
         var root = await document.GetSyntaxRootAsync();
-        var methodNode = root.DescendantNodes()
+        var methodNode = root!.DescendantNodes()
             .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax>()
             .FirstOrDefault(m => m.Identifier.Text == "MethodA");
 
         methodNode.Should().NotBeNull("MethodA 节点应该存在");
 
-        var methodSpan = methodNode.SyntaxTree.GetLineSpan(methodNode.Span);
+        var methodSpan = methodNode!.SyntaxTree.GetLineSpan(methodNode.Span);
         var line = methodSpan.StartLinePosition.Line;
         var column = methodSpan.StartLinePosition.Character;
 

@@ -143,7 +143,7 @@ public class DependencyAnalyzerTests : IDisposable
 
         // Assert - Roslyn 应该抛出异常阻止循环引用
         exception.Should().BeOfType<InvalidOperationException>("Roslyn 应该阻止循环引用");
-        exception!.Message.Should().Contain("循环引用", "错误消息应该提到循环引用");
+        exception!.Message.Should().Match("*circular*", "错误消息应该提到循环引用");
 
         _output.WriteLine("✅ Roslyn 正确阻止了循环引用");
         _output.WriteLine("   A -> B -> C -> A 会形成循环,Roslyn 主动阻止");

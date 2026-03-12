@@ -111,6 +111,31 @@ public class AdaptiveCacheManager : IDisposable
     private bool _disposed;
 
     /// <summary>
+    /// 获取已注册的缓存数量
+    /// </summary>
+    /// <returns>已注册的缓存数量</returns>
+    /// <remarks>
+    /// 此方法主要用于测试目的，以验证缓存是否成功注册。
+    /// 线程安全：返回调用时刻的快照。
+    /// </remarks>
+    public int GetRegisteredCacheCount() => _caches.Count;
+
+    /// <summary>
+    /// 检查指定名称的缓存是否已注册
+    /// </summary>
+    /// <param name="cacheName">缓存名称</param>
+    /// <returns>如果缓存已注册返回 true，否则返回 false</returns>
+    /// <remarks>
+    /// 此方法主要用于测试目的，以验证特定缓存是否成功注册。
+    /// 线程安全：返回调用时刻的快照。
+    /// </remarks>
+    public bool IsCacheRegistered(string cacheName)
+    {
+        ArgumentNullException.ThrowIfNull(cacheName);
+        return _caches.ContainsKey(cacheName);
+    }
+
+    /// <summary>
     /// 初始化 <see cref="AdaptiveCacheManager"/> 类的新实例
     /// </summary>
     /// <param name="options">内存监控配置选项</param>
@@ -233,14 +258,16 @@ public class AdaptiveCacheManager : IDisposable
             // 获取进程的工作集内存（物理内存使用量）
             var usedMemory = process.WorkingSet64;
 
-            // 获取系统的总物理内存
-            var totalMemory = GC.GetTotalMemory(false) * 100; // 估算值
+            // 使用 GC.GetTotalMemory 获取当前进程的已分配内存
+            // 并使用一个合理的系统总内存估算值
+            // 注意：GC.GetTotalMemory 返回字节数，不需要额外乘以 100
+            var totalMemory = GC.GetTotalMemory(false);
 
             // 如果无法获取系统总内存，使用进程内存作为基准
             if (totalMemory == 0)
             {
-                // 使用一个合理的默认值：假设系统至少有 1GB 内存
-                totalMemory = 1024 * 1024 * 1024;
+                // 使用一个合理的默认值：假设系统至少有 2GB 可用内存
+                totalMemory = 2L * 1024 * 1024 * 1024;
             }
 
             // 计算使用率（使用工作集内存占总内存的比例）

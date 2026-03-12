@@ -2,54 +2,24 @@ name: Build and Publish
 
 on:
   push:
-    branches: [ develop ]
     tags: ['v*.*.*']
-  pull_request:
-    branches: [ develop ]
   workflow_dispatch:
 
 jobs:
   extract_version:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     outputs:
       version: ${{ steps.get_version.outputs.version }}
-      should_tag: ${{ steps.check_release.outputs.should_tag }}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Extract version from csproj
+    - name: Extract version from tag
       id: get_version
       run: |
-        VERSION=$(xmllint --xpath 'string(//Version)' src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj)
+        # 从 GITHUB_REF 获取 tag 名称，格式如 refs/tags/v1.0.0
+        TAG_NAME=${GITHUB_REF#refs/tags/}
+        VERSION=${TAG_NAME#v}
         echo "version=$VERSION" >> $GITHUB_OUTPUT
-        echo "Extracted version: $VERSION"
-
-    - name: Check if release commit
-      id: check_release
-      run: |
-        LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
-        if echo "$LAST_COMMIT_MSG" | grep -q "版本准备\|release\|v${{ steps.get_version.outputs.version }}"; then
-          echo "should_tag=true" >> $GITHUB_OUTPUT
-          echo "This is a release commit, will create tag"
-        else
-          echo "should_tag=false" >> $GITHUB_OUTPUT
-          echo "Not a release commit, skipping tag creation"
-        fi
-
-    - name: Create and push tag
-      if: steps.check_release.outputs.should_tag == 'true'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        TAG_NAME="v${{ steps.get_version.outputs.version }}"
-        echo "Creating tag: $TAG_NAME"
-        git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
-        git push origin "$TAG_NAME"
+        echo "Tag: $TAG_NAME, Version: $VERSION"
 
   build:
     runs-on: ubuntu-latest

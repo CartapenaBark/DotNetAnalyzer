@@ -1,8 +1,6 @@
 name: Build and Test
 
 on:
-  push:
-    branches: [ develop ]
   pull_request:
     branches: [ develop ]
   workflow_dispatch:
@@ -40,13 +38,3 @@ jobs:
 
     - name: Test (.NET 10.0)
       run: dotnet test -c Release --framework net10.0 --verbosity normal --filter "Category!=Performance"
-
-    - name: Pack NuGet package
-      run: dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release
-
-    - name: Upload NuGet package
-      uses: actions/upload-artifact@v4
-      with:
-        name: nuget-package
-        path: Bin/nupkg/*.nupkg
-        retention-days: 7

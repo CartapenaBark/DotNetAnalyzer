@@ -3,7 +3,7 @@
 > 一个强大的 MCP (Model Context Protocol) 服务器工具，将 Roslyn 的代码分析能力引入 Claude Code
 
 [![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet)
-[![NuGet](https://img.shields.io/badge/nuget-1.0.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
+[![NuGet](https://img.shields.io/badge/nuget-1.0.1-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 📖 简介
@@ -29,7 +29,7 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 ## 🎯 核心功能
 
-**当前版本 (v1.0.0)** 提供 **74 个 MCP 工具**，支持强命名、完整的代码分析和可视化能力。
+**当前版本 (v1.0.1)** 提供 **74 个 MCP 工具**，支持强命名、完整的代码分析和可视化能力。
 
 ### 主要功能类别
 
@@ -46,503 +46,43 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 **完整工具列表**: 见下方 [MCP 工具分类](#mcp-工具分类层次图)
 
-### ✅ 已实现的工具
+### 🛠️ 工具列表
 
-**代码诊断**:
-- `get_diagnostics` - 获取 C# 代码的编译器诊断信息（错误、警告、信息）
-  - 支持项目级别诊断
-  - 支持单个文件诊断
-  - 提供错误位置和修复建议
+| 类别 | 工具数 | 主要功能 |
+|------|--------|----------|
+| **代码诊断** | 1 | `get_diagnostics` - 编译器诊断、错误修复建议 |
+| **项目管理** | 3 | `list_projects`、`get_project_info`、`get_solution_info` - 依赖分析、构建顺序、.slnx 支持 |
+| **代码分析** | 1 | `analyze_code` - 语法树解析、类型分析、命名空间提取 |
+| **符号查询** | 3 | `find_references`、`find_declarations`、`get_symbol_info` - 引用查找、符号定位、详情获取 |
+| **导航工具** | 7 | `go_to_definition`、`get_type_hierarchy`、`get_member_hierarchy`、`get_semantic_model`、`get_syntax_tree`、`get_code_metrics`、`get_document_list` |
+| **重构工具** | 15 | `extract_method`、`rename_symbol`、`introduce_variable`、`encapsulate_field`、`extract_interface`、`change_signature` 等 |
+| **代码生成** | 11 | `generate_interface_impl`、`generate_constructor`、`remove_unused_usings`、`sort_usings`、`format_document` 等 |
+| **高级分析** | 7 | `get_caller_info`、`get_callee_info`、`get_call_graph`、`compare_syntax_trees`、`get_code_diff`、`apply_code_change`、`resolve_symbol` |
+| **代码质量** | 4 | `get_test_coverage`、`find_dead_code`、`analyze_performance`、`generate_documentation` |
+| **代码操作** | 3 | `get_code_actions`、`get_refactorings`、`get_completion_list` |
+| **高级查询** | 5 | `get_definition_and_references`、`resolve_symbol`、`get_document_list` 等 |
 
-**项目管理** (✨ v0.5.0 增强):
-- `list_projects` - 列出解决方案中的所有项目
-  - 项目名称、路径、程序集名称
-  - 项目类型和文档数量
-  - ✨ **依赖关系分析** - 自动分析项目依赖
-  - ✨ **循环依赖检测** - 识别循环引用
-  - ✅ **.slnx 支持** - 完全支持新一代 XML 格式解决方案
-- `get_project_info` - 获取项目的详细信息
-  - 项目配置信息
-  - 项目引用和包引用
-  - 编译诊断统计
-  - ✨ **源文件列表** - 完整的源文件路径
-- `get_solution_info` - 获取解决方案的详细信息
-  - 解决方案配置
-  - 项目列表和总数
-  - ✨ **构建顺序** - 拓扑排序计算最优构建序列
-  - ✨ **启动项目** - 自动识别可执行入口点
-  - ✅ **.slnx 支持** - 加载和解析 .slnx XML 格式
-
-**代码分析** (✨ 完整实现):
-- `analyze_code` - 分析代码的语法和语义结构
-  - ✅ 语法树解析和层次结构
-  - ✅ 命名空间、类型、方法提取
-  - ✅ 类型信息分析（基类、接口、可访问性）
-  - ✅ Using 指令和依赖关系
-  - ✅ 语义模型集成
-
-**符号查询** (✨ 完整实现):
-- `find_references` - 查找符号的所有引用
-  - ✅ 跨文件引用查找
-  - ✅ 区分声明和引用位置
-  - ✅ 提取引用上下文
-- `find_declarations` - 查找符号的声明位置
-  - ✅ 重写方法的基类声明
-  - ✅ 接口实现的声明
-  - ✅ 扩展方法识别
-- `get_symbol_info` - 获取符号的详细信息
-  - ✅ 符号元数据（名称、类型、可访问性）
-  - ✅ 方法签名和参数
-  - ✅ XML 文档注释提取
-  - ✅ 特性（Attributes）信息
-
-**代码重构** (✅ 完整实现 - Phase 3):
-- `extract_method` - 提取方法
-  - ✅ 智能参数推断
-  - ✅ 预览和应用模式
-  - ✅ 完整验证和依赖分析
-- `rename_symbol` - 重命名符号
-  - ✅ 跨文件重命名
-  - ✅ 注释和字符串中重命名
-  - ✅ 预览模式
-- `introduce_variable` - 引入局部变量
-  - ✅ 自动命名建议
-  - ✅ 表达式提取
-- `encapsulate_field` - 字段封装
-  - ✅ 自动生成属性
-  - ✅ 引用点更新
-- `extract_interface` - 提取接口
-  - ✅ 成员选择
-  - ✅ 接口命名
-- `change_signature` - 修改签名
-  - ✅ 添加/删除/重排序参数
-- `add_parameter` - 添加参数
-- `inline_temporary` - 内联临时变量
-- `safely_remove_as` - 安全移除 as 转换
-- `remove_unnecessary_code` - 移除不必要代码
-- `convert_for_to_foreach` - for 转 foreach
-- `convert_foreach_to_for` - foreach 转 for
-- `convert_if_to_switch` - if 转 switch
-- `reverse_for_statement` - 反转 for 循环
-- `list_refactorers` - 列出所有可用重构器
-
-**代码生成** (✅ 完整实现 - Phase 4):
-- `generate_interface_impl` - 生成接口实现
-- `generate_constructor` - 生成构造函数
-- `generate_property` - 生成属性
-- `generate_deconstructor` - 生成解构函数
-- `generate_from_usage` - 从使用处生成
-- `remove_unused_usings` - 移除未使用的 using
-- `sort_usings` - 排序 using 指令
-- `add_missing_imports` - 添加缺失的导入
-- `organize_imports` - 组织导入（移除未使用 + 排序）
-- `format_document` - 格式化文档
-- `format_selection` - 格式化选定范围
-
-**高级分析** (✅ 完整实现 - Phase 5/6):
-- `get_caller_info` - 获取调用者信息
-  - ✅ 调用位置分析
-  - ✅ 调用类型识别
-  - ✅ 调用上下文提取
-- `get_callee_info` - 获取被调用者信息
-  - ✅ 递归深度分析
-  - ✅ 方法调用链
-- `get_call_graph` - 生成调用图
-  - ✅ DOT 格式导出
-  - ✅ ✨ **SVG 可视化** - 矢量图形输出
-  - ✅ ✨ **JSON 格式** - 结构化数据
-  - ✅ ✨ **Mermaid 格式** - Markdown 集成
-  - ✅ 节点和边分析
-  - ✅ 复杂度度量
-- `compare_syntax_trees` - 比较语法树
-  - ✅ 结构化差异
-  - ✅ 统计信息
-- `get_code_diff` - 生成代码差异
-  - ✅ Unified diff 格式
-- `apply_code_change` - 应用代码修改
-  - ✅ 可选格式化
-  - ✅ 诊断信息返回
-
-**代码质量分析** (✨ 新增 - Phase 6):
-- `get_test_coverage` - 获取测试覆盖率
-  - ✅ 项目级别覆盖率统计
-  - ✅ 文件级别覆盖率分析
-  - ✅ 行覆盖率、分支覆盖率、方法覆盖率
-- `find_dead_code` - 查找死代码
-  - ✅ 未使用的类型检测
-  - ✅ 未使用的方法检测
-  - ✅ 删除建议
-- `analyze_performance` - 分析性能瓶颈
-  - ✅ 圈复杂度分析
-  - ✅ 方法长度检测
-  - ✅ 深度嵌套检测
-  - ✅ 优化建议
-- `generate_documentation` - 生成项目文档
-  - ✅ 从 XML 注释生成文档
-  - ✅ 支持 Markdown 格式
-  - ✅ 类和成员文档提取
-
-**代码操作** (✅ 完整实现):
-- `get_code_actions` - 获取代码操作
-- `get_refactorings` - 获取重构操作
-- `get_completion_list` - 获取补全列表
-- 诊断修复和快速修复支持
-
-### ✅ 已完成的功能
-
-#### Phase 1: MCP Server Foundation (✅ 100% 完成)
-**22 个基础工具** - 代码诊断、项目管理、符号查询、代码分析
-
-#### Phase 2: Navigation Enhancement (✅ 100% 完成)
-**7 个导航工具** - 跳转定义、类型层次、成员层次、语义模型、语法树、代码度量
-
-#### Phase 3: Code Refactoring (✅ 100% 完成)
-**15 个重构工具** - 完整的重构框架和 14 个具体重构器
-
-#### Phase 4: Code Generation and Fixing (✅ 100% 完成)
-**11 个代码生成工具** - 接口实现、构造函数、导入管理、格式化等
-
-#### Phase 5: Advanced Features (✅ 100% 完成)
-**7 个高级分析工具** - 调用分析、语法树比较、代码差异
-
-#### Code Actions and Completion (✅ 100% 完成)
-**3 个代码操作工具** - 代码操作、重构建议、补全列表
-
-#### Advanced Query Tools (✅ 100% 完成)
-**5 个高级查询工具** - 符号解析、定义和引用、文档列表
-
-#### Phase 6: Code Quality and Visualization (✅ 100% 完成)
-**4 个新工具 + 可视化增强** - 测试覆盖率、死代码检测、性能分析、文档生成、调用图可视化
+📄 **[完整 API 文档](docs/api-guide.md)** - 所有工具的详细参数和返回值说明
 
 ## 🏗️ 架构
 
-### 系统架构图
+DotNetAnalyzer 采用分层架构设计，通过 MCP 协议连接 Claude Code 和 Roslyn 分析引擎：
 
-```mermaid
-graph TB
-    subgraph "用户层"
-        A[Claude Code]
-    end
+**核心层级**：
+- **用户层** - Claude Code (AI 编程助手)
+- **MCP 协议层** - stdio 通信，dotnet-analyzer 全局工具
+- **分析引擎层** - MCP 服务器、工具注册、Roslyn 集成
+- **工作区管理层** - MSBuildWorkspace、编译缓存、项目加载
+- **项目层** - .NET 解决方案/项目文件
 
-    subgraph "MCP 协议层"
-        B[MCP Protocol<br/>stdio]
-        C[dotnet-analyzer<br/>.NET 全局工具]
-    end
+**核心组件**：
+- `WorkspaceManager` - LRU 缓存项目，并发加载控制
+- `CompilationCache` - 编译结果缓存，自动失效
+- `ToolRegistry` - 74 个 MCP 工具的注册和调用
+- `RefactoringEngine` - 重构操作执行引擎
+- `PathValidator` - 路径安全验证
 
-    subgraph "DotNetAnalyzer 内部"
-        D[MCP 服务器]
-        E[JSON-RPC 消息路由]
-        F[工具注册与调用]
-        G[Roslyn 集成层]
-    end
-
-    subgraph "代码分析层"
-        H[Roslyn APIs<br/>编译器平台]
-        I[MSBuildWorkspace<br/>工作区管理]
-        J[CompilationCache<br/>编译缓存]
-    end
-
-    subgraph "项目层"
-        K[.NET 解决方案/项目]
-        L[.sln / .slnx<br/>/ .csproj]
-    end
-
-    A -->|MCP 请求| B
-    B --> C
-    C --> D
-    D --> E
-    E --> F
-    F --> G
-    G --> H
-    H --> I
-    I --> J
-    J --> K
-    K --> L
-
-    style A fill:#e1f5ff
-    style C fill:#c8e6c9
-    style D fill:#fff9c4
-    style H fill:#ffccbc
-    style K fill:#f3e5f5
-```
-
-### 核心组件关系图
-
-```mermaid
-classDiagram
-    class IWorkspaceManager {
-        <<interface>>
-        +GetProjectAsync(path)
-        +GetCurrentSolutionAsync()
-        +Dispose()
-    }
-
-    class WorkspaceManager {
-        -LRUCache~string, Project~ _cache
-        -SemaphoreSlim _semaphore
-        -ILogger _logger
-        +GetProjectAsync(path)
-        +GetCurrentSolutionAsync()
-        -LoadProjectAsync(path)
-    }
-
-    class ICompilationCache {
-        <<interface>>
-        +GetOrAddAsync(key, factory)
-        +InvalidateAsync(key)
-        +ClearAsync()
-    }
-
-    class CompilationCache {
-        -ConcurrentDictionary _cache
-        -ILogger _logger
-        +GetOrAddAsync(key, factory)
-        +InvalidateAsync(key)
-    }
-
-    class IMcpServer {
-        <<interface>>
-        +StartAsync(token)
-        +StopAsync()
-    }
-
-    class McpServer {
-        -IWorkspaceManager _workspaceManager
-        -ToolRegistry _registry
-        +StartAsync(token)
-        -InitializeToolsAsync()
-    }
-
-    class ToolRegistry {
-        -Dictionary~string, ToolDelegate~ _tools
-        +RegisterTool(name, handler)
-        +GetTool(name)
-        +ListTools()
-    }
-
-    class RoslynAnalyzer {
-        +AnalyzeCode(project, file)
-        +FindReferences(symbol)
-        +GetDiagnostics(project)
-    }
-
-    IWorkspaceManager <|.. WorkspaceManager : implements
-    ICompilationCache <|.. CompilationCache : implements
-    IMcpServer <|.. McpServer : implements
-    WorkspaceManager --> ICompilationCache : uses
-    WorkspaceManager --> CompilationCache : creates
-    McpServer --> IWorkspaceManager : uses
-    McpServer --> ToolRegistry : owns
-    ToolRegistry --> RoslynAnalyzer : invokes
-```
-
-### 项目结构
-
-```mermaid
-graph TB
-    subgraph "DotNetAnalyzer 项目"
-        A[src/]
-
-        subgraph "DotNetAnalyzer.Cli - CLI 工具"
-            B[Program.cs<br/>主程序入口]
-            C[Tools/<br/>MCP 工具实现]
-            D[appsettings.json<br/>配置文件]
-        end
-
-        subgraph "DotNetAnalyzer.Core - 核心库"
-            E[McpServer/<br/>MCP 服务器]
-            F[Abstractions/<br/>接口抽象层]
-            G[Roslyn/<br/>Roslyn 集成]
-            H[Refactoring/<br/>重构框架]
-            I[Models/<br/>数据模型]
-            J[Configuration/<br/>配置管理]
-            K[Security/<br/>安全验证]
-        end
-
-        subgraph "Roslyn 集成层"
-            L[WorkspaceManager<br/>工作区管理]
-            M[CompilationCache<br/>编译缓存]
-            N[Refactoring/<br/>重构器]
-            O[CodeGeneration/<br/>代码生成]
-            P[CallAnalysis/<br/>调用分析]
-            Q[Navigation/<br/>导航工具]
-        end
-
-        A --> B
-        A --> E
-        B --> C
-        B --> D
-        E --> F
-        E --> G
-        E --> H
-        E --> I
-        E --> J
-        E --> K
-        G --> L
-        G --> M
-        G --> N
-        G --> O
-        G --> P
-        G --> Q
-
-        style B fill:#c8e6c9
-        style E fill:#fff9c4
-        style G fill:#ffccbc
-    end
-```
-
-### MCP 工具分类层次图
-
-```mermaid
-graph TB
-    subgraph "DotNetAnalyzer MCP 工具集 (74 个工具)"
-        A[代码诊断<br/>1 个工具]
-        B[项目管理<br/>3 个工具]
-        C[代码分析<br/>1 个工具]
-        D[符号查询<br/>3 个工具]
-        E[导航工具<br/>7 个工具]
-        F[重构工具<br/>15 个工具]
-        G[代码生成<br/>11 个工具]
-        H[高级分析<br/>7 个工具]
-        I[代码质量<br/>4 个工具]
-        J[代码操作<br/>3 个工具]
-        K[高级查询<br/>5 个工具]
-
-        A1[get_diagnostics]
-        B1[list_projects]
-        B2[get_project_info]
-        B3[get_solution_info]
-        C1[analyze_code]
-        D1[find_references]
-        D2[find_declarations]
-        D3[get_symbol_info]
-        E1[go_to_definition]
-        E2[get_type_hierarchy]
-        E3[get_member_hierarchy]
-        E4[get_semantic_model]
-        E5[get_syntax_tree]
-        E6[get_code_metrics]
-        E7[get_document_list]
-        F1[extract_method]
-        F2[rename_symbol]
-        F3[introduce_variable]
-        F4[encapsulate_field]
-        F5[extract_interface]
-        F6[change_signature]
-        F7[add_parameter]
-        F8[inline_temporary]
-        F9[safely_remove_as]
-        F10[remove_unnecessary_code]
-        F11[convert_for_to_foreach]
-        F12[convert_foreach_to_for]
-        F13[convert_if_to_switch]
-        F14[reverse_for_statement]
-        F15[list_refactorers]
-        G1[generate_interface_impl]
-        G2[generate_constructor]
-        G3[generate_property]
-        G4[generate_deconstructor]
-        G5[generate_from_usage]
-        G6[remove_unused_usings]
-        G7[sort_usings]
-        G8[add_missing_imports]
-        G9[organize_imports]
-        G10[format_document]
-        G11[format_selection]
-        H1[get_caller_info]
-        H2[get_callee_info]
-        H3[get_call_graph]
-        H4[compare_syntax_trees]
-        H5[get_code_diff]
-        H6[apply_code_change]
-        H7[resolve_symbol]
-        I1[get_test_coverage]
-        I2[find_dead_code]
-        I3[analyze_performance]
-        I4[generate_documentation]
-        J1[get_code_actions]
-        J2[get_refactorings]
-        J3[get_completion_list]
-        K1[get_definition_and_references]
-        K2[resolve_symbol]
-        K3[get_document_list]
-        K4[get_completion_list]
-        K5[get_refactorings]
-
-        A --> A1
-        B --> B1
-        B --> B2
-        B --> B3
-        C --> C1
-        D --> D1
-        D --> D2
-        D --> D3
-        E --> E1
-        E --> E2
-        E --> E3
-        E --> E4
-        E --> E5
-        E --> E6
-        E --> E7
-        F --> F1
-        F --> F2
-        F --> F3
-        F --> F4
-        F --> F5
-        F --> F6
-        F --> F7
-        F --> F8
-        F --> F9
-        F --> F10
-        F --> F11
-        F --> F12
-        F --> F13
-        F --> F14
-        F --> F15
-        G --> G1
-        G --> G2
-        G --> G3
-        G --> G4
-        G --> G5
-        G --> G6
-        G --> G7
-        G --> G8
-        G --> G9
-        G --> G10
-        G --> G11
-        H --> H1
-        H --> H2
-        H --> H3
-        H --> H4
-        H --> H5
-        H --> H6
-        H --> H7
-        I --> I1
-        I --> I2
-        I --> I3
-        I --> I4
-        J --> J1
-        J --> J2
-        J --> J3
-        K --> K1
-        K --> K2
-        K --> K3
-        K --> K4
-        K --> K5
-
-        style A fill:#ffcdd2
-        style B fill:#f8bbd0
-        style C fill:#e1bee7
-        style D fill:#d1c4e9
-        style E fill:#c5cae9
-        style F fill:#bbdefb
-        style G fill:#b3e5fc
-        style H fill:#b2ebf2
-        style I fill:#b2dfdb
-        style J fill:#c8e6c9
-        style K fill:#dcedc8
-    end
-```
+📄 **[查看详细架构图](docs/ARCHITECTURE.md)** - 包含系统架构图、组件关系图、项目结构图、MCP 工具层次图和调用流程图
 
 ## 🚀 快速开始
 
@@ -571,7 +111,7 @@ dotnet-tool list --global
 
 **NuGet 包信息**:
 - 📦 包名: `DotNetAnalyzer`
-- 🏷️ 版本: `1.0.0`
+- 🏷️ 版本: `1.0.1`
 - 🔗 链接: [https://www.nuget.org/packages/DotNetAnalyzer](https://www.nuget.org/packages/DotNetAnalyzer)
 - .NET 8.0 或更高版本
 
@@ -891,10 +431,10 @@ dotnet tool uninstall --global DotNetAnalyzer
 
 ## 📜 版本历史
 
-详细版本更新历史请查看 [CHANGELOG.md](CHANGELOG.md)
+完整更新历史请查看 [CHANGELOG.md](CHANGELOG.md)
 
-**最新版本**:
-- **v1.0.0** (2026-03-12) - 正式版，74 个 MCP 工具，代码质量分析和可视化增强
-- **v0.8.0** - .NET 10.0 支持，框架统一，代码质量提升
-- **v0.7.0** - 重构、生成和高级分析工具完整实现
-- **v0.6.0/v0.6.1** - 架构优化和 CI/CD 完善
+- **v1.0.1** (2026-03-13) - 文档优化，架构图迁移到独立文档
+- **v1.0.0** (2026-03-12) - 正式版，74 个 MCP 工具
+- **v0.8.0** - .NET 10.0 支持，框架统一
+- **v0.7.0** - 重构、生成和高级分析工具
+- **v0.6.0** - 架构优化和 CI/CD 完善

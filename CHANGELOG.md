@@ -7,6 +7,30 @@
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-03-13
+
+### 📝 文档优化
+
+- ✨ 新增 `docs/ARCHITECTURE.md` - 独立架构文档，包含详细的系统架构图
+- 🎯 简化 `README.md` - 移除复杂的 Mermaid 图表，提升可读性
+- 📊 将所有架构图迁移到独立文档，包括：
+  - 系统架构图（MCP 协议层、分析引擎层等）
+  - 核心组件关系图（类图）
+  - 项目结构图
+  - MCP 工具分类层次图
+  - MCP 工具调用流程图
+- 📦 优化 NuGet 包 README 展示效果
+- 📖 README.md 从 900 行减少到约 700 行
+
+### 变更详情
+
+**新增文件**:
+- `docs/ARCHITECTURE.md` - 包含所有 Mermaid 架构图和详细说明
+
+**修改文件**:
+- `README.md` - 简化架构部分，添加到 ARCHITECTURE.md 的链接
+- `src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj` - 版本更新到 1.0.1
+
 ## [1.0.0] - 2026-03-12
 
 ### 🎉 首个正式发布

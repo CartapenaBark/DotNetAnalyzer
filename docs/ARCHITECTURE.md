@@ -494,7 +494,6 @@ DotNetAnalyzer/
 ## 相关文档
 
 - [README.md](../README.md) - 项目概述和快速开始
-- [CLAUDE.md](../CLAUDE.md) - 给 Claude Code 的项目说明
 - [开发工作流](development-workflow.md) - 开发流程指南
 - [编码规范](CODING_STANDARDS.md) - 代码规范（必读）
 - [API 使用指南](api-guide.md) - MCP 工具 API 参考文档

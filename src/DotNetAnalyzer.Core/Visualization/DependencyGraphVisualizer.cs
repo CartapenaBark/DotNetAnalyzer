@@ -1,5 +1,6 @@
 using DotNetAnalyzer.Core.Models.CodeQuality;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace DotNetAnalyzer.Core.Visualization;
 
@@ -11,6 +12,12 @@ namespace DotNetAnalyzer.Core.Visualization;
 /// </remarks>
 public class DependencyGraphVisualizer
 {
+    private static readonly JsonSerializerOptions s_jsonOptions = new()
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     private readonly ILogger<DependencyGraphVisualizer> _logger;
 
     /// <summary>
@@ -154,11 +161,7 @@ public class DependencyGraphVisualizer
             statistics = graph.GetStatistics()
         };
 
-        return System.Text.Json.JsonSerializer.Serialize(data, new System.Text.Json.JsonSerializerOptions
-        {
-            WriteIndented = true,
-            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
-        });
+        return JsonSerializer.Serialize(data, s_jsonOptions);
     }
 
     /// <summary>
@@ -326,12 +329,12 @@ public class GraphVisualizationOptions
     /// <summary>
     /// 是否使用完整名称（否则使用短名称）
     /// </summary>
-    public bool UseFullNames { get; set; } = false;
+    public bool UseFullNames { get; set; }
 
     /// <summary>
     /// 是否显示元数据
     /// </summary>
-    public bool ShowMetadata { get; set; } = false;
+    public bool ShowMetadata { get; set; }
 
     /// <summary>
     /// 是否简化大型图

@@ -268,7 +268,7 @@ public sealed class GodClassDetector : ICodeSmellDetector
         return baseTime + methodFactor + fieldFactor + complexityFactor;
     }
 
-    private class GodClassAnalysis
+    private sealed class GodClassAnalysis
     {
         public int PublicMethodCount { get; set; }
         public int TotalMethodCount { get; set; }

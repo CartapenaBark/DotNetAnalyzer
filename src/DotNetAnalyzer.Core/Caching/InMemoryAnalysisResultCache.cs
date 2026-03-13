@@ -205,7 +205,7 @@ public sealed class InMemoryAnalysisResultCache : IAnalysisResultCache, System.I
     private long _statisticsHitCount;
     private long _statisticsMissCount;
 
-    private class CacheEntry
+    private sealed class CacheEntry
     {
         public object? Value { get; set; }
         public DateTime CreatedAt { get; set; }

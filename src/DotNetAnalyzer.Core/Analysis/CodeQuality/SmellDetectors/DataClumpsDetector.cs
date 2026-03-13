@@ -123,6 +123,9 @@ public sealed class DataClumpsDetector : ICodeSmellDetector
 
             foreach (var param in parameterList.Parameters)
             {
+                if (param.Type is null)
+                    continue;
+
                 var typeInfo = semanticModel.GetTypeInfo(param.Type);
                 var typeName = typeInfo.Type?.Name ?? param.Type.ToString();
 
@@ -208,14 +211,14 @@ public sealed class DataClumpsDetector : ICodeSmellDetector
         return count;
     }
 
-    private class ParameterInfo
+    private sealed class ParameterInfo
     {
         public required string Name { get; init; }
         public required string Type { get; init; }
         public required Location Location { get; init; }
     }
 
-    private class DataClumpInfo
+    private sealed class DataClumpInfo
     {
         public List<string> ParameterNames { get; set; } = new();
         public List<string> ParameterTypes { get; set; } = new();

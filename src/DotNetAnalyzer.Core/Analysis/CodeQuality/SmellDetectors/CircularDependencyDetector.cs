@@ -164,6 +164,9 @@ public sealed class CircularDependencyDetector : ICodeSmellDetector
 
             foreach (var param in methodDeclaration.ParameterList?.Parameters ?? Enumerable.Empty<ParameterSyntax>())
             {
+                if (param.Type is null)
+                    continue;
+
                 var paramType = semanticModel.GetTypeInfo(param.Type);
                 if (paramType.Type != null)
                 {

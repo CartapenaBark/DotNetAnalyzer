@@ -12,6 +12,7 @@ using DotNetAnalyzer.Core.Analysis.CodeQuality.SmellDetectors;
 using DotNetAnalyzer.Core.Monitoring;
 using DotNetAnalyzer.Core.Caching;
 using DotNetAnalyzer.Core.Visualization;
+using DotNetAnalyzer.Cli.Commands;
 
 namespace DotNetAnalyzer.Cli;
 
@@ -31,6 +32,11 @@ internal sealed class Program
                 case "--help":
                 case "-h":
                     ShowHelp();
+                    return;
+                case "init":
+                    // Init 命令 - 初始化 MCP 配置
+                    var initExitCode = await InitCommand.ExecuteAsync(args[1..]);
+                    Environment.Exit(initExitCode);
                     return;
                 case "mcp":
                     // MCP serve 子命令（默认行为）
@@ -129,6 +135,7 @@ internal sealed class Program
         Console.WriteLine("  -h, --help        Show help information");
         Console.WriteLine();
         Console.WriteLine("Commands:");
+        Console.WriteLine("  init              Initialize MCP configuration for Claude Code");
         Console.WriteLine("  mcp serve         Start MCP server (default)");
         Console.WriteLine();
         Console.WriteLine("When run without options, dotnet-analyzer starts as an MCP server");

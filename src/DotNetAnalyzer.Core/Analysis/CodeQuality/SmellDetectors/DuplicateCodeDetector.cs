@@ -197,7 +197,7 @@ public sealed class DuplicateCodeDetector : ICodeSmellDetector
         return union == 0 ? 0 : (double)intersection / union;
     }
 
-    private class MethodBodyInfo
+    private sealed class MethodBodyInfo
     {
         public required BlockSyntax Body { get; init; }
         public required List<string> Tokens { get; init; }
@@ -205,7 +205,7 @@ public sealed class DuplicateCodeDetector : ICodeSmellDetector
         public required int LineCount { get; init; }
     }
 
-    private class DuplicateCodeInfo
+    private sealed class DuplicateCodeInfo
     {
         public required string SymbolName { get; init; }
         public required Location Location { get; init; }

@@ -73,7 +73,7 @@ public class CodeAnalysisOptions
     /// <summary>
     /// 是否启用深度分析（可能更慢但更准确）
     /// </summary>
-    public bool EnableDeepAnalysis { get; set; } = false;
+    public bool EnableDeepAnalysis { get; set; }
 
     /// <summary>
     /// 分析超时时间（毫秒）

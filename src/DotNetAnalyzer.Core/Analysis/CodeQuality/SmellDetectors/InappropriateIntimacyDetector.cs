@@ -215,12 +215,12 @@ public sealed class InappropriateIntimacyDetector : ICodeSmellDetector
         return string.Join("\n", suggestions);
     }
 
-    private class ClassIntimacyAnalysis
+    private sealed class ClassIntimacyAnalysis
     {
         public List<IntimacyInfo> IntimacyInfos { get; set; } = new();
     }
 
-    private class IntimacyInfo
+    private sealed class IntimacyInfo
     {
         public required string TargetClassName { get; init; }
         public int InternalAccessCount { get; set; }

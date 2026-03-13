@@ -112,7 +112,7 @@ public static class VisualizationTools
             {
                 // TODO: 实现变更频率热力图
                 // 这里需要从缓存或其他数据源获取变更历史
-                data = generator.GenerateComplexityHeatmap(new CodeSmellCollection());
+                data = HeatmapGenerator.GenerateComplexityHeatmap(new CodeSmellCollection());
                 data.Title = "变更频率热力图（模拟数据）";
             }
             else
@@ -121,13 +121,13 @@ public static class VisualizationTools
                 var analyzer = new CodeSmellAnalyzer(analyzerLogger, detectors);
 
                 var smellCollection = await analyzer.AnalyzeAsync(project);
-                data = generator.GenerateComplexityHeatmap(smellCollection);
+                data = HeatmapGenerator.GenerateComplexityHeatmap(smellCollection);
             }
 
             var result = format.ToLowerInvariant() switch
             {
-                "json" => generator.GenerateJsonData(data),
-                _ => generator.GenerateMermaidChart(data)
+                "json" => HeatmapGenerator.GenerateJsonData(data),
+                _ => HeatmapGenerator.GenerateMermaidChart(data)
             };
 
             return JsonSerializer.Serialize(new

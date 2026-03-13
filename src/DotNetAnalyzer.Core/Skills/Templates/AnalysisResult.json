@@ -1,0 +1,485 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://dotnet-analyzer.dev/schemas/analysis-result.json",
+  "title": "DotNetAnalyzer Analysis Result",
+  "description": "代码分析结果的 JSON Schema 定义",
+  "type": "object",
+  "required": ["version", "timestamp", "project", "summary"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "DotNetAnalyzer 版本号",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-\\w+)?$"
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "分析时间戳 (ISO 8601)",
+      "format": "date-time"
+    },
+    "duration": {
+      "type": "number",
+      "description": "分析时长（秒）",
+      "minimum": 0
+    },
+    "project": {
+      "type": "object",
+      "description": "项目信息",
+      "required": ["path", "type", "name"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "项目文件路径"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["solution", "project", "folder"],
+          "description": "项目类型"
+        },
+        "name": {
+          "type": "string",
+          "description": "项目名称"
+        },
+        "framework": {
+          "type": "string",
+          "description": "目标框架（如 net8.0）"
+        },
+        "languageVersion": {
+          "type": "string",
+          "description": "C# 语言版本（如 C# 12）"
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "description": "分析摘要",
+      "required": ["success", "fileCount", "lineCount"],
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "description": "分析是否成功"
+        },
+        "fileCount": {
+          "type": "integer",
+          "description": "分析的文件数量",
+          "minimum": 0
+        },
+        "lineCount": {
+          "type": "integer",
+          "description": "代码行数",
+          "minimum": 0
+        },
+        "status": {
+          "type": "string",
+          "enum": ["completed", "partial", "failed"],
+          "description": "分析状态"
+        },
+        "score": {
+          "type": "integer",
+          "description": "代码质量评分（0-100）",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "diagnostics": {
+      "type": "object",
+      "description": "编译诊断信息",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "错误列表",
+          "items": {
+            "$ref": "#/definitions/diagnostic"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "description": "警告列表",
+          "items": {
+            "$ref": "#/definitions/diagnostic"
+          }
+        },
+        "info": {
+          "type": "array",
+          "description": "信息列表",
+          "items": {
+            "$ref": "#/definitions/diagnostic"
+          }
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "description": "代码度量",
+      "properties": {
+        "complexity": {
+          "$ref": "#/definitions/complexityMetrics"
+        },
+        "maintainability": {
+          "$ref": "#/definitions/maintainabilityMetrics"
+        },
+        "duplication": {
+          "$ref": "#/definitions/duplicationMetrics"
+        },
+        "size": {
+          "$ref": "#/definitions/sizeMetrics"
+        }
+      }
+    },
+    "deadCode": {
+      "type": "object",
+      "description": "死代码检测结果",
+      "properties": {
+        "unusedMethods": {
+          "type": "array",
+          "description": "未使用的方法",
+          "items": {
+            "$ref": "#/definitions/codeElement"
+          }
+        },
+        "unusedClasses": {
+          "type": "array",
+          "description": "未使用的类",
+          "items": {
+            "$ref": "#/definitions/codeElement"
+          }
+        },
+        "unusedFields": {
+          "type": "array",
+          "description": "未使用的字段",
+          "items": {
+            "$ref": "#/definitions/codeElement"
+          }
+        }
+      }
+    },
+    "performance": {
+      "type": "object",
+      "description": "性能分析结果",
+      "properties": {
+        "issues": {
+          "type": "array",
+          "description": "性能问题列表",
+          "items": {
+            "$ref": "#/definitions/performanceIssue"
+          }
+        }
+      }
+    },
+    "architecture": {
+      "type": "object",
+      "description": "架构分析结果",
+      "properties": {
+        "dependencies": {
+          "type": "array",
+          "description": "项目依赖关系",
+          "items": {
+            "type": "string"
+          }
+        },
+        "circularDependencies": {
+          "type": "array",
+          "description": "循环依赖",
+          "items": {
+            "$ref": "#/definitions/dependencyCycle"
+          }
+        },
+        "namespaces": {
+          "type": "integer",
+          "description": "命名空间数量"
+        },
+        "types": {
+          "type": "integer",
+          "description": "类型数量"
+        }
+      }
+    },
+    "testCoverage": {
+      "type": "object",
+      "description": "测试覆盖率",
+      "properties": {
+        "lineCoverage": {
+          "type": "number",
+          "description": "行覆盖率（百分比）",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "branchCoverage": {
+          "type": "number",
+          "description": "分支覆盖率（百分比）",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "methodCoverage": {
+          "type": "number",
+          "description": "方法覆盖率（百分比）",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "description": "改进建议",
+      "items": {
+        "$ref": "#/definitions/recommendation"
+      }
+    }
+  },
+  "definitions": {
+    "diagnostic": {
+      "type": "object",
+      "required": ["code", "message", "file", "line"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "诊断代码（如 CS0169）"
+        },
+        "message": {
+          "type": "string",
+          "description": "诊断消息"
+        },
+        "file": {
+          "type": "string",
+          "description": "文件路径"
+        },
+        "line": {
+          "type": "integer",
+          "description": "行号"
+        },
+        "column": {
+          "type": "integer",
+          "description": "列号"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["error", "warning", "info"],
+          "description": "严重程度"
+        },
+        "category": {
+          "type": "string",
+          "description": "诊断分类"
+        }
+      }
+    },
+    "complexityMetrics": {
+      "type": "object",
+      "properties": {
+        "cyclomatic": {
+          "type": "number",
+          "description": "圈复杂度"
+        },
+        "cyclomaticAvg": {
+          "type": "number",
+          "description": "平均圈复杂度"
+        },
+        "cyclomaticMax": {
+          "type": "number",
+          "description": "最大圈复杂度"
+        },
+        "cognitive": {
+          "type": "number",
+          "description": "认知复杂度"
+        },
+        "cognitiveAvg": {
+          "type": "number",
+          "description": "平均认知复杂度"
+        },
+        "nestingDepth": {
+          "type": "integer",
+          "description": "最大嵌套深度"
+        }
+      }
+    },
+    "maintainabilityMetrics": {
+      "type": "object",
+      "properties": {
+        "index": {
+          "type": "integer",
+          "description": "维护性指数（0-100）",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "rating": {
+          "type": "string",
+          "enum": ["excellent", "good", "fair", "poor"],
+          "description": "维护性评级"
+        }
+      }
+    },
+    "duplicationMetrics": {
+      "type": "object",
+      "properties": {
+        "percentage": {
+          "type": "number",
+          "description": "代码复制率（百分比）",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "blocks": {
+          "type": "integer",
+          "description": "复制块数量"
+        },
+        "lines": {
+          "type": "integer",
+          "description": "总复制行数"
+        }
+      }
+    },
+    "sizeMetrics": {
+      "type": "object",
+      "properties": {
+        "linesOfCode": {
+          "type": "integer",
+          "description": "代码行数"
+        },
+        "fileCount": {
+          "type": "integer",
+          "description": "文件数量"
+        },
+        "classCount": {
+          "type": "integer",
+          "description": "类数量"
+        },
+        "methodCount": {
+          "type": "integer",
+          "description": "方法数量"
+        }
+      }
+    },
+    "codeElement": {
+      "type": "object",
+      "required": ["name", "file", "line"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "元素名称"
+        },
+        "file": {
+          "type": "string",
+          "description": "定义文件"
+        },
+        "line": {
+          "type": "integer",
+          "description": "定义行号"
+        },
+        "accessibility": {
+          "type": "string",
+          "enum": ["public", "protected", "internal", "private", "protected-internal", "private-protected"],
+          "description": "可访问性"
+        },
+        "namespace": {
+          "type": "string",
+          "description": "命名空间"
+        },
+        "declaringType": {
+          "type": "string",
+          "description": "声明类型"
+        }
+      }
+    },
+    "performanceIssue": {
+      "type": "object",
+      "required": ["type", "severity", "description", "file"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "问题类型"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["critical", "high", "medium", "low"],
+          "description": "严重程度"
+        },
+        "title": {
+          "type": "string",
+          "description": "问题标题"
+        },
+        "description": {
+          "type": "string",
+          "description": "问题描述"
+        },
+        "file": {
+          "type": "string",
+          "description": "文件路径"
+        },
+        "line": {
+          "type": "integer",
+          "description": "行号"
+        },
+        "impact": {
+          "type": "string",
+          "description": "性能影响"
+        },
+        "recommendation": {
+          "type": "string",
+          "description": "优化建议"
+        },
+        "codeSnippet": {
+          "type": "string",
+          "description": "问题代码片段"
+        },
+        "suggestedFix": {
+          "type": "string",
+          "description": "建议修复代码"
+        }
+      }
+    },
+    "dependencyCycle": {
+      "type": "object",
+      "required": ["members"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "循环依赖 ID"
+        },
+        "members": {
+          "type": "array",
+          "description": "循环依赖的成员",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "recommendation": {
+      "type": "object",
+      "required": ["title", "priority", "description"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "建议标题"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "优先级"
+        },
+        "description": {
+          "type": "string",
+          "description": "建议描述"
+        },
+        "impact": {
+          "type": "string",
+          "description": "影响说明"
+        },
+        "effort": {
+          "type": "string",
+          "description": "工作量估算"
+        },
+        "files": {
+          "type": "array",
+          "description": "相关文件",
+          "items": {
+            "type": "string"
+          }
+        },
+        "category": {
+          "type": "string",
+          "enum": ["quality", "performance", "security", "maintainability", "testability"],
+          "description": "建议分类"
+        }
+      }
+    }
+  }
+}

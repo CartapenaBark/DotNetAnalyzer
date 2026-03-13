@@ -98,12 +98,11 @@ public static class CodeQualityTools
             var smellCollection = await analyzer.AnalyzeAsync(project);
             var debt = await calculator.CalculateAsync(project, smellCollection, includeTrend);
 
-            var reportGenerator = new TechnicalDebtReportGenerator();
 
             var report = format.ToLowerInvariant() switch
             {
-                "json" => reportGenerator.GenerateJsonReport(debt),
-                _ => reportGenerator.GenerateMarkdownReport(debt)
+                "json" => TechnicalDebtReportGenerator.GenerateJsonReport(debt),
+                _ => TechnicalDebtReportGenerator.GenerateMarkdownReport(debt)
             };
 
             return JsonSerializer.Serialize(new { data = report }, JsonOptions.Default);

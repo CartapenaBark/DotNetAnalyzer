@@ -173,7 +173,6 @@ DotNetAnalyzer/
 ├── CHANGELOG.md                     # 更新日志
 ├── CONTRIBUTING.md                  # 本文件
 ├── CONFIGURATION.md                 # 配置指南
-├── CLAUDE.md                        # Claude 项目说明
 └── DotNetAnalyzer.slnx              # 解决方案文件
 ```
 

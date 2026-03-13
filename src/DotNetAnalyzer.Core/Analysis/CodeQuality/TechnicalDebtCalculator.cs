@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using DotNetAnalyzer.Core.Models.CodeQuality;
+using System.Text.Json;
 
 namespace DotNetAnalyzer.Core.Analysis.CodeQuality;
 
@@ -12,6 +13,12 @@ namespace DotNetAnalyzer.Core.Analysis.CodeQuality;
 /// </remarks>
 public class TechnicalDebtCalculator
 {
+    private static readonly JsonSerializerOptions s_jsonOptions = new()
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     private readonly ILogger<TechnicalDebtCalculator> _logger;
 
     /// <summary>
@@ -177,7 +184,7 @@ public class TechnicalDebtCalculator
     /// <summary>
     /// 分析技术债务趋势
     /// </summary>
-    private async Task<DebtTrend> AnalyzeTrendAsync(
+    private static async Task<DebtTrend> AnalyzeTrendAsync(
         Project project,
         CancellationToken cancellationToken)
     {
@@ -198,10 +205,16 @@ public class TechnicalDebtCalculator
 /// </summary>
 public class TechnicalDebtReportGenerator
 {
+    private static readonly JsonSerializerOptions s_jsonOptions = new()
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     /// <summary>
     /// 生成 Markdown 格式的报告
     /// </summary>
-    public string GenerateMarkdownReport(TechnicalDebt debt)
+    public static string GenerateMarkdownReport(TechnicalDebt debt)
     {
         var builder = new System.Text.StringBuilder();
 
@@ -315,12 +328,8 @@ public class TechnicalDebtReportGenerator
     /// <summary>
     /// 生成 JSON 格式的报告
     /// </summary>
-    public string GenerateJsonReport(TechnicalDebt debt)
+    public static string GenerateJsonReport(TechnicalDebt debt)
     {
-        return System.Text.Json.JsonSerializer.Serialize(debt, new System.Text.Json.JsonSerializerOptions
-        {
-            WriteIndented = true,
-            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
-        });
+        return JsonSerializer.Serialize(debt, s_jsonOptions);
     }
 }

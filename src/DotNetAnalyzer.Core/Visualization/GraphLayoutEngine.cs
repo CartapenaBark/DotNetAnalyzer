@@ -393,7 +393,7 @@ public class LayoutOptions
     /// <summary>
     /// 是否简化边
     /// </summary>
-    public bool SimplifyEdges { get; set; } = false;
+    public bool SimplifyEdges { get; set; }
 
     /// <summary>
     /// 最大边数（超过此值时启用简化）

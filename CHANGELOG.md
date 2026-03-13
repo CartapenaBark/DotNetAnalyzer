@@ -7,6 +7,84 @@
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-03-14
+
+### 🎉 Claude Code 集成
+
+DotNetAnalyzer v1.1.1 专注于**简化用户体验**，提供了完整的 Claude Code 集成方案！
+
+### ✨ 新增功能
+
+#### Claude Code Plugin 集成
+- **init 命令** - 一键配置 MCP 服务器和技能
+  - 自动检测开发环境（.NET SDK、操作系统、dotnet-analyzer 路径）
+  - 生成项目级或用户级配置文件
+  - 验证配置正确性
+  - 交互式向导支持
+
+#### 预定义技能（Skills）
+- **dotnet-analyze** - 深度代码质量分析
+- **dotnet-refactor** - 引导式代码重构
+- **dotnet-diagnose** - 智能问题诊断
+
+#### 一键安装脚本
+- **install.sh** - Linux/macOS 自动安装脚本
+- **install.ps1** - Windows PowerShell 安装脚本
+- 自动检测环境、安装工具、配置 MCP 服务器
+
+### 🔧 改进
+
+#### 配置管理
+- 修复了 System.CommandLine 依赖问题（改用手动参数解析）
+- 修复了版本号配置问题（统一使用 Directory.Build.props）
+- 消除了所有编译警告（0 warnings, 0 errors）
+- 改进了配置生成器（支持项目级和用户级配置）
+
+#### 技能文件管理
+- 创建 `SkillInstaller` 类处理技能文件复制
+- 技能文件存放至 `templates/claude/skills/`（避免被 .gitignore 忽略）
+- 支持多种安装路径的自动检测
+
+### 📚 文档
+
+#### 新增文档
+- **Claude Code 集成指南** - 完整的安装和使用教程
+- **FAQ** - 常见问题解答
+- **故障排除指南** - 问题诊断和解决方案
+
+#### 改进文档
+- 重构文档结构（FAQ 移至 docs/ 目录）
+- 修复所有文档中的引用路径（避免引用被 .gitignore 排除的文件）
+- 删除了 QUICKSTART.md（内容已整合到其他文档）
+- 清理了临时脚本文件
+
+### 🔄 维护
+
+#### 代码清理
+- 移除了 System.CommandLine 依赖
+- 清理了临时修复脚本（fix_ca1822.sh、fix_ca1852.sh）
+- 删除了不再使用的 dist/ 目录
+
+#### 向后兼容性
+- ✅ 完全向后兼容（无破坏性变更）
+- ✅ 所有现有 MCP 工具继续工作
+- ✅ 配置文件格式保持不变
+
+### 📊 统计
+
+- **MCP 工具数量**: 82 个（保持不变）
+- **新增技能**: 3 个预定义技能
+- **文档改进**: 3 个新文档，路径修复 20+ 处
+- **代码质量**: 0 warnings, 0 errors
+
+### 🔗 相关链接
+
+- [Claude Code 集成指南](docs/claude-code-integration.md)
+- [FAQ](docs/FAQ.md)
+- [故障排除](docs/troubleshooting.md)
+
+---
+
 ## [1.1.0] - 2026-03-14
 
 ### 🚀 重大功能更新 - 代码质量分析
@@ -1387,7 +1465,6 @@ Bin/
 #### 文档
 - ✅ README.md - 项目介绍和快速开始
 - ✅ CONFIGURATION.md - 配置指南
-- ✅ CLAUDE.md - 给 Claude Code 的项目说明
 - ✅ docs/TOOLS_TESTING_GUIDE.md - 工具测试指南
 - ✅ CHANGELOG.md - 更新日志（本文件）
 
@@ -1479,3 +1556,9 @@ Newtonsoft.Json 13.0.3
 - [GitHub Releases](https://github.com/CartapenaBark/DotNetAnalyzer/releases)
 - [NuGet Package](https://www.nuget.org/packages/DotNetAnalyzer/)
 - [问题追踪](https://github.com/CartapenaBark/DotNetAnalyzer/issues)
+
+[Unreleased]: https://github.com/CartapenaBark/DotNetAnalyzer/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/CartapenaBark/DotNetAnalyzer/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/CartapenaBark/DotNetAnalyzer/compare/v1.0.1...v1.1.0
+[1.0.1]: https://github.com/CartapenaBark/DotNetAnalyzer/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/CartapenaBark/DotNetAnalyzer/compare/v0.8.0...v1.0.0

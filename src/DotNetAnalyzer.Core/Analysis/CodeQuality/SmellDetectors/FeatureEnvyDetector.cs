@@ -191,7 +191,7 @@ public sealed class FeatureEnvyDetector : ICodeSmellDetector
         };
     }
 
-    private class FeatureEnvyAnalysis
+    private sealed class FeatureEnvyAnalysis
     {
         public double EnvyPercentage { get; set; }
         public int ForeignAccessCount { get; set; }

@@ -22,4 +22,32 @@
     <OutputPath>$(BaseOutputPath)</OutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
   </PropertyGroup>
+
+  <!--
+    版本号配置
+    使用 Git 信息动态生成版本号，如果不在 Git 仓库中则使用默认版本
+  -->
+  <PropertyGroup Label="Version">
+    <!-- 从 Git 标签或分支获取版本信息 -->
+    <GitBaseVersion>1.1.1</GitBaseVersion>
+    <GitVersion Condition="'$(GitVersion)'==''">$(GitBaseVersion)</GitVersion>
+
+    <!-- 默认版本号（当 Git 信息不可用时） -->
+    <Version Condition="'$(Version)'==''">$(GitVersion)</Version>
+    <AssemblyVersion Condition="'$(AssemblyVersion)'==''">$(GitVersion).0</AssemblyVersion>
+    <FileVersion Condition="'$(FileVersion)'==''">$(GitVersion).0</FileVersion>
+    <InformationalVersion Condition="'$(InformationalVersion)'==''">$(GitVersion)</InformationalVersion>
+  </PropertyGroup>
+
+  <!--
+    代码分析配置
+    禁用某些不必要的分析器以减少警告数量
+  -->
+  <PropertyGroup Label="CodeAnalysis">
+    <!-- 不推荐禁用所有分析，但可以配置一些规则 -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
 </Project>

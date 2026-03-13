@@ -188,6 +188,9 @@ public sealed class PrimitiveObsessionDetector : ICodeSmellDetector
 
         foreach (var param in method.ParameterList?.Parameters ?? Enumerable.Empty<ParameterSyntax>())
         {
+            if (param.Type is null)
+                continue;
+
             var typeInfo = semanticModel.GetTypeInfo(param.Type);
             var typeName = typeInfo.Type?.Name ?? param.Type.ToString();
 
@@ -246,7 +249,7 @@ public sealed class PrimitiveObsessionDetector : ICodeSmellDetector
         return string.Join("\n", suggestions);
     }
 
-    private class PrimitiveFieldInfo
+    private sealed class PrimitiveFieldInfo
     {
         public required string PrimitiveType { get; init; }
         public List<string> FieldNames { get; set; } = new();

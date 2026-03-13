@@ -221,7 +221,7 @@ public sealed class ShotgunSurgeryDetector : ICodeSmellDetector
         return string.Join("\n", suggestions);
     }
 
-    private class ShotgunSurgeryAnalysis
+    private sealed class ShotgunSurgeryAnalysis
     {
         public int RelatedClassCount { get; set; }
         public List<string> RelatedClasses { get; set; } = new();

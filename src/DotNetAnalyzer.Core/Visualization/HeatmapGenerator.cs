@@ -1,5 +1,6 @@
 using DotNetAnalyzer.Core.Models.CodeQuality;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace DotNetAnalyzer.Core.Visualization;
 
@@ -11,6 +12,12 @@ namespace DotNetAnalyzer.Core.Visualization;
 /// </remarks>
 public class HeatmapGenerator
 {
+    private static readonly JsonSerializerOptions s_jsonOptions = new()
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     private readonly ILogger<HeatmapGenerator> _logger;
 
     /// <summary>
@@ -26,7 +33,7 @@ public class HeatmapGenerator
     /// </summary>
     /// <param name="smellCollection">代码异味集合</param>
     /// <returns>热力图数据</returns>
-    public HeatmapData GenerateComplexityHeatmap(CodeSmellCollection smellCollection)
+    public static HeatmapData GenerateComplexityHeatmap(CodeSmellCollection smellCollection)
     {
         var data = new HeatmapData
         {
@@ -83,7 +90,7 @@ public class HeatmapGenerator
     /// </summary>
     /// <param name="changeHistory">变更历史数据</param>
     /// <returns>热力图数据</returns>
-    public HeatmapData GenerateChangeFrequencyHeatmap(List<ChangeRecord> changeHistory)
+    public static HeatmapData GenerateChangeFrequencyHeatmap(List<ChangeRecord> changeHistory)
     {
         var data = new HeatmapData
         {
@@ -122,7 +129,7 @@ public class HeatmapGenerator
     /// <summary>
     /// 生成热力图的 Mermaid 图表
     /// </summary>
-    public string GenerateMermaidChart(HeatmapData data)
+    public static string GenerateMermaidChart(HeatmapData data)
     {
         var builder = new System.Text.StringBuilder();
 
@@ -179,7 +186,7 @@ public class HeatmapGenerator
     /// <summary>
     /// 生成热力图的 JSON 数据
     /// </summary>
-    public string GenerateJsonData(HeatmapData data)
+    public static string GenerateJsonData(HeatmapData data)
     {
         var jsonData = new
         {
@@ -197,11 +204,7 @@ public class HeatmapGenerator
             })
         };
 
-        return System.Text.Json.JsonSerializer.Serialize(jsonData, new System.Text.Json.JsonSerializerOptions
-        {
-            WriteIndented = true,
-            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
-        });
+        return JsonSerializer.Serialize(jsonData, s_jsonOptions);
     }
 
     private static void CalculateColorRange(HeatmapData data)

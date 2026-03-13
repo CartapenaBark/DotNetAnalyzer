@@ -3,7 +3,7 @@
 > 一个强大的 MCP (Model Context Protocol) 服务器工具，将 Roslyn 的代码分析能力引入 Claude Code
 
 [![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet)
-[![NuGet](https://img.shields.io/badge/nuget-1.0.1-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
+[![NuGet](https://img.shields.io/badge/nuget-1.1.1-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 📖 简介
@@ -29,7 +29,7 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 ## 🎯 核心功能
 
-**当前版本 (v1.0.1)** 提供 **74 个 MCP 工具**，支持强命名、完整的代码分析和可视化能力。
+**当前版本 (v1.1.1)** 提供 **82 个 MCP 工具**，支持强命名、完整的代码分析和可视化能力。
 
 ### 功能概览
 
@@ -73,13 +73,57 @@ DotNetAnalyzer 采用分层架构设计，通过 MCP 协议连接 Claude Code �
 
 ## 🚀 快速开始
 
+### 一键配置（推荐）
+
+```bash
+# 1. 安装工具
+dotnet tool install --global DotNetAnalyzer
+
+# 2. 自动配置（新功能！）
+dotnet-analyzer init
+
+# 3. 重启 Claude Code
+```
+
+就这么简单！`init` 命令会自动：
+- ✅ 检测您的开发环境
+- ✅ 生成所需的配置文件
+- ✅ 安装预定义技能（Skills）
+- ✅ 验证配置正确性
+
+### 🎯 使用预定义技能
+
+DotNetAnalyzer 提供了三个预定义技能，可以直接在 Claude Code 中使用自然语言触发：
+
+| 技能 | 用途 | 触发词示例 |
+|:----|:-----|:----------|
+| **dotnet-analyze** | 代码质量分析 | "分析代码质量"、"检查技术债务"、"审计架构" |
+| **dotnet-refactor** | 引导式代码重构 | "重构这个方法"、"提取方法"、"重命名变量" |
+| **dotnet-diagnose** | 智能问题诊断 | "为什么报错"、"调试这个异常"、"分析性能" |
+
+**使用示例**：
+
+```
+你：分析这个项目的代码质量
+
+Claude：正在分析项目...
+📊 分析完成！
+
+# 代码分析报告
+- ✓ 项目: MyApp.sln
+- ✓ 文件数: 45
+- 代码度量: 平均圈复杂度 3.2
+- 建议: 提高测试覆盖率
+```
+
+📄 **[查看完整集成指南](docs/claude-code-integration.md)** - 包含详细配置选项、自定义技能和故障排除
+
+<details>
+<summary><b>手动配置（可选）</b></summary>
+
+如果您更喜欢手动配置，请参考下面的详细步骤。
+
 ### 前置要求
-
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) 或更高版本
-- [Claude Code](https://claude.ai/code) (支持 MCP 协议)
-- 一个 .NET 解决方案或项目
-
-### 安装
 
 #### 方式一：从 NuGet 安装（推荐）✨
 
@@ -98,7 +142,7 @@ dotnet-tool list --global
 
 **NuGet 包信息**:
 - 📦 包名: `DotNetAnalyzer`
-- 🏷️ 版本: `1.0.1`
+- 🏷️ 版本: `1.1.1`
 - 🔗 链接: [https://www.nuget.org/packages/DotNetAnalyzer](https://www.nuget.org/packages/DotNetAnalyzer)
 - .NET 8.0 或更高版本
 
@@ -384,10 +428,10 @@ dotnet tool uninstall --global DotNetAnalyzer
   - 性能优化建议
 
 ### 开发者文档
-- [集成测试指南](docs/INTEGRATION_TESTING.md) - 如何运行和编写集成测试
-- [工具测试指南](docs/TOOLS_TESTING_GUIDE.md) - MCP 工具测试指南
-- [故障排除](docs/MCP_TROUBLESHOOTING.md) - 常见问题解决方案
-- [CLAUDE.md](CLAUDE.md) - 给 Claude Code 的项目说明
+- [故障排除](docs/troubleshooting.md) - 常见问题解决方案
+- [FAQ](docs/FAQ.md) - 常见问题解答
+- <!-- TODO: [集成测试指南](docs/INTEGRATION_TESTING.md) - 如何运行和编写集成测试 -->
+- <!-- TODO: [工具测试指南](docs/TOOLS_TESTING_GUIDE.md) - MCP 工具测试指南 -->
 
 ### 项目文档
 - [CHANGELOG](CHANGELOG.md) - 版本更新历史

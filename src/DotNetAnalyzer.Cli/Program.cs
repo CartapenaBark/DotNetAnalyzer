@@ -7,6 +7,11 @@ using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Configuration;
 using DotNetAnalyzer.Core.Roslyn;
 using DotNetAnalyzer.Core.Memory;
+using DotNetAnalyzer.Core.Analysis.CodeQuality;
+using DotNetAnalyzer.Core.Analysis.CodeQuality.SmellDetectors;
+using DotNetAnalyzer.Core.Monitoring;
+using DotNetAnalyzer.Core.Caching;
+using DotNetAnalyzer.Core.Visualization;
 
 namespace DotNetAnalyzer.Cli;
 
@@ -60,6 +65,34 @@ internal sealed class Program
         // 注册核心服务为 Scoped，以支持依赖注入和更好的资源管理
         builder.Services.AddScoped<IWorkspaceManager, WorkspaceManager>();
         builder.Services.AddScoped<ICompilationCache, CompilationCache>();
+
+        // 注册代码质量分析服务
+        builder.Services.AddScoped<CodeSmellAnalyzer>();
+        builder.Services.AddScoped<TechnicalDebtCalculator>();
+        builder.Services.AddScoped<ChangeImpactAnalyzer>();
+
+        // 注册所有代码异味检测器
+        builder.Services.AddScoped<ICodeSmellDetector, LongMethodDetector>();
+        builder.Services.AddScoped<ICodeSmellDetector, LargeClassDetector>();
+        builder.Services.AddScoped<ICodeSmellDetector, LongParameterListDetector>();
+        builder.Services.AddScoped<ICodeSmellDetector, FeatureEnvyDetector>();
+        builder.Services.AddScoped<ICodeSmellDetector, DataClumpsDetector>();
+        builder.Services.AddScoped<ICodeSmellDetector, PrimitiveObsessionDetector>();
+        builder.Services.AddScoped<ICodeSmellDetector, CircularDependencyDetector>();
+        builder.Services.AddScoped<ICodeSmellDetector, InappropriateIntimacyDetector>();
+        builder.Services.AddScoped<ICodeSmellDetector, GodClassDetector>();
+        builder.Services.AddScoped<ICodeSmellDetector, ShotgunSurgeryDetector>();
+        builder.Services.AddScoped<ICodeSmellDetector, DuplicateCodeDetector>();
+        builder.Services.AddScoped<ICodeSmellDetector, MagicNumberDetector>();
+
+        // 注册监控和缓存服务
+        builder.Services.AddScoped<IFileWatcher, FileSystemFileWatcher>();
+        builder.Services.AddScoped<IAnalysisResultCache, InMemoryAnalysisResultCache>();
+
+        // 注册可视化服务
+        builder.Services.AddScoped<DependencyGraphVisualizer>();
+        builder.Services.AddScoped<HeatmapGenerator>();
+        builder.Services.AddScoped<GraphLayoutEngine>();
 
         // 配置 MCP 服务器
         builder.Services

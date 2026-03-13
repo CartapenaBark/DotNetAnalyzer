@@ -22,9 +22,9 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-analyzer</ToolCommandName>
     <PackageId>DotNetAnalyzer</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.1.0</Version>
     <Authors>CartapenaBark</Authors>
-    <Description>MCP server with 74 tools for .NET code analysis, refactoring, and code generation</Description>
+    <Description>MCP server with 82 tools for .NET code analysis, refactoring, code generation, and quality analysis</Description>
     <PackageTags>mcp;roslyn;code-analysis;claude;dotnet</PackageTags>
     <PackageProjectUrl>https://github.com/CartapenaBark/DotNetAnalyzer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/CartapenaBark/DotNetAnalyzer</RepositoryUrl>
@@ -32,6 +32,44 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes><![CDATA[
+      v1.1.0 - Code Quality Analysis
+
+      🚀 MAJOR NEW FEATURES:
+        • ✨ Code Smell Detection - 12 detectors (Long Method, Large Class, Circular Dependency, etc.)
+        • 📊 Technical Debt Quantification - Debt ratio, fix time estimation, trend analysis
+        • 🔍 Change Impact Analysis - Analyze impact of code changes
+        • 👁️ Visualization - Dependency graphs, architecture heatmaps
+        • 🎯 File Watching - Incremental analysis with cache support
+        • 📈 Quality Reports - Comprehensive quality metrics
+
+      📊 STATISTICS:
+        • MCP Tools: 74 → 82 (+8 new tools)
+        • New Detectors: 12 code smell detectors
+        • Lines of Code: ~15,000 → ~18,000 (+3,000)
+        • Backward Compatible: Yes (no breaking changes)
+
+      🎯 NEW TOOLS:
+        • detect_code_smells - Detect code smells with severity classification
+        • quantify_technical_debt - Calculate technical debt metrics
+        • generate_quality_report - Generate comprehensive quality report
+        • analyze_change_impact - Analyze impact of code changes
+        • start_file_watching / stop_file_watching - File monitoring
+        • generate_dependency_graph - Dependency graph visualization
+        • generate_heatmap - Architecture heatmap generation
+        • get_cache_statistics - Cache management
+
+      🔧 IMPROVEMENTS:
+        • Parallel code analysis support
+        • Analysis result caching (memory + persistent)
+        • File watching with debounce mechanism
+        • Analysis timeout control
+        • Enhanced error handling and logging
+
+      📝 DOCUMENTATION:
+        • Complete code quality analysis documentation
+        • Updated API reference
+        • New usage examples
+
       v1.0.1 - Documentation Optimization
 
       📝 IMPROVEMENTS:

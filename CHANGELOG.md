@@ -7,6 +7,129 @@
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-03-14
+
+### 🚀 重大功能更新 - 代码质量分析
+
+DotNetAnalyzer v1.1.0 是一个重要的功能更新，新增了**完整的代码质量分析能力**！
+
+### ✨ 新增功能
+
+#### 代码质量分析（8 个新 MCP 工具）
+
+**代码异味检测**:
+- `detect_code_smells` - 检测 12 种常见代码异味
+  - 长方法（Long Method）
+  - 大类（Large Class）
+  - 长参数列表（Long Parameter List）
+  - 特性依恋（Feature Envy）
+  - 数据泥团（Data Clumps）
+  - 基本类型偏执（Primitive Obsession）
+  - 循环依赖（Circular Dependency）
+  - 不当亲密（Inappropriate Intimacy）
+  - 上帝类（God Class）
+  - 霰弹式修改（Shotgun Surgery）
+  - 重复代码（Duplicate Code）
+  - 魔法数字（Magic Number）
+
+**技术债务量化**:
+- `quantify_technical_debt` - 量化项目技术债务
+  - 计算债务比率（小时/千行）
+  - 估算修复时间
+  - 债务等级评估（Excellent/Good/Moderate/High/Severe）
+  - 修复优先级列表（Top 10）
+  - 行业基准比较
+
+**变更影响分析**:
+- `analyze_change_impact` - 分析代码变更的影响范围
+  - 直接影响分析
+  - 间接影响分析
+  - 影响分数计算
+  - 受影响的测试文件识别
+
+**文件监听和增量分析**:
+- `start_file_watching` / `stop_file_watching` - 启动/停止文件监听
+- `get_cache_statistics` - 获取缓存统计信息
+- `clear_cache` - 清除分析缓存
+
+**可视化**:
+- `generate_dependency_graph` - 生成依赖关系图
+  - 支持 Mermaid、JSON、DOT 格式
+  - 检测循环依赖
+- `generate_heatmap` - 生成架构热力图
+  - 复杂度热力图
+  - 变更频率热力图
+
+**综合报告**:
+- `generate_quality_report` - 生成综合质量报告
+  - 代码异味统计
+  - 技术债务指标
+  - 修复建议
+
+### 🏗️ 架构改进
+
+**新增核心组件**:
+- `CodeSmellAnalyzer` - 代码异味分析器协调器
+- `TechnicalDebtCalculator` - 技术债务计算器
+- `ChangeImpactAnalyzer` - 变更影响分析器
+- `DependencyGraphVisualizer` - 依赖关系图可视化器
+- `HeatmapGenerator` - 热力图生成器
+- `GraphLayoutEngine` - 图布局引擎
+
+**新增支持服务**:
+- `IFileWatcher` / `FileSystemFileWatcher` - 文件监听服务
+- `IAnalysisResultCache` / `InMemoryAnalysisResultCache` - 分析结果缓存
+
+### 📊 功能提升
+
+- **MCP 工具总数**: 74 个 → 82 个（+8 个）
+- **代码行数**: ~15,000 行 → ~18,000 行（+3,000 行）
+- **向后兼容**: 完全兼容 v1.0.x，无破坏性变更
+
+### 🎯 使用示例
+
+```bash
+# 检测代码异味
+dotnet-analyzer mcp serve
+# 在 Claude Code 中调用：
+# detect_code_smells(projectPath="/path/to/project.csproj", minSeverity="Major")
+
+# 量化技术债务
+# quantify_technical_debt(projectPath="/path/to/project.csproj", includeTrend=true)
+
+# 生成依赖关系图
+# generate_dependency_graph(projectPath="/path/to/project.csproj", format="mermaid")
+
+# 分析变更影响
+# analyze_change_impact(projectPath="/path/to/project.csproj", changedFilePath="/path/to/file.cs")
+```
+
+### 📝 文档更新
+
+- 新增完整的代码质量分析文档
+- 更新 API 参考文档
+- 新增使用示例
+
+### ⚡ 性能优化
+
+- 并行代码分析支持
+- 分析结果缓存（内存 + 持久化）
+- 文件监听防抖机制
+- 分析超时控制
+
+### 🔧 依赖项
+
+- 无新增外部依赖
+- 完全基于现有 Roslyn API
+
+### 🙏 致谢
+
+感谢所有贡献者和用户的反馈！
+
+---
+
+
+
 ## [1.0.1] - 2026-03-13
 
 ### 📝 文档优化

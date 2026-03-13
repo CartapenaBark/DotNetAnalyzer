@@ -41,11 +41,8 @@ public class InitIntegrationTests : IDisposable
     {
         // Arrange
         Directory.SetCurrentDirectory(TestTempDir);
-        var command = InitCommand.Create();
         var console = new TestConsole();
 
-        // 模拟命令行参数
-        var parseResult = command.Parse("--yes --dry-run");
         var options = new InitOptions
         {
             Scope = "project",
@@ -54,9 +51,8 @@ public class InitIntegrationTests : IDisposable
         };
 
         // Act
-        var handler = new InitCommandHandler();
         var exception = await Record.ExceptionAsync(() =>
-            handler.ExecuteAsync(options, console));
+            InitCommandHandler.ExecuteAsync(options, console));
 
         // Assert
         Assert.Null(exception); // 不应该抛出异常
@@ -66,7 +62,6 @@ public class InitIntegrationTests : IDisposable
     public async Task Integration_ConfigGenerator_WritesValidFiles()
     {
         // Arrange
-        var generator = new ConfigGenerator();
         var options = new InitOptions { Scope = "project" };
         var env = new EnvironmentInfo
         {
@@ -75,7 +70,7 @@ public class InitIntegrationTests : IDisposable
         };
 
         // Act
-        var result = await generator.GenerateConfigsAsync(options, env);
+        var result = await ConfigGenerator.GenerateConfigsAsync(options, env);
 
         // 写入文件
         var mcpJsonPath = Path.Combine(TestTempDir, ".mcp.json");
@@ -101,16 +96,14 @@ public class InitIntegrationTests : IDisposable
     public async Task Integration_Validator_ValidatesGeneratedConfigs()
     {
         // Arrange
-        var validator = new ConfigValidator();
-        var generator = new ConfigGenerator();
 
         // Act
-        var config = await generator.GenerateConfigsAsync(
+        var config = await ConfigGenerator.GenerateConfigsAsync(
             new InitOptions(),
             new EnvironmentInfo { DotnetAnalyzerPath = "dotnet-analyzer" }
         );
 
-        var result = await validator.ValidateAsync(config);
+        var result = await ConfigValidator.ValidateAsync(config);
 
         // Assert
         Assert.NotNull(result);

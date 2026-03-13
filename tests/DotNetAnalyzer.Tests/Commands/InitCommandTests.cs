@@ -35,15 +35,16 @@ public class InitCommandTests : IDisposable
     }
 
     [Fact]
-    public async Task InitCommand_Create_ReturnsCommand()
+    public async Task InitCommand_ExecuteAsync_ReturnsZero()
     {
+        // Arrange
+        var args = new[] { "--yes", "--dry-run" };
+
         // Act
-        var command = InitCommand.Create();
+        var result = await InitCommand.ExecuteAsync(args);
 
         // Assert
-        Assert.NotNull(command);
-        Assert.Equal("init", command.Name);
-        Assert.Equal(7, command.Options.Count());
+        Assert.Equal(0, result); // 成功返回 0
     }
 
     [Fact]
@@ -84,7 +85,6 @@ public class InitCommandTests : IDisposable
     public async Task ConfigGenerator_GenerateMcpConfigAsync_ReturnsValidConfig()
     {
         // Arrange
-        var generator = new ConfigGenerator();
         var options = new InitOptions { Scope = "project" };
         var env = new EnvironmentInfo
         {
@@ -95,7 +95,7 @@ public class InitCommandTests : IDisposable
         };
 
         // Act
-        var result = await generator.GenerateConfigsAsync(options, env);
+        var result = await ConfigGenerator.GenerateConfigsAsync(options, env);
 
         // Assert
         Assert.NotNull(result);
@@ -108,7 +108,7 @@ public class InitCommandTests : IDisposable
         Assert.True(servers!.ValueKind == JsonValueKind.Object);
 
         // 验证包含 dotnet-analyzer 服务器
-        var hasDotnetAnalyzer = servers!.Value.EnumerateObject()
+        var hasDotnetAnalyzer = servers!.EnumerateObject()
             .Any(p => p.Name == "dotnet-analyzer");
         Assert.True(hasDotnetAnalyzer);
     }
@@ -117,12 +117,11 @@ public class InitCommandTests : IDisposable
     public async Task ConfigGenerator_GenerateClaudeSettingsAsync_ReturnsValidSettings()
     {
         // Arrange
-        var generator = new ConfigGenerator();
         var options = new InitOptions { Scope = "project" };
         var env = new EnvironmentInfo();
 
         // Act
-        var result = await generator.GenerateConfigsAsync(options, env);
+        var result = await ConfigGenerator.GenerateConfigsAsync(options, env);
 
         // Assert
         Assert.NotNull(result);
@@ -134,7 +133,7 @@ public class InitCommandTests : IDisposable
         Assert.True(servers!.ValueKind == JsonValueKind.Array);
 
         // 验证包含 dotnet-analyzer
-        var serversArray = servers!.Value.EnumerateArray().ToArray();
+        var serversArray = servers!.EnumerateArray().ToArray();
         Assert.Contains("dotnet-analyzer", serversArray.Select(e => e.GetString()));
     }
 

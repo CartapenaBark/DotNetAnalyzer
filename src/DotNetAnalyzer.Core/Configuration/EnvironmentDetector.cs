@@ -16,10 +16,10 @@ public class EnvironmentDetector
         var info = new EnvironmentInfo();
 
         // 1. 检测 dotnet-analyzer 路径
-        info.DotnetAnalyzerPath = await FindDotnetAnalyzerAsync();
+        info.DotnetAnalyzerPath = await EnvironmentDetector.FindDotnetAnalyzerAsync();
 
         // 2. 检测 .NET SDK 版本
-        info.DotnetSdkVersion = await GetDotnetSdkVersionAsync();
+        info.DotnetSdkVersion = await EnvironmentDetector.GetDotnetSdkVersionAsync();
 
         // 3. 检测操作系统
         info.OperatingSystem = GetOperatingSystem();
@@ -39,7 +39,7 @@ public class EnvironmentDetector
     /// <summary>
     /// 查找 dotnet-analyzer 可执行文件路径
     /// </summary>
-    private async Task<string> FindDotnetAnalyzerAsync()
+    private static async Task<string> FindDotnetAnalyzerAsync()
     {
         // 尝试使用 which/where 命令
         var result = await RunCommandAsync(
@@ -94,7 +94,7 @@ public class EnvironmentDetector
     /// <summary>
     /// 获取 .NET SDK 版本
     /// </summary>
-    private async Task<string> GetDotnetSdkVersionAsync()
+    private static async Task<string> GetDotnetSdkVersionAsync()
     {
         try
         {

@@ -76,15 +76,15 @@ public class GraphLayoutEngine
                 break;
 
             case LayoutAlgorithm.ForceDirected:
-                nodePositions = ApplyForceDirectedLayout(graph, options);
+                nodePositions = GraphLayoutEngine.ApplyForceDirectedLayout(graph, options);
                 break;
 
             case LayoutAlgorithm.Circular:
-                nodePositions = ApplyCircularLayout(graph, options);
+                nodePositions = GraphLayoutEngine.ApplyCircularLayout(graph, options);
                 break;
 
             case LayoutAlgorithm.Grid:
-                nodePositions = ApplyGridLayout(graph, options);
+                nodePositions = GraphLayoutEngine.ApplyGridLayout(graph, options);
                 break;
 
             default:
@@ -106,7 +106,7 @@ public class GraphLayoutEngine
         var positions = new Dictionary<string, NodePosition>();
 
         // 按层级分组节点
-        var levels = ComputeHierarchyLevels(graph);
+        var levels = GraphLayoutEngine.ComputeHierarchyLevels(graph);
 
         var levelHeight = options.NodeHeight + options.VerticalSpacing;
 
@@ -137,7 +137,7 @@ public class GraphLayoutEngine
     /// <summary>
     /// 计算节点的层级
     /// </summary>
-    private Dictionary<int, List<string>> ComputeHierarchyLevels(DependencyGraph graph)
+    private static Dictionary<int, List<string>> ComputeHierarchyLevels(DependencyGraph graph)
     {
         var levels = new Dictionary<string, int>();
         var result = new Dictionary<int, List<string>>();
@@ -156,9 +156,9 @@ public class GraphLayoutEngine
 
         foreach (var edge in graph.Edges)
         {
-            if (inDegrees.ContainsKey(edge.To))
+            if (inDegrees.TryGetValue(edge.To, out int value))
             {
-                inDegrees[edge.To]++;
+                inDegrees[edge.To] = ++value;
             }
         }
 
@@ -175,11 +175,13 @@ public class GraphLayoutEngine
 
             levels[nodeId] = level;
 
-            if (!result.ContainsKey(level))
+            if (!result.TryGetValue(level, out List<string>? value))
             {
-                result[level] = new List<string>();
+                value = new List<string>();
+                result[level] = value;
             }
-            result[level].Add(nodeId);
+
+            value.Add(nodeId);
 
             // 遍历出边
             foreach (var edge in graph.Edges.Where(e => e.From == nodeId))
@@ -211,7 +213,7 @@ public class GraphLayoutEngine
     /// <summary>
     /// 应用力导向布局
     /// </summary>
-    private Dictionary<string, NodePosition> ApplyForceDirectedLayout(
+    private static Dictionary<string, NodePosition> ApplyForceDirectedLayout(
         DependencyGraph graph,
         LayoutOptions options)
     {
@@ -312,7 +314,7 @@ public class GraphLayoutEngine
     /// <summary>
     /// 应用圆形布局
     /// </summary>
-    private Dictionary<string, NodePosition> ApplyCircularLayout(
+    private static Dictionary<string, NodePosition> ApplyCircularLayout(
         DependencyGraph graph,
         LayoutOptions options)
     {
@@ -339,7 +341,7 @@ public class GraphLayoutEngine
     /// <summary>
     /// 应用网格布局
     /// </summary>
-    private Dictionary<string, NodePosition> ApplyGridLayout(
+    private static Dictionary<string, NodePosition> ApplyGridLayout(
         DependencyGraph graph,
         LayoutOptions options)
     {

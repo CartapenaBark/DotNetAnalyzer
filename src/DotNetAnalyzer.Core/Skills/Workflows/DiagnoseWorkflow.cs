@@ -15,9 +15,10 @@ namespace DotNetAnalyzer.Core.Skills.Workflows;
 ///   <item>4. 提供解决方案</item>
 /// </list>
 /// </remarks>
-public class DiagnoseWorkflow
+public partial class DiagnoseWorkflow
 {
     private readonly ILogger<DiagnoseWorkflow> _logger;
+    private static readonly string[] item = new[] { "analyze_error_type" };
 
     /// <summary>
     /// 初始化 <see cref="DiagnoseWorkflow"/> 类的新实例
@@ -31,7 +32,7 @@ public class DiagnoseWorkflow
     /// <summary>
     /// 创建 dotnet-diagnose Skill 定义
     /// </summary>
-    public SkillDefinition CreateSkillDefinition()
+    public static SkillDefinition CreateSkillDefinition()
     {
         return new SkillDefinition
         {
@@ -80,8 +81,7 @@ public class DiagnoseWorkflow
                         Tool = "internal",
                         Description = "收集错误信息",
                         Required = true,
-                        DependsOn = new[] { "analyze_error_type" }
-                    },
+                        DependsOn = item },
 
                     // 3. 定位问题
                     new()
@@ -118,7 +118,7 @@ public class DiagnoseWorkflow
     /// <summary>
     /// 分析错误请求
     /// </summary>
-    public DiagnosisPlan AnalyzeRequest(WorkflowContext context)
+    public static DiagnosisPlan AnalyzeRequest(WorkflowContext context)
     {
         var userInput = context.UserInput ?? string.Empty;
 
@@ -194,9 +194,7 @@ public class DiagnoseWorkflow
         var details = new ErrorDetails();
 
         // 提取文件名
-        var fileMatch = System.Text.RegularExpressions.Regex.Match(
-            input,
-            @"([a-zA-Z_][a-zA-Z0-9_/\\]*\.cs)");
+        var fileMatch = MyRegex().Match(input);
 
         if (fileMatch.Success)
         {
@@ -239,7 +237,7 @@ public class DiagnoseWorkflow
     /// <summary>
     /// 生成诊断报告
     /// </summary>
-    public string GenerateReport(DiagnosisResult result)
+    public static string GenerateReport(DiagnosisResult result)
     {
         var sb = new System.Text.StringBuilder();
 
@@ -492,6 +490,9 @@ if (File.Exists(path))
 
         return result;
     }
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"([a-zA-Z_][a-zA-Z0-9_/\\]*\.cs)")]
+    private static partial System.Text.RegularExpressions.Regex MyRegex();
 }
 
 /// <summary>

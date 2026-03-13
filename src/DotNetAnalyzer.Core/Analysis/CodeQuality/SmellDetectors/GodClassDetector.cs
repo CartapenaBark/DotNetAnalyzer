@@ -139,7 +139,7 @@ public sealed class GodClassDetector : ICodeSmellDetector
 
     private static int CalculateCouplingFactor(INamedTypeSymbol classSymbol, SemanticModel semanticModel)
     {
-        var coupledTypes = new HashSet<INamedTypeSymbol>();
+        var coupledTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
 
         foreach (var member in classSymbol.GetMembers())
         {

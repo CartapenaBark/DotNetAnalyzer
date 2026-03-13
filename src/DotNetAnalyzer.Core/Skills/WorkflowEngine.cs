@@ -91,7 +91,7 @@ public class WorkflowEngine
                 }
 
                 // 检查条件
-                if (!ShouldExecuteStep(step, context))
+                if (!WorkflowEngine.ShouldExecuteStep(step, context))
                 {
                     _logger.LogDebug("跳过步骤: {StepName} (条件不满足)", step.Name);
                     continue;
@@ -149,7 +149,7 @@ public class WorkflowEngine
             }
 
             // 生成输出
-            result.Output = await GenerateOutputAsync(skill, context, result);
+            result.Output = await WorkflowEngine.GenerateOutputAsync(skill, context, result);
             stopwatch.Stop();
             result.TotalDuration = stopwatch.Elapsed;
 
@@ -188,7 +188,7 @@ public class WorkflowEngine
     /// <summary>
     /// 检查步骤是否应该执行（条件判断）
     /// </summary>
-    private bool ShouldExecuteStep(WorkflowStep step, WorkflowContext context)
+    private static bool ShouldExecuteStep(WorkflowStep step, WorkflowContext context)
     {
         if (string.IsNullOrEmpty(step.Condition))
         {
@@ -248,7 +248,7 @@ public class WorkflowEngine
     /// <summary>
     /// 生成工作流输出
     /// </summary>
-    private async Task<object> GenerateOutputAsync(
+    private static async Task<object> GenerateOutputAsync(
         SkillDefinition skill,
         WorkflowContext context,
         WorkflowResult result)

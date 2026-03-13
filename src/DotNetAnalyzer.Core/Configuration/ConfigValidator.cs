@@ -12,7 +12,7 @@ public class ConfigValidator
     /// <summary>
     /// 验证配置
     /// </summary>
-    public async Task<ValidationResult> ValidateAsync(ConfigGenerationResult result)
+    public static async Task<ValidationResult> ValidateAsync(ConfigGenerationResult result)
     {
         var checks = new List<ValidationCheck>();
 

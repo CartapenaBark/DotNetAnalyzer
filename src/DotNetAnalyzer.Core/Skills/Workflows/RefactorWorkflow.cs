@@ -16,9 +16,10 @@ namespace DotNetAnalyzer.Core.Skills.Workflows;
 ///   <item>5. 验证和测试</item>
 /// </list>
 /// </remarks>
-public class RefactorWorkflow
+public partial class RefactorWorkflow
 {
     private readonly ILogger<RefactorWorkflow> _logger;
+    private static readonly string[] item = new[] { "identify_refactoring_type" };
 
     /// <summary>
     /// 初始化 <see cref="RefactorWorkflow"/> 类的新实例
@@ -82,8 +83,7 @@ public class RefactorWorkflow
                         Tool = "internal",
                         Description = "收集重构参数",
                         Required = true,
-                        DependsOn = new[] { "identify_refactoring_type" }
-                    },
+                        DependsOn = item },
 
                     // 3. 生成预览
                     new()
@@ -144,10 +144,10 @@ public class RefactorWorkflow
         };
 
         // 识别重构类型
-        plan.RefactoringType = IdentifyRefactoringType(userInput);
+        plan.RefactoringType = RefactorWorkflow.IdentifyRefactoringType(userInput);
 
         // 提取参数
-        plan.Parameters = ExtractParameters(userInput, context);
+        plan.Parameters = RefactorWorkflow.ExtractParameters(userInput, context);
 
         return plan;
     }
@@ -155,7 +155,7 @@ public class RefactorWorkflow
     /// <summary>
     /// 识别重构类型
     /// </summary>
-    private string IdentifyRefactoringType(string input)
+    private static string IdentifyRefactoringType(string input)
     {
         var lowerInput = input.ToLowerInvariant();
 
@@ -209,14 +209,12 @@ public class RefactorWorkflow
     /// <summary>
     /// 从用户输入中提取参数
     /// </summary>
-    private Dictionary<string, object> ExtractParameters(string input, WorkflowContext context)
+    private static Dictionary<string, object> ExtractParameters(string input, WorkflowContext context)
     {
         var parameters = new Dictionary<string, object>();
 
         // 从用户输入中提取名称
-        var nameMatch = System.Text.RegularExpressions.Regex.Match(
-            input,
-            @"(?:名为|name|命名为|rename to|rename\s+)\s+[""']?([a-zA-Z_][a-zA-Z0-9_]*)[""']?");
+        var nameMatch = MyRegex().Match(input);
 
         if (nameMatch.Success)
         {
@@ -257,20 +255,20 @@ public class RefactorWorkflow
         // 根据重构类型生成不同的预览
         preview.Changes = plan.RefactoringType switch
         {
-            "extract_method" => GenerateExtractMethodPreview(plan),
-            "rename_symbol" => GenerateRenamePreview(plan),
-            "extract_interface" => GenerateExtractInterfacePreview(plan),
-            "introduce_variable" => GenerateIntroduceVariablePreview(plan),
+            "extract_method" => RefactorWorkflow.GenerateExtractMethodPreview(plan),
+            "rename_symbol" => RefactorWorkflow.GenerateRenamePreview(plan),
+            "extract_interface" => RefactorWorkflow.GenerateExtractInterfacePreview(plan),
+            "introduce_variable" => RefactorWorkflow.GenerateIntroduceVariablePreview(plan),
             _ => new List<CodeChange>()
         };
 
         // 添加影响评估
-        preview.Impact = AssessImpact(plan);
+        preview.Impact = RefactorWorkflow.AssessImpact(plan);
 
         return preview;
     }
 
-    private List<CodeChange> GenerateExtractMethodPreview(RefactoringPlan plan)
+    private static List<CodeChange> GenerateExtractMethodPreview(RefactoringPlan plan)
     {
         var changes = new List<CodeChange>();
 
@@ -304,7 +302,7 @@ public class RefactorWorkflow
         return changes;
     }
 
-    private List<CodeChange> GenerateRenamePreview(RefactoringPlan plan)
+    private static List<CodeChange> GenerateRenamePreview(RefactoringPlan plan)
     {
         var changes = new List<CodeChange>();
 
@@ -326,7 +324,7 @@ public class RefactorWorkflow
         return changes;
     }
 
-    private List<CodeChange> GenerateExtractInterfacePreview(RefactoringPlan plan)
+    private static List<CodeChange> GenerateExtractInterfacePreview(RefactoringPlan plan)
     {
         var changes = new List<CodeChange>();
 
@@ -353,7 +351,7 @@ public class RefactorWorkflow
         return changes;
     }
 
-    private List<CodeChange> GenerateIntroduceVariablePreview(RefactoringPlan plan)
+    private static List<CodeChange> GenerateIntroduceVariablePreview(RefactoringPlan plan)
     {
         var changes = new List<CodeChange>();
 
@@ -381,7 +379,7 @@ public class RefactorWorkflow
         return changes;
     }
 
-    private ImpactAssessment AssessImpact(RefactoringPlan plan)
+    private static ImpactAssessment AssessImpact(RefactoringPlan plan)
     {
         return new ImpactAssessment
         {
@@ -396,7 +394,7 @@ public class RefactorWorkflow
     /// <summary>
     /// 生成重构报告
     /// </summary>
-    public string GenerateReport(RefactoringResult result)
+    public static string GenerateReport(RefactoringResult result)
     {
         var sb = new System.Text.StringBuilder();
 
@@ -451,6 +449,9 @@ public class RefactorWorkflow
 
         return sb.ToString();
     }
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"(?:名为|name|命名为|rename to|rename\s+)\s+[""']?([a-zA-Z_][a-zA-Z0-9_]*)[""']?")]
+    private static partial System.Text.RegularExpressions.Regex MyRegex();
 }
 
 /// <summary>

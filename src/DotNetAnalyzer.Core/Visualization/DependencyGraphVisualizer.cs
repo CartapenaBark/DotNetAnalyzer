@@ -65,9 +65,9 @@ public class DependencyGraphVisualizer
 
         return format switch
         {
-            VisualizationFormat.Mermaid => GenerateMermaid(graph, options),
-            VisualizationFormat.Json => GenerateJson(graph, options),
-            VisualizationFormat.Dot => GenerateDot(graph, options),
+            VisualizationFormat.Mermaid => DependencyGraphVisualizer.GenerateMermaid(graph, options),
+            VisualizationFormat.Json => DependencyGraphVisualizer.GenerateJson(graph, options),
+            VisualizationFormat.Dot => DependencyGraphVisualizer.GenerateDot(graph, options),
             _ => throw new ArgumentException($"Unsupported format: {format}")
         };
     }
@@ -75,7 +75,7 @@ public class DependencyGraphVisualizer
     /// <summary>
     /// 生成 Mermaid 格式的图表
     /// </summary>
-    private string GenerateMermaid(DependencyGraph graph, GraphVisualizationOptions options)
+    private static string GenerateMermaid(DependencyGraph graph, GraphVisualizationOptions options)
     {
         var builder = new System.Text.StringBuilder();
 
@@ -132,7 +132,7 @@ public class DependencyGraphVisualizer
     /// <summary>
     /// 生成 JSON 格式的图表数据
     /// </summary>
-    private string GenerateJson(DependencyGraph graph, GraphVisualizationOptions options)
+    private static string GenerateJson(DependencyGraph graph, GraphVisualizationOptions options)
     {
         var data = new
         {
@@ -167,7 +167,7 @@ public class DependencyGraphVisualizer
     /// <summary>
     /// 生成 DOT 格式的图表
     /// </summary>
-    private string GenerateDot(DependencyGraph graph, GraphVisualizationOptions options)
+    private static string GenerateDot(DependencyGraph graph, GraphVisualizationOptions options)
     {
         var builder = new System.Text.StringBuilder();
 

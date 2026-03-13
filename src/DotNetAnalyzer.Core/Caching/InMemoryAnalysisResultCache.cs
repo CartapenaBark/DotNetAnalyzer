@@ -180,13 +180,13 @@ public sealed class InMemoryAnalysisResultCache : IAnalysisResultCache, System.I
     private void RemoveFromLRU(string key)
     {
         lock (_lock)
-    {
-        var node = _lruList.Find(key);
-        if (node != null)
         {
-            _lruList.Remove(node);
+            var node = _lruList.Find(key);
+            if (node != null)
+            {
+                _lruList.Remove(node);
+            }
         }
-    }
     }
 
     private void EvictLRU()

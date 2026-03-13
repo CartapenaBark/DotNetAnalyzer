@@ -2,7 +2,7 @@ using DotNetAnalyzer.Core.Skills.Workflows;
 using DotNetAnalyzer.Core.Skills.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
-using xUnit;
+using Xunit;
 
 namespace DotNetAnalyzer.Tests.Skills;
 
@@ -25,7 +25,7 @@ public class AnalyzeWorkflowTests
         var workflow = new AnalyzeWorkflow(_loggerMock.Object);
 
         // Act
-        var skill = workflow.CreateSkillDefinition();
+        var skill = AnalyzeWorkflow.CreateSkillDefinition();
 
         // Assert
         Assert.NotNull(skill);
@@ -42,7 +42,7 @@ public class AnalyzeWorkflowTests
         var workflow = new AnalyzeWorkflow(_loggerMock.Object);
 
         // Act
-        var skill = workflow.CreateSkillDefinition();
+        var skill = AnalyzeWorkflow.CreateSkillDefinition();
 
         // Assert
         Assert.NotNull(skill.Triggers);
@@ -60,7 +60,7 @@ public class AnalyzeWorkflowTests
         var workflow = new AnalyzeWorkflow(_loggerMock.Object);
 
         // Act
-        var skill = workflow.CreateSkillDefinition();
+        var skill = AnalyzeWorkflow.CreateSkillDefinition();
 
         // Assert
         Assert.NotEmpty(skill.McpTools);
@@ -78,7 +78,7 @@ public class AnalyzeWorkflowTests
         var workflow = new AnalyzeWorkflow(_loggerMock.Object);
 
         // Act
-        var skill = workflow.CreateSkillDefinition();
+        var skill = AnalyzeWorkflow.CreateSkillDefinition();
 
         // Assert
         Assert.NotNull(skill.Workflow);
@@ -100,7 +100,7 @@ public class AnalyzeWorkflowTests
         var workflow = new AnalyzeWorkflow(_loggerMock.Object);
 
         // Act
-        var skill = workflow.CreateSkillDefinition();
+        var skill = AnalyzeWorkflow.CreateSkillDefinition();
 
         // Assert
         var perfStep = skill.Workflow.Steps.FirstOrDefault(s => s.Name == "analyze_performance");
@@ -115,7 +115,7 @@ public class AnalyzeWorkflowTests
         var workflow = new AnalyzeWorkflow(_loggerMock.Object);
 
         // Act
-        var skill = workflow.CreateSkillDefinition();
+        var skill = AnalyzeWorkflow.CreateSkillDefinition();
 
         // Assert
         var metricsStep = skill.Workflow.Steps.FirstOrDefault(s => s.Name == "get_metrics");
@@ -135,7 +135,7 @@ public class AnalyzeWorkflowTests
         var workflow = new AnalyzeWorkflow(_loggerMock.Object);
 
         // Act
-        var skill = workflow.CreateSkillDefinition();
+        var skill = AnalyzeWorkflow.CreateSkillDefinition();
 
         // Assert
         Assert.NotEmpty(skill.Outputs);
@@ -163,7 +163,7 @@ public class AnalyzeWorkflowTests
         };
 
         // Act
-        var result = workflow.GenerateAnalysisResult(workflowResult);
+        var result = AnalyzeWorkflow.GenerateAnalysisResult(workflowResult);
 
         // Assert
         Assert.NotNull(result);

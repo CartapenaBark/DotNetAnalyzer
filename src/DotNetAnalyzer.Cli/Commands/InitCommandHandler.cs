@@ -109,7 +109,7 @@ public static class InitCommandHandler
             if (options.Verify)
             {
                 var validator = new ConfigValidator();
-                var validationResult = await validator.ValidateAsync(configResult);
+                var validationResult = await ConfigValidator.ValidateAsync(configResult);
 
                 if (!validationResult.IsValid)
                 {

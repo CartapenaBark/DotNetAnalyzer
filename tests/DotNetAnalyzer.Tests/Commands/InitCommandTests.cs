@@ -166,7 +166,7 @@ public class InitCommandTests : IDisposable
         };
 
         // Act
-        var result = await validator.ValidateAsync(validConfig);
+        var result = await ConfigValidator.ValidateAsync(validConfig);
 
         // Assert
         Assert.NotNull(result);
@@ -190,7 +190,7 @@ public class InitCommandTests : IDisposable
         };
 
         // Act
-        var result = await validator.ValidateAsync(invalidConfig);
+        var result = await ConfigValidator.ValidateAsync(invalidConfig);
 
         // Assert
         Assert.NotNull(result);

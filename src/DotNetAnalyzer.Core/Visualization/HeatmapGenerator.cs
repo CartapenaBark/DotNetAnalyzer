@@ -141,7 +141,7 @@ public class HeatmapGenerator
         for (int i = 0; i < data.Cells.Count; i++)
         {
             var cell = data.Cells[i];
-            var label = cell.Label.Length > 20 ? cell.Label.Substring(0, 17) + "..." : cell.Label;
+            var label = cell.Label.Length > 20 ? string.Concat(cell.Label.AsSpan(0, 17), "...") : cell.Label;
             builder.Append($"        \"{label}\"");
 
             if (i < data.Cells.Count - 1)

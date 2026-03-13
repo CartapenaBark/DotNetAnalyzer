@@ -139,11 +139,12 @@ public sealed class FeatureEnvyDetector : ICodeSmellDetector
             }
             else
             {
-                if (!foreignAccessCounts.ContainsKey(containingType))
+                if (!foreignAccessCounts.TryGetValue(containingType, out int value))
                 {
-                    foreignAccessCounts[containingType] = 0;
+                    value = 0;
+                    foreignAccessCounts[containingType] = value;
                 }
-                foreignAccessCounts[containingType]++;
+                foreignAccessCounts[containingType] = ++value;
             }
         }
 
@@ -163,11 +164,12 @@ public sealed class FeatureEnvyDetector : ICodeSmellDetector
 
                 if (containingType != containingTypeName)
                 {
-                    if (!foreignAccessCounts.ContainsKey(containingType))
+                    if (!foreignAccessCounts.TryGetValue(containingType, out int value))
                     {
-                        foreignAccessCounts[containingType] = 0;
+                        value = 0;
+                        foreignAccessCounts[containingType] = value;
                     }
-                    foreignAccessCounts[containingType]++;
+                    foreignAccessCounts[containingType] = ++value;
                 }
             }
         }

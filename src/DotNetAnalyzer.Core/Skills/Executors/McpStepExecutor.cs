@@ -239,13 +239,13 @@ internal sealed class McpStepExecutor : IStepExecutor
 
         foreach (var kvp in parameters)
         {
-            resolved[kvp.Key] = ResolveParameterValue(kvp.Value, context);
+            resolved[kvp.Key] = McpStepExecutor.ResolveParameterValue(kvp.Value, context);
         }
 
         return resolved;
     }
 
-    private object ResolveParameterValue(object value, WorkflowContext context)
+    private static object ResolveParameterValue(object value, WorkflowContext context)
     {
         // 如果值是字符串，检查是否需要替换占位符
         if (value is string strValue)

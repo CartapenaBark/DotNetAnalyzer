@@ -38,9 +38,9 @@ internal sealed class AutoStepExecutor : IStepExecutor
             // 根据步骤名称执行相应的自动操作
             var result = step.Name.ToLowerInvariant() switch
             {
-                "detect_project" => await DetectProjectAsync(context),
-                "identify_refactoring_type" => await IdentifyRefactoringTypeAsync(context),
-                "analyze_error_type" => await AnalyzeErrorTypeAsync(context),
+                "detect_project" => await AutoStepExecutor.DetectProjectAsync(context),
+                "identify_refactoring_type" => await AutoStepExecutor.IdentifyRefactoringTypeAsync(context),
+                "analyze_error_type" => await AutoStepExecutor.AnalyzeErrorTypeAsync(context),
                 _ => await ExecuteGenericAutoStepAsync(step, context)
             };
 
@@ -53,7 +53,7 @@ internal sealed class AutoStepExecutor : IStepExecutor
         }
     }
 
-    private async Task<object> DetectProjectAsync(WorkflowContext context)
+    private static async Task<object> DetectProjectAsync(WorkflowContext context)
     {
         // 自动检测项目文件
         var currentDir = Directory.GetCurrentDirectory();
@@ -94,7 +94,7 @@ internal sealed class AutoStepExecutor : IStepExecutor
         throw new InvalidOperationException("未找到 .NET 项目或解决方案文件");
     }
 
-    private async Task<object> IdentifyRefactoringTypeAsync(WorkflowContext context)
+    private static async Task<object> IdentifyRefactoringTypeAsync(WorkflowContext context)
     {
         // 识别重构类型（从用户输入）
         var input = context.UserInput ?? string.Empty;
@@ -110,7 +110,7 @@ internal sealed class AutoStepExecutor : IStepExecutor
         return new { type = refactoringType };
     }
 
-    private async Task<object> AnalyzeErrorTypeAsync(WorkflowContext context)
+    private static async Task<object> AnalyzeErrorTypeAsync(WorkflowContext context)
     {
         // 分析错误类型（从用户输入）
         var input = context.UserInput ?? string.Empty;

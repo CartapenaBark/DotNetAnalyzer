@@ -156,7 +156,7 @@ public sealed class InappropriateIntimacyDetector : ICodeSmellDetector
             if (targetClass == null) continue;
 
             // 跳过对自己类和系统类的访问
-            if (targetClass.Equals(containingSymbol.ContainingType))
+            if (SymbolEqualityComparer.Default.Equals(targetClass, containingSymbol.ContainingType))
             {
                 continue;
             }
@@ -173,18 +173,18 @@ public sealed class InappropriateIntimacyDetector : ICodeSmellDetector
                 continue;
             }
 
-            if (!intimacyMap.ContainsKey(targetClassName))
+            if (!intimacyMap.TryGetValue(targetClassName, out IntimacyInfo? info))
             {
-                intimacyMap[targetClassName] = new IntimacyInfo
+                info = new IntimacyInfo
                 {
                     TargetClassName = targetClassName,
                     InternalAccessCount = 0,
                     PrivateAccessCount = 0,
                     AccessedMembers = new List<string>()
                 };
+                intimacyMap[targetClassName] = info;
             }
 
-            var info = intimacyMap[targetClassName];
             info.InternalAccessCount++;
 
             if (symbol.DeclaredAccessibility == Accessibility.Private)

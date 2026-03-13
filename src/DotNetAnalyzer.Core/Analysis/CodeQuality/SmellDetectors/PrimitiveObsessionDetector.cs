@@ -157,18 +157,18 @@ public sealed class PrimitiveObsessionDetector : ICodeSmellDetector
 
             if (PrimitiveTypes.Contains(typeName))
             {
-                if (!fieldGroups.ContainsKey(typeName))
+                if (!fieldGroups.TryGetValue(typeName, out PrimitiveFieldInfo? fieldInfo))
                 {
-                    fieldGroups[typeName] = new PrimitiveFieldInfo
+                    fieldInfo = new PrimitiveFieldInfo
                     {
                         PrimitiveType = typeName,
                         FieldNames = new List<string>(),
                         Location = field.GetLocation(),
                         ConsecutiveUsageCount = 0
                     };
+                    fieldGroups[typeName] = fieldInfo;
                 }
 
-                var fieldInfo = fieldGroups[typeName];
                 foreach (var variable in field.Declaration.Variables)
                 {
                     fieldInfo.FieldNames.Add(variable.Identifier.ValueText);

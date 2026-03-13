@@ -17,7 +17,7 @@ public abstract class CodeSmellDetectorTestBase
     /// <summary>
     /// 从源代码创建文档
     /// </summary>
-    protected async Task<Document> CreateDocumentAsync(string sourceCode, string fileName = "Test.cs")
+    protected static async Task<Document> CreateDocumentAsync(string sourceCode, string fileName = "Test.cs")
     {
         var workspace = new AdhocWorkspace();
         var projectId = ProjectId.CreateNewId();

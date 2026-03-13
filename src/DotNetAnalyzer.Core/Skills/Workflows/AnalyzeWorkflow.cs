@@ -20,6 +20,7 @@ namespace DotNetAnalyzer.Core.Skills.Workflows;
 public class AnalyzeWorkflow
 {
     private readonly ILogger<AnalyzeWorkflow> _logger;
+    private static readonly string[] item = new[] { "detect_project" };
 
     /// <summary>
     /// 初始化 <see cref="AnalyzeWorkflow"/> 类的新实例
@@ -33,7 +34,7 @@ public class AnalyzeWorkflow
     /// <summary>
     /// 创建 dotnet-analyze Skill 定义
     /// </summary>
-    public SkillDefinition CreateSkillDefinition()
+    public static SkillDefinition CreateSkillDefinition()
     {
         return new SkillDefinition
         {
@@ -82,8 +83,7 @@ public class AnalyzeWorkflow
                         Description = "获取编译器诊断信息",
                         Tool = "get_diagnostics",
                         Required = true,
-                        DependsOn = new[] { "detect_project" }
-                    },
+                        DependsOn = item },
 
                     // 3. 代码结构分析步骤
                     new()
@@ -92,8 +92,7 @@ public class AnalyzeWorkflow
                         Description = "分析代码结构",
                         Tool = "analyze_code",
                         Required = true,
-                        DependsOn = new[] { "detect_project" }
-                    },
+                        DependsOn = item },
 
                     // 4. 代码度量步骤
                     new()
@@ -156,7 +155,7 @@ public class AnalyzeWorkflow
     /// <summary>
     /// 分析步骤结果并生成结构化输出
     /// </summary>
-    public AnalysisResult GenerateAnalysisResult(WorkflowResult workflowResult)
+    public static AnalysisResult GenerateAnalysisResult(WorkflowResult workflowResult)
     {
         var result = new AnalysisResult
         {
@@ -216,8 +215,8 @@ public class AnalyzeWorkflow
         sb.AppendLine();
         if (result.ProjectInfo != null)
         {
-            sb.AppendLine($"- **路径**: {GetProjectPath(result.ProjectInfo)}");
-            sb.AppendLine($"- **类型**: {GetProjectType(result.ProjectInfo)}");
+            sb.AppendLine($"- **路径**: {AnalyzeWorkflow.GetProjectPath(result.ProjectInfo)}");
+            sb.AppendLine($"- **类型**: {AnalyzeWorkflow.GetProjectType(result.ProjectInfo)}");
         }
         sb.AppendLine();
 
@@ -227,20 +226,20 @@ public class AnalyzeWorkflow
         var diagnostics = result.Diagnostics;
         if (diagnostics != null)
         {
-            var errors = GetDiagnosticsErrors(diagnostics);
-            var warnings = GetDiagnosticsWarnings(diagnostics);
+            var errors = AnalyzeWorkflow.GetDiagnosticsErrors(diagnostics);
+            var warnings = AnalyzeWorkflow.GetDiagnosticsWarnings(diagnostics);
 
             sb.AppendLine($"### ❌ 错误 ({errors.Count()})");
             foreach (var error in errors)
             {
-                sb.AppendLine($"- `{GetDiagnosticFile(error)}:{GetDiagnosticLine(error)}` - {GetDiagnosticMessage(error)}");
+                sb.AppendLine($"- `{AnalyzeWorkflow.GetDiagnosticFile(error)}:{AnalyzeWorkflow.GetDiagnosticLine(error)}` - {AnalyzeWorkflow.GetDiagnosticMessage(error)}");
             }
             sb.AppendLine();
 
             sb.AppendLine($"### ⚠️ 警告 ({warnings.Count()})");
             foreach (var warning in warnings.Take(10))
             {
-                sb.AppendLine($"- `{GetDiagnosticFile(warning)}:{GetDiagnosticLine(warning)}` - {GetDiagnosticMessage(warning)}");
+                sb.AppendLine($"- `{AnalyzeWorkflow.GetDiagnosticFile(warning)}:{AnalyzeWorkflow.GetDiagnosticLine(warning)}` - {AnalyzeWorkflow.GetDiagnosticMessage(warning)}");
             }
             if (warnings.Count() > 10)
             {
@@ -260,10 +259,10 @@ public class AnalyzeWorkflow
         {
             sb.AppendLine("| 指标 | 值 | 评级 |");
             sb.AppendLine("|------|-----|------|");
-            sb.AppendLine($"| 圈复杂度 | {GetMetricValue(result.Metrics, "complexity")} | {GetMetricRating(result.Metrics, "complexity")} |");
-            sb.AppendLine($"| 维护性指数 | {GetMetricValue(result.Metrics, "maintainability")}/100 | {GetMetricRating(result.Metrics, "maintainability")} |");
-            sb.AppendLine($"| 代码复制率 | {GetMetricValue(result.Metrics, "duplication")}% | {GetMetricRating(result.Metrics, "duplication")} |");
-            sb.AppendLine($"| 测试覆盖率 | {GetMetricValue(result.Metrics, "coverage")}% | {GetMetricRating(result.Metrics, "coverage")} |");
+            sb.AppendLine($"| 圈复杂度 | {AnalyzeWorkflow.GetMetricValue(result.Metrics, "complexity")} | {AnalyzeWorkflow.GetMetricRating(result.Metrics, "complexity")} |");
+            sb.AppendLine($"| 维护性指数 | {AnalyzeWorkflow.GetMetricValue(result.Metrics, "maintainability")}/100 | {AnalyzeWorkflow.GetMetricRating(result.Metrics, "maintainability")} |");
+            sb.AppendLine($"| 代码复制率 | {AnalyzeWorkflow.GetMetricValue(result.Metrics, "duplication")}% | {AnalyzeWorkflow.GetMetricRating(result.Metrics, "duplication")} |");
+            sb.AppendLine($"| 测试覆盖率 | {AnalyzeWorkflow.GetMetricValue(result.Metrics, "coverage")}% | {AnalyzeWorkflow.GetMetricRating(result.Metrics, "coverage")} |");
         }
         else
         {
@@ -276,13 +275,13 @@ public class AnalyzeWorkflow
         sb.AppendLine();
         if (result.DeadCode != null)
         {
-            var unusedMethods = GetDeadCodeMethods(result.DeadCode);
+            var unusedMethods = AnalyzeWorkflow.GetDeadCodeMethods(result.DeadCode);
             if (unusedMethods.Any())
             {
                 sb.AppendLine($"发现 {unusedMethods.Count()} 个未使用的方法：");
                 foreach (var method in unusedMethods.Take(5))
                 {
-                    sb.AppendLine($"- `{GetDeadCodeName(method)}` ({GetDeadCodeLocation(method)})");
+                    sb.AppendLine($"- `{AnalyzeWorkflow.GetDeadCodeName(method)}` ({AnalyzeWorkflow.GetDeadCodeLocation(method)})");
                 }
             }
             else
@@ -301,14 +300,14 @@ public class AnalyzeWorkflow
         {
             sb.AppendLine("## ⚡ 性能问题");
             sb.AppendLine();
-            var issues = GetPerformanceIssues(result.PerformanceIssues);
+            var issues = AnalyzeWorkflow.GetPerformanceIssues(result.PerformanceIssues);
             if (issues.Any())
             {
                 foreach (var issue in issues.Take(5))
                 {
-                    sb.AppendLine($"### {GetPerformanceIssueType(issue)}");
-                    sb.AppendLine($"- **位置**: `{GetPerformanceIssueLocation(issue)}`");
-                    sb.AppendLine($"- **描述**: {GetPerformanceIssueDescription(issue)}");
+                    sb.AppendLine($"### {AnalyzeWorkflow.GetPerformanceIssueType(issue)}");
+                    sb.AppendLine($"- **位置**: `{AnalyzeWorkflow.GetPerformanceIssueLocation(issue)}`");
+                    sb.AppendLine($"- **描述**: {AnalyzeWorkflow.GetPerformanceIssueDescription(issue)}");
                     sb.AppendLine();
                 }
             }
@@ -330,13 +329,13 @@ public class AnalyzeWorkflow
         // 基于度量值的建议
         if (result.Metrics != null)
         {
-            var complexity = GetMetricValue(result.Metrics, "complexity");
+            var complexity = AnalyzeWorkflow.GetMetricValue(result.Metrics, "complexity");
             if (double.TryParse(complexity, out var complexityValue) && complexityValue > 10)
             {
                 recommendations.Add("- **降低圈复杂度**: 考虑将复杂方法拆分为更小的函数");
             }
 
-            var coverage = GetMetricValue(result.Metrics, "coverage");
+            var coverage = AnalyzeWorkflow.GetMetricValue(result.Metrics, "coverage");
             if (double.TryParse(coverage, out var coverageValue) && coverageValue < 60)
             {
                 recommendations.Add("- **提高测试覆盖率**: 当前覆盖率较低，建议增加单元测试");
@@ -346,7 +345,7 @@ public class AnalyzeWorkflow
         // 基于诊断的建议
         if (result.Diagnostics != null)
         {
-            var warnings = GetDiagnosticsWarnings(result.Diagnostics);
+            var warnings = AnalyzeWorkflow.GetDiagnosticsWarnings(result.Diagnostics);
             if (warnings.Count() > 20)
             {
                 recommendations.Add("- **减少警告数量**: 有大量编译器警告，建议逐步修复");
@@ -367,34 +366,34 @@ public class AnalyzeWorkflow
     }
 
     // Helper methods for extracting data from dynamic objects
-    private string GetProjectPath(object projectInfo) => ExtractProperty(projectInfo, "path") ?? "Unknown";
-    private string GetProjectType(object projectInfo) => ExtractProperty(projectInfo, "type") ?? "Unknown";
+    private static string GetProjectPath(object projectInfo) => ExtractProperty(projectInfo, "path") ?? "Unknown";
+    private static string GetProjectType(object projectInfo) => ExtractProperty(projectInfo, "type") ?? "Unknown";
 
-    private IEnumerable<object> GetDiagnosticsErrors(object diagnostics) =>
+    private static IEnumerable<object> GetDiagnosticsErrors(object diagnostics) =>
         ExtractPropertyAsEnumerable(diagnostics, "errors");
 
-    private IEnumerable<object> GetDiagnosticsWarnings(object diagnostics) =>
+    private static IEnumerable<object> GetDiagnosticsWarnings(object diagnostics) =>
         ExtractPropertyAsEnumerable(diagnostics, "warnings");
 
-    private string GetDiagnosticFile(object diagnostic) => ExtractProperty(diagnostic, "file") ?? "Unknown";
-    private int GetDiagnosticLine(object diagnostic) => int.TryParse(ExtractProperty(diagnostic, "line"), out var line) ? line : 0;
-    private string GetDiagnosticMessage(object diagnostic) => ExtractProperty(diagnostic, "message") ?? "Unknown";
+    private static string GetDiagnosticFile(object diagnostic) => ExtractProperty(diagnostic, "file") ?? "Unknown";
+    private static int GetDiagnosticLine(object diagnostic) => int.TryParse(ExtractProperty(diagnostic, "line"), out var line) ? line : 0;
+    private static string GetDiagnosticMessage(object diagnostic) => ExtractProperty(diagnostic, "message") ?? "Unknown";
 
-    private string GetMetricValue(object metrics, string key) => ExtractProperty(metrics, key) ?? "N/A";
-    private string GetMetricRating(object metrics, string key) => ExtractProperty(metrics, $"{key}Rating") ?? "N/A";
+    private static string GetMetricValue(object metrics, string key) => ExtractProperty(metrics, key) ?? "N/A";
+    private static string GetMetricRating(object metrics, string key) => ExtractProperty(metrics, $"{key}Rating") ?? "N/A";
 
-    private IEnumerable<object> GetDeadCodeMethods(object deadCode) =>
+    private static IEnumerable<object> GetDeadCodeMethods(object deadCode) =>
         ExtractPropertyAsEnumerable(deadCode, "unusedMethods");
 
-    private string GetDeadCodeName(object method) => ExtractProperty(method, "name") ?? "Unknown";
-    private string GetDeadCodeLocation(object method) => ExtractProperty(method, "file") ?? "Unknown";
+    private static string GetDeadCodeName(object method) => ExtractProperty(method, "name") ?? "Unknown";
+    private static string GetDeadCodeLocation(object method) => ExtractProperty(method, "file") ?? "Unknown";
 
-    private IEnumerable<object> GetPerformanceIssues(object performanceIssues) =>
+    private static IEnumerable<object> GetPerformanceIssues(object performanceIssues) =>
         ExtractPropertyAsEnumerable(performanceIssues, "issues");
 
-    private string GetPerformanceIssueType(object issue) => ExtractProperty(issue, "type") ?? "Unknown";
-    private string GetPerformanceIssueLocation(object issue) => ExtractProperty(issue, "location") ?? "Unknown";
-    private string GetPerformanceIssueDescription(object issue) => ExtractProperty(issue, "description") ?? "Unknown";
+    private static string GetPerformanceIssueType(object issue) => ExtractProperty(issue, "type") ?? "Unknown";
+    private static string GetPerformanceIssueLocation(object issue) => ExtractProperty(issue, "location") ?? "Unknown";
+    private static string GetPerformanceIssueDescription(object issue) => ExtractProperty(issue, "description") ?? "Unknown";
 
     private static string? ExtractProperty(object obj, string propertyName)
     {

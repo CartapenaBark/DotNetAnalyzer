@@ -4,7 +4,7 @@ using DotNetAnalyzer.Core.Skills.Models;
 using DotNetAnalyzer.Core.Abstractions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using xUnit;
+using Xunit;
 
 namespace DotNetAnalyzer.Tests.Skills;
 
@@ -16,6 +16,7 @@ public class WorkflowEngineTests
     private readonly Mock<IWorkspaceManager> _workspaceManagerMock;
     private readonly Mock<ILoggerFactory> _loggerFactoryMock;
     private readonly Mock<ILogger<WorkflowEngine>> _loggerMock;
+    private static readonly string[] item = new[] { "dependency_step" };
 
     public WorkflowEngineTests()
     {
@@ -270,8 +271,7 @@ public class WorkflowEngineTests
                         Tool = "internal",
                         Description = "依赖的步骤",
                         Required = true,
-                        DependsOn = new[] { "dependency_step" }
-                    }
+                        DependsOn = item }
                 }
             }
         };

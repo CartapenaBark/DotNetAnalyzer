@@ -3,7 +3,7 @@ using DotNetAnalyzer.Core.Skills.Models;
 using DotNetAnalyzer.Core.Abstractions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using xUnit;
+using Xunit;
 
 namespace DotNetAnalyzer.Tests.Skills;
 

@@ -304,21 +304,42 @@ public class WorkspaceManager : IWorkspaceManager
         await _semaphore.WaitAsync();
         try
         {
-            var solution = await _workspace!.OpenSolutionAsync(validatedPath);
-
-            // 验证解决方案加载成功
-            if (solution == null)
-            {
-                s_logSolutionLoadFailedNull(_logger, validatedPath, null);
-                throw new ProjectLoadException(
-                    $"无法加载解决方案: {validatedPath}。解决方案对象为 null。",
+            // 获取解决方案文件所在目录，用于设置 MSBuild 工作目录
+            var solutionDirectory = Path.GetDirectoryName(validatedPath)
+                ?? throw new ProjectLoadException(
+                    $"无法获取解决方案文件所在目录: {validatedPath}",
                     validatedPath);
-            }
 
-            stopwatch.Stop();
-            s_logSolutionLoadSuccess(_logger, validatedPath, solution.Projects.Count(),
-                stopwatch.ElapsedMilliseconds, null);
-            return solution;
+            // 保存当前工作目录
+            var originalDirectory = Directory.GetCurrentDirectory();
+
+            Solution? solution = null;
+            try
+            {
+                // 设置工作目录为解决方案所在目录，确保相对路径正确解析
+                Directory.SetCurrentDirectory(solutionDirectory);
+
+                solution = await _workspace!.OpenSolutionAsync(validatedPath);
+
+                // 验证解决方案加载成功
+                if (solution == null)
+                {
+                    s_logSolutionLoadFailedNull(_logger, validatedPath, null);
+                    throw new ProjectLoadException(
+                        $"无法加载解决方案: {validatedPath}。解决方案对象为 null。",
+                        validatedPath);
+                }
+
+                stopwatch.Stop();
+                s_logSolutionLoadSuccess(_logger, validatedPath, solution.Projects.Count(),
+                    stopwatch.ElapsedMilliseconds, null);
+                return solution;
+            }
+            finally
+            {
+                // 恢复原始工作目录
+                Directory.SetCurrentDirectory(originalDirectory);
+            }
         }
         catch (ProjectLoadException)
         {

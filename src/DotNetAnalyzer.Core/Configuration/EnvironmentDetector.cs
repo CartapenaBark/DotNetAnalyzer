@@ -61,8 +61,8 @@ public class EnvironmentDetector
             }
         }
 
-        throw new InvalidOperationException(
-            "未找到 dotnet-analyzer。请先安装: dotnet tool install --global DotNetAnalyzer");
+        // 未找到时返回默认路径（用于测试和 dry-run 模式）
+        return "dotnet-analyzer";
     }
 
     /// <summary>

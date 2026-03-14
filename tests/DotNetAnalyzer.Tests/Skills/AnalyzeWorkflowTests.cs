@@ -1,7 +1,7 @@
 using DotNetAnalyzer.Core.Skills.Workflows;
 using DotNetAnalyzer.Core.Skills.Models;
 using Microsoft.Extensions.Logging;
-using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace DotNetAnalyzer.Tests.Skills;
@@ -11,20 +11,18 @@ namespace DotNetAnalyzer.Tests.Skills;
 /// </summary>
 public class AnalyzeWorkflowTests
 {
-    private readonly Mock<ILogger<AnalyzeWorkflow>> _loggerMock;
+    private readonly ILogger<AnalyzeWorkflow> _logger;
 
     public AnalyzeWorkflowTests()
     {
-        _loggerMock = new Mock<ILogger<AnalyzeWorkflow>>(MockBehavior.Loose);
+        // 使用 NullLogger 避免 mock 问题
+        _logger = NullLogger<AnalyzeWorkflow>.Instance;
     }
 
     [Fact]
     public void CreateSkillDefinition_ReturnsValidDefinition()
     {
-        // Arrange
-        var workflow = new AnalyzeWorkflow(_loggerMock.Object);
-
-        // Act
+        // Arrange & Act
         var skill = AnalyzeWorkflow.CreateSkillDefinition();
 
         // Assert
@@ -38,10 +36,7 @@ public class AnalyzeWorkflowTests
     [Fact]
     public void CreateSkillDefinition_HasCorrectTriggers()
     {
-        // Arrange
-        var workflow = new AnalyzeWorkflow(_loggerMock.Object);
-
-        // Act
+        // Arrange & Act
         var skill = AnalyzeWorkflow.CreateSkillDefinition();
 
         // Assert
@@ -56,10 +51,7 @@ public class AnalyzeWorkflowTests
     [Fact]
     public void CreateSkillDefinition_HasCorrectMcpTools()
     {
-        // Arrange
-        var workflow = new AnalyzeWorkflow(_loggerMock.Object);
-
-        // Act
+        // Arrange & Act
         var skill = AnalyzeWorkflow.CreateSkillDefinition();
 
         // Assert
@@ -74,10 +66,7 @@ public class AnalyzeWorkflowTests
     [Fact]
     public void CreateSkillDefinition_HasWorkflowSteps()
     {
-        // Arrange
-        var workflow = new AnalyzeWorkflow(_loggerMock.Object);
-
-        // Act
+        // Arrange & Act
         var skill = AnalyzeWorkflow.CreateSkillDefinition();
 
         // Assert
@@ -96,10 +85,7 @@ public class AnalyzeWorkflowTests
     [Fact]
     public void CreateSkillDefinition_PerformanceStepIsOptional()
     {
-        // Arrange
-        var workflow = new AnalyzeWorkflow(_loggerMock.Object);
-
-        // Act
+        // Arrange & Act
         var skill = AnalyzeWorkflow.CreateSkillDefinition();
 
         // Assert
@@ -111,19 +97,18 @@ public class AnalyzeWorkflowTests
     [Fact]
     public void CreateSkillDefinition_HasCorrectDependencies()
     {
-        // Arrange
-        var workflow = new AnalyzeWorkflow(_loggerMock.Object);
-
-        // Act
+        // Arrange & Act
         var skill = AnalyzeWorkflow.CreateSkillDefinition();
 
         // Assert
         var metricsStep = skill.Workflow.Steps.FirstOrDefault(s => s.Name == "get_metrics");
         Assert.NotNull(metricsStep);
+        Assert.NotNull(metricsStep.DependsOn);
         Assert.Contains("detect_project", metricsStep.DependsOn);
 
         var reportStep = skill.Workflow.Steps.FirstOrDefault(s => s.Name == "generate_report");
         Assert.NotNull(reportStep);
+        Assert.NotNull(reportStep.DependsOn);
         Assert.Contains("get_diagnostics", reportStep.DependsOn);
         Assert.Contains("get_metrics", reportStep.DependsOn);
     }
@@ -131,10 +116,7 @@ public class AnalyzeWorkflowTests
     [Fact]
     public void CreateSkillDefinition_HasOutputFormats()
     {
-        // Arrange
-        var workflow = new AnalyzeWorkflow(_loggerMock.Object);
-
-        // Act
+        // Arrange & Act
         var skill = AnalyzeWorkflow.CreateSkillDefinition();
 
         // Assert
@@ -147,11 +129,8 @@ public class AnalyzeWorkflowTests
     public void GenerateAnalysisResult_WithSuccessfulWorkflow_ReturnsValidResult()
     {
         // Arrange
-        var workflow = new AnalyzeWorkflow(_loggerMock.Object);
-
         var workflowResult = new WorkflowResult
         {
-            Success = true,
             ExecutedAt = DateTime.UtcNow,
             TotalDuration = TimeSpan.FromSeconds(5),
             Steps = new List<StepResult>
@@ -179,16 +158,35 @@ public class AnalyzeWorkflowTests
     public void GenerateMarkdownReport_WithValidResult_GeneratesReport()
     {
         // Arrange
-        var workflow = new AnalyzeWorkflow(_loggerMock.Object);
+        var workflow = new AnalyzeWorkflow(_logger);
 
         var analysisResult = new AnalysisResult
         {
             Success = true,
             ExecutedAt = DateTime.UtcNow,
             Duration = TimeSpan.FromSeconds(5),
-            ProjectInfo = new { path = "/test/project.csproj", type = "project", name = "TestProject" },
-            Diagnostics = new { errors = Array.Empty<object>(), warnings = Array.Empty<object>() },
-            Metrics = new { complexity = "3.5", complexityRating = "✅", maintainability = "75", maintainabilityRating = "✅", duplication = "10", duplicationRating = "✅", coverage = "60", coverageRating = "⚠️" }
+            ProjectInfo = new Dictionary<string, object>
+            {
+                ["path"] = "/test/project.csproj",
+                ["type"] = "project",
+                ["name"] = "TestProject"
+            },
+            Diagnostics = new Dictionary<string, object>
+            {
+                ["errors"] = Array.Empty<object>(),
+                ["warnings"] = Array.Empty<object>()
+            },
+            Metrics = new Dictionary<string, object>
+            {
+                ["complexity"] = "3.5",
+                ["complexityRating"] = "✅",
+                ["maintainability"] = "75",
+                ["maintainabilityRating"] = "✅",
+                ["duplication"] = "10",
+                ["duplicationRating"] = "✅",
+                ["coverage"] = "60",
+                ["coverageRating"] = "⚠️"
+            }
         };
 
         // Act
@@ -208,21 +206,32 @@ public class AnalyzeWorkflowTests
     public void GenerateMarkdownReport_WithErrors_IncludesErrorSection()
     {
         // Arrange
-        var workflow = new AnalyzeWorkflow(_loggerMock.Object);
+        var workflow = new AnalyzeWorkflow(_logger);
 
         var analysisResult = new AnalysisResult
         {
             Success = false,
             ExecutedAt = DateTime.UtcNow,
             Duration = TimeSpan.FromSeconds(5),
-            ProjectInfo = new { path = "/test/project.csproj", type = "project", name = "TestProject" },
-            Diagnostics = new
+            ProjectInfo = new Dictionary<string, object>
             {
-                errors = new[]
+                ["path"] = "/test/project.csproj",
+                ["type"] = "project",
+                ["name"] = "TestProject"
+            },
+            Diagnostics = new Dictionary<string, object>
+            {
+                ["errors"] = new[]
                 {
-                    new { file = "test.cs", line = 5, message = "Unexpected token", code = "CS1002" }
+                    new Dictionary<string, object>
+                    {
+                        ["file"] = "test.cs",
+                        ["line"] = 5,
+                        ["message"] = "Unexpected token",
+                        ["code"] = "CS1002"
+                    }
                 },
-                warnings = Array.Empty<object>()
+                ["warnings"] = Array.Empty<object>()
             }
         };
 
@@ -241,21 +250,38 @@ public class AnalyzeWorkflowTests
     public void GenerateMarkdownReport_WithWarnings_IncludesWarningSection()
     {
         // Arrange
-        var workflow = new AnalyzeWorkflow(_loggerMock.Object);
+        var workflow = new AnalyzeWorkflow(_logger);
 
         var analysisResult = new AnalysisResult
         {
             Success = true,
             ExecutedAt = DateTime.UtcNow,
             Duration = TimeSpan.FromSeconds(5),
-            ProjectInfo = new { path = "/test/project.csproj", type = "project", name = "TestProject" },
-            Diagnostics = new
+            ProjectInfo = new Dictionary<string, object>
             {
-                errors = Array.Empty<object>(),
-                warnings = new[]
+                ["path"] = "/test/project.csproj",
+                ["type"] = "project",
+                ["name"] = "TestProject"
+            },
+            Diagnostics = new Dictionary<string, object>
+            {
+                ["errors"] = Array.Empty<object>(),
+                ["warnings"] = new[]
                 {
-                    new { file = "test.cs", line = 10, message = "Unused variable", code = "CS0169" },
-                    new { file = "utils.cs", line = 20, message = "Missing XML comment", code = "CS1591" }
+                    new Dictionary<string, object>
+                    {
+                        ["file"] = "test.cs",
+                        ["line"] = 10,
+                        ["message"] = "Unused variable",
+                        ["code"] = "CS0169"
+                    },
+                    new Dictionary<string, object>
+                    {
+                        ["file"] = "utils.cs",
+                        ["line"] = 20,
+                        ["message"] = "Missing XML comment",
+                        ["code"] = "CS1591"
+                    }
                 }
             }
         };
@@ -275,24 +301,29 @@ public class AnalyzeWorkflowTests
     public void GenerateMarkdownReport_WithMetrics_IncludesMetricsTable()
     {
         // Arrange
-        var workflow = new AnalyzeWorkflow(_loggerMock.Object);
+        var workflow = new AnalyzeWorkflow(_logger);
 
         var analysisResult = new AnalysisResult
         {
             Success = true,
             ExecutedAt = DateTime.UtcNow,
             Duration = TimeSpan.FromSeconds(5),
-            ProjectInfo = new { path = "/test/project.csproj", type = "project", name = "TestProject" },
-            Metrics = new
+            ProjectInfo = new Dictionary<string, object>
             {
-                complexity = "3.5",
-                complexityRating = "✅",
-                maintainability = "75",
-                maintainabilityRating = "✅",
-                duplication = "10",
-                duplicationRating = "⚠️",
-                coverage = "60",
-                coverageRating = "⚠️"
+                ["path"] = "/test/project.csproj",
+                ["type"] = "project",
+                ["name"] = "TestProject"
+            },
+            Metrics = new Dictionary<string, object>
+            {
+                ["complexity"] = "3.5",
+                ["complexityRating"] = "✅",
+                ["maintainability"] = "75",
+                ["maintainabilityRating"] = "✅",
+                ["duplication"] = "10",
+                ["duplicationRating"] = "⚠️",
+                ["coverage"] = "60",
+                ["coverageRating"] = "⚠️"
             }
         };
 
@@ -312,19 +343,29 @@ public class AnalyzeWorkflowTests
     public void GenerateMarkdownReport_WithDeadCode_IncludesDeadCodeSection()
     {
         // Arrange
-        var workflow = new AnalyzeWorkflow(_loggerMock.Object);
+        var workflow = new AnalyzeWorkflow(_logger);
 
         var analysisResult = new AnalysisResult
         {
             Success = true,
             ExecutedAt = DateTime.UtcNow,
             Duration = TimeSpan.FromSeconds(5),
-            ProjectInfo = new { path = "/test/project.csproj", type = "project", name = "TestProject" },
-            DeadCode = new
+            ProjectInfo = new Dictionary<string, object>
             {
-                unusedMethods = new[]
+                ["path"] = "/test/project.csproj",
+                ["type"] = "project",
+                ["name"] = "TestProject"
+            },
+            DeadCode = new Dictionary<string, object>
+            {
+                ["unusedMethods"] = new[]
                 {
-                    new { name = "OldMethod", file = "legacy.cs", line = 42 }
+                    new Dictionary<string, object>
+                    {
+                        ["name"] = "OldMethod",
+                        ["file"] = "legacy.cs",
+                        ["line"] = 42
+                    }
                 }
             }
         };
@@ -344,17 +385,22 @@ public class AnalyzeWorkflowTests
     public void GenerateMarkdownReport_WithNoDeadCode_ShowsNoDeadCodeMessage()
     {
         // Arrange
-        var workflow = new AnalyzeWorkflow(_loggerMock.Object);
+        var workflow = new AnalyzeWorkflow(_logger);
 
         var analysisResult = new AnalysisResult
         {
             Success = true,
             ExecutedAt = DateTime.UtcNow,
             Duration = TimeSpan.FromSeconds(5),
-            ProjectInfo = new { path = "/test/project.csproj", type = "project", name = "TestProject" },
-            DeadCode = new
+            ProjectInfo = new Dictionary<string, object>
             {
-                unusedMethods = Array.Empty<object>()
+                ["path"] = "/test/project.csproj",
+                ["type"] = "project",
+                ["name"] = "TestProject"
+            },
+            DeadCode = new Dictionary<string, object>
+            {
+                ["unusedMethods"] = Array.Empty<object>()
             }
         };
 
@@ -371,24 +417,29 @@ public class AnalyzeWorkflowTests
     public void GenerateMarkdownReport_WithPerformanceIssues_IncludesPerformanceSection()
     {
         // Arrange
-        var workflow = new AnalyzeWorkflow(_loggerMock.Object);
+        var workflow = new AnalyzeWorkflow(_logger);
 
         var analysisResult = new AnalysisResult
         {
             Success = true,
             ExecutedAt = DateTime.UtcNow,
             Duration = TimeSpan.FromSeconds(5),
-            ProjectInfo = new { path = "/test/project.csproj", type = "project", name = "TestProject" },
-            PerformanceIssues = new
+            ProjectInfo = new Dictionary<string, object>
             {
-                issues = new[]
+                ["path"] = "/test/project.csproj",
+                ["type"] = "project",
+                ["name"] = "TestProject"
+            },
+            PerformanceIssues = new Dictionary<string, object>
+            {
+                ["issues"] = new[]
                 {
-                    new
+                    new Dictionary<string, object>
                     {
-                        type = "StringConcatenation",
-                        severity = "Warning",
-                        location = "utils.cs:25",
-                        description = "使用 StringBuilder 替代字符串连接"
+                        ["type"] = "StringConcatenation",
+                        ["severity"] = "Warning",
+                        ["location"] = "utils.cs:25",
+                        ["description"] = "使用 StringBuilder 替代字符串连接"
                     }
                 }
             }
@@ -409,29 +460,34 @@ public class AnalyzeWorkflowTests
     public void GenerateMarkdownReport_AlwaysIncludesRecommendationsSection()
     {
         // Arrange
-        var workflow = new AnalyzeWorkflow(_loggerMock.Object);
+        var workflow = new AnalyzeWorkflow(_logger);
 
         var analysisResult = new AnalysisResult
         {
             Success = true,
             ExecutedAt = DateTime.UtcNow,
             Duration = TimeSpan.FromSeconds(5),
-            ProjectInfo = new { path = "/test/project.csproj", type = "project", name = "TestProject" },
-            Metrics = new
+            ProjectInfo = new Dictionary<string, object>
             {
-                complexity = "15",
-                complexityRating = "⚠️",
-                maintainability = "50",
-                maintainabilityRating = "⚠️",
-                duplication = "10",
-                duplicationRating = "⚠️",
-                coverage = "40",
-                coverageRating = "❌"
+                ["path"] = "/test/project.csproj",
+                ["type"] = "project",
+                ["name"] = "TestProject"
             },
-            Diagnostics = new
+            Metrics = new Dictionary<string, object>
             {
-                errors = Array.Empty<object>(),
-                warnings = new object[30] // 大量警告
+                ["complexity"] = "15",
+                ["complexityRating"] = "⚠️",
+                ["maintainability"] = "50",
+                ["maintainabilityRating"] = "⚠️",
+                ["duplication"] = "10",
+                ["duplicationRating"] = "⚠️",
+                ["coverage"] = "40",
+                ["coverageRating"] = "❌"
+            },
+            Diagnostics = new Dictionary<string, object>
+            {
+                ["errors"] = Array.Empty<object>(),
+                ["warnings"] = new object[30] // 大量警告
             }
         };
 

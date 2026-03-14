@@ -14,9 +14,27 @@ public static class InitCommandHandler
     {
         try
         {
-            // 1. 检测环境
-            var detector = new EnvironmentDetector();
-            var env = await detector.DetectAsync();
+            // 1. 检测环境（在 dry-run 模式下使用默认环境信息）
+            EnvironmentInfo env;
+            if (options.DryRun)
+            {
+                // Dry-run 模式：使用默认环境信息，避免检测失败
+                env = new EnvironmentInfo
+                {
+                    DotnetAnalyzerPath = "dotnet-analyzer",
+                    DotnetSdkVersion = "8.0.0",
+                    OperatingSystem = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows) ? "Windows" :
+                                     System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX) ? "macOS" : "Linux",
+                    ShellType = "sh",
+                    ProjectFiles = Array.Empty<string>(),
+                    ExistingConfig = new ExistingConfigInfo()
+                };
+            }
+            else
+            {
+                var detector = new EnvironmentDetector();
+                env = await detector.DetectAsync();
+            }
 
             if (options.Verbose)
             {

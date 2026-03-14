@@ -10,6 +10,7 @@ public class ConfigGenerator
     private static readonly JsonSerializerOptions s_jsonOptions = new()
     {
         WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
     };
     /// <summary>

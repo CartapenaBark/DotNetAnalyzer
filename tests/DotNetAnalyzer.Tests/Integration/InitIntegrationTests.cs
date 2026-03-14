@@ -1,8 +1,6 @@
 using Xunit;
 using DotNetAnalyzer.Cli.Commands;
 using DotNetAnalyzer.Core.Configuration;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
 
 namespace DotNetAnalyzer.Tests.Commands;
 
@@ -12,12 +10,16 @@ namespace DotNetAnalyzer.Tests.Commands;
 [Collection("Integration")]
 public class InitIntegrationTests : IDisposable
 {
-    private const string TestTempDir = "./TestTemp_InitIntegration";
+    private readonly string TestTempDir;
     private string _originalDir = string.Empty;
 
     public InitIntegrationTests()
     {
         _originalDir = Directory.GetCurrentDirectory();
+
+        // 获取测试项目目录（基于当前文件的位置）
+        var testProjectDir = Path.GetFullPath(Path.Combine("..", "..", ".."));
+        TestTempDir = Path.Combine(testProjectDir, "TestTemp_InitIntegration");
 
         if (Directory.Exists(TestTempDir))
         {
@@ -41,7 +43,8 @@ public class InitIntegrationTests : IDisposable
     {
         // Arrange
         Directory.SetCurrentDirectory(TestTempDir);
-        var console = new TestConsole();
+        var output = new StringWriter();
+        var input = new StringReader(""); // 提供空的输入
 
         var options = new InitOptions
         {
@@ -52,7 +55,7 @@ public class InitIntegrationTests : IDisposable
 
         // Act
         var exception = await Record.ExceptionAsync(() =>
-            InitCommandHandler.ExecuteAsync(options, console));
+            InitCommandHandler.ExecuteAsync(options, output, input));
 
         // Assert
         Assert.Null(exception); // 不应该抛出异常

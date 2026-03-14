@@ -217,6 +217,11 @@ public class AnalyzeWorkflow
         {
             sb.AppendLine($"- **路径**: {AnalyzeWorkflow.GetProjectPath(result.ProjectInfo)}");
             sb.AppendLine($"- **类型**: {AnalyzeWorkflow.GetProjectType(result.ProjectInfo)}");
+            var projectName = AnalyzeWorkflow.ExtractProperty(result.ProjectInfo, "name");
+            if (!string.IsNullOrEmpty(projectName))
+            {
+                sb.AppendLine($"- **名称**: {projectName}");
+            }
         }
         sb.AppendLine();
 
@@ -232,14 +237,18 @@ public class AnalyzeWorkflow
             sb.AppendLine($"### ❌ 错误 ({errors.Count()})");
             foreach (var error in errors)
             {
-                sb.AppendLine($"- `{AnalyzeWorkflow.GetDiagnosticFile(error)}:{AnalyzeWorkflow.GetDiagnosticLine(error)}` - {AnalyzeWorkflow.GetDiagnosticMessage(error)}");
+                var errorCode = AnalyzeWorkflow.ExtractProperty(error, "code");
+                var codeStr = !string.IsNullOrEmpty(errorCode) ? $" [{errorCode}]" : "";
+                sb.AppendLine($"- `{AnalyzeWorkflow.GetDiagnosticFile(error)}:{AnalyzeWorkflow.GetDiagnosticLine(error)}`{codeStr} - {AnalyzeWorkflow.GetDiagnosticMessage(error)}");
             }
             sb.AppendLine();
 
             sb.AppendLine($"### ⚠️ 警告 ({warnings.Count()})");
             foreach (var warning in warnings.Take(10))
             {
-                sb.AppendLine($"- `{AnalyzeWorkflow.GetDiagnosticFile(warning)}:{AnalyzeWorkflow.GetDiagnosticLine(warning)}` - {AnalyzeWorkflow.GetDiagnosticMessage(warning)}");
+                var warningCode = AnalyzeWorkflow.ExtractProperty(warning, "code");
+                var codeStr = !string.IsNullOrEmpty(warningCode) ? $" [{warningCode}]" : "";
+                sb.AppendLine($"- `{AnalyzeWorkflow.GetDiagnosticFile(warning)}:{AnalyzeWorkflow.GetDiagnosticLine(warning)}`{codeStr} - {AnalyzeWorkflow.GetDiagnosticMessage(warning)}");
             }
             if (warnings.Count() > 10)
             {
@@ -375,9 +384,37 @@ public class AnalyzeWorkflow
     private static IEnumerable<object> GetDiagnosticsWarnings(object diagnostics) =>
         ExtractPropertyAsEnumerable(diagnostics, "warnings");
 
-    private static string GetDiagnosticFile(object diagnostic) => ExtractProperty(diagnostic, "file") ?? "Unknown";
-    private static int GetDiagnosticLine(object diagnostic) => int.TryParse(ExtractProperty(diagnostic, "line"), out var line) ? line : 0;
-    private static string GetDiagnosticMessage(object diagnostic) => ExtractProperty(diagnostic, "message") ?? "Unknown";
+    private static string GetDiagnosticFile(object diagnostic)
+    {
+        if (diagnostic is IDictionary<string, object> dict)
+        {
+            var key = dict.Keys.FirstOrDefault(k => string.Equals(k, "file", StringComparison.OrdinalIgnoreCase));
+            return key != null ? dict[key]?.ToString() ?? "Unknown" : "Unknown";
+        }
+        return ExtractProperty(diagnostic, "file") ?? "Unknown";
+    }
+
+    private static int GetDiagnosticLine(object diagnostic)
+    {
+        string? lineStr = null;
+        if (diagnostic is IDictionary<string, object> dict)
+        {
+            var key = dict.Keys.FirstOrDefault(k => string.Equals(k, "line", StringComparison.OrdinalIgnoreCase));
+            if (key != null) lineStr = dict[key]?.ToString();
+        }
+        if (string.IsNullOrEmpty(lineStr)) lineStr = ExtractProperty(diagnostic, "line");
+        return int.TryParse(lineStr, out var line) ? line : 0;
+    }
+
+    private static string GetDiagnosticMessage(object diagnostic)
+    {
+        if (diagnostic is IDictionary<string, object> dict)
+        {
+            var key = dict.Keys.FirstOrDefault(k => string.Equals(k, "message", StringComparison.OrdinalIgnoreCase));
+            if (key != null) return dict[key]?.ToString() ?? "Unknown";
+        }
+        return ExtractProperty(diagnostic, "message") ?? "Unknown";
+    }
 
     private static string GetMetricValue(object metrics, string key) => ExtractProperty(metrics, key) ?? "N/A";
     private static string GetMetricRating(object metrics, string key) => ExtractProperty(metrics, $"{key}Rating") ?? "N/A";
@@ -385,20 +422,76 @@ public class AnalyzeWorkflow
     private static IEnumerable<object> GetDeadCodeMethods(object deadCode) =>
         ExtractPropertyAsEnumerable(deadCode, "unusedMethods");
 
-    private static string GetDeadCodeName(object method) => ExtractProperty(method, "name") ?? "Unknown";
-    private static string GetDeadCodeLocation(object method) => ExtractProperty(method, "file") ?? "Unknown";
+    private static string GetDeadCodeName(object method)
+    {
+        if (method is IDictionary<string, object> dict)
+        {
+            var key = dict.Keys.FirstOrDefault(k => string.Equals(k, "name", StringComparison.OrdinalIgnoreCase));
+            if (key != null) return dict[key]?.ToString() ?? "Unknown";
+        }
+        return ExtractProperty(method, "name") ?? "Unknown";
+    }
+
+    private static string GetDeadCodeLocation(object method)
+    {
+        if (method is IDictionary<string, object> dict)
+        {
+            var key = dict.Keys.FirstOrDefault(k => string.Equals(k, "file", StringComparison.OrdinalIgnoreCase));
+            if (key != null) return dict[key]?.ToString() ?? "Unknown";
+        }
+        return ExtractProperty(method, "file") ?? "Unknown";
+    }
 
     private static IEnumerable<object> GetPerformanceIssues(object performanceIssues) =>
         ExtractPropertyAsEnumerable(performanceIssues, "issues");
 
-    private static string GetPerformanceIssueType(object issue) => ExtractProperty(issue, "type") ?? "Unknown";
-    private static string GetPerformanceIssueLocation(object issue) => ExtractProperty(issue, "location") ?? "Unknown";
-    private static string GetPerformanceIssueDescription(object issue) => ExtractProperty(issue, "description") ?? "Unknown";
+    private static string GetPerformanceIssueType(object issue)
+    {
+        if (issue is IDictionary<string, object> dict)
+        {
+            var key = dict.Keys.FirstOrDefault(k => string.Equals(k, "type", StringComparison.OrdinalIgnoreCase));
+            if (key != null) return dict[key]?.ToString() ?? "Unknown";
+        }
+        return ExtractProperty(issue, "type") ?? "Unknown";
+    }
+
+    private static string GetPerformanceIssueLocation(object issue)
+    {
+        if (issue is IDictionary<string, object> dict)
+        {
+            var key = dict.Keys.FirstOrDefault(k => string.Equals(k, "location", StringComparison.OrdinalIgnoreCase));
+            if (key != null) return dict[key]?.ToString() ?? "Unknown";
+        }
+        return ExtractProperty(issue, "location") ?? "Unknown";
+    }
+
+    private static string GetPerformanceIssueDescription(object issue)
+    {
+        if (issue is IDictionary<string, object> dict)
+        {
+            var key = dict.Keys.FirstOrDefault(k => string.Equals(k, "description", StringComparison.OrdinalIgnoreCase));
+            if (key != null) return dict[key]?.ToString() ?? "Unknown";
+        }
+        return ExtractProperty(issue, "description") ?? "Unknown";
+    }
 
     private static string? ExtractProperty(object obj, string propertyName)
     {
         if (obj == null) return null;
 
+        // 如果是字典，尝试从字典中获取值
+        if (obj is IDictionary<string, object> dict)
+        {
+            // 不区分大小写查找键
+            var key = dict.Keys.FirstOrDefault(k => string.Equals(k, propertyName, StringComparison.OrdinalIgnoreCase));
+            if (key != null && dict[key] != null)
+            {
+                return dict[key].ToString();
+            }
+            return null;
+        }
+
+        // 使用反射获取属性
         var prop = obj.GetType().GetProperty(propertyName, System.Reflection.BindingFlags.IgnoreCase | System.Reflection.BindingFlags.Public);
         return prop?.GetValue(obj)?.ToString();
     }
@@ -407,8 +500,23 @@ public class AnalyzeWorkflow
     {
         if (obj == null) return Array.Empty<object>();
 
-        var prop = obj.GetType().GetProperty(propertyName, System.Reflection.BindingFlags.IgnoreCase | System.Reflection.BindingFlags.Public);
-        var value = prop?.GetValue(obj);
+        object? value = null;
+
+        // 如果是字典，从字典中获取值
+        if (obj is IDictionary<string, object> dict)
+        {
+            var key = dict.Keys.FirstOrDefault(k => string.Equals(k, propertyName, StringComparison.OrdinalIgnoreCase));
+            if (key != null)
+            {
+                value = dict[key];
+            }
+        }
+        else
+        {
+            // 使用反射获取属性
+            var prop = obj.GetType().GetProperty(propertyName, System.Reflection.BindingFlags.IgnoreCase | System.Reflection.BindingFlags.Public);
+            value = prop?.GetValue(obj);
+        }
 
         if (value == null) return Array.Empty<object>();
 

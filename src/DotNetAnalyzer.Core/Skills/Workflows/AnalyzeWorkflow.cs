@@ -21,6 +21,9 @@ public class AnalyzeWorkflow
 {
     private readonly ILogger<AnalyzeWorkflow> _logger;
     private static readonly string[] item = new[] { "detect_project" };
+    private static readonly string[] DetectProjectDependsOn = new[] { "detect_project" };
+    private static readonly string[] AnalyzeStructureDependsOn = new[] { "analyze_structure" };
+    private static readonly string[] ReportDependsOn = new[] { "get_diagnostics", "get_metrics" };
 
     /// <summary>
     /// 初始化 <see cref="AnalyzeWorkflow"/> 类的新实例
@@ -101,7 +104,7 @@ public class AnalyzeWorkflow
                         Description = "获取代码度量",
                         Tool = "get_code_metrics",
                         Required = true,
-                        DependsOn = new[] { "detect_project" }
+                        DependsOn = DetectProjectDependsOn
                     },
 
                     // 5. 死代码检测步骤
@@ -111,7 +114,7 @@ public class AnalyzeWorkflow
                         Description = "查找死代码",
                         Tool = "find_dead_code",
                         Required = false,
-                        DependsOn = new[] { "analyze_structure" }
+                        DependsOn = AnalyzeStructureDependsOn
                     },
 
                     // 6. 性能分析步骤（可选）
@@ -121,7 +124,7 @@ public class AnalyzeWorkflow
                         Description = "分析性能瓶颈",
                         Tool = "analyze_performance",
                         Required = false,
-                        DependsOn = new[] { "analyze_structure" },
+                        DependsOn = AnalyzeStructureDependsOn,
                         Condition = "options.performance == true"
                     },
 
@@ -132,7 +135,7 @@ public class AnalyzeWorkflow
                         Description = "生成综合报告",
                         Tool = "internal",
                         Required = true,
-                        DependsOn = new[] { "get_diagnostics", "get_metrics" }
+                        DependsOn = ReportDependsOn
                     }
                 }
             },
@@ -200,7 +203,7 @@ public class AnalyzeWorkflow
     /// <summary>
     /// 生成 Markdown 格式的分析报告
     /// </summary>
-    public string GenerateMarkdownReport(AnalysisResult result)
+    public static string GenerateMarkdownReport(AnalysisResult result)
     {
         var sb = new System.Text.StringBuilder();
 
@@ -331,7 +334,7 @@ public class AnalyzeWorkflow
         return sb.ToString();
     }
 
-    private void GenerateRecommendations(AnalysisResult result, System.Text.StringBuilder sb)
+    private static void GenerateRecommendations(AnalysisResult result, System.Text.StringBuilder sb)
     {
         var recommendations = new List<string>();
 

@@ -56,7 +56,7 @@ public class DependencyGraphVisualizer
     /// <param name="format">输出格式</param>
     /// <param name="options">可视化选项</param>
     /// <returns>可视化结果字符串</returns>
-    public string Visualize(
+    public static string Visualize(
         DependencyGraph graph,
         VisualizationFormat format,
         GraphVisualizationOptions? options = null)

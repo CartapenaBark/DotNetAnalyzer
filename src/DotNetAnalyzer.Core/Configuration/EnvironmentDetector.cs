@@ -11,7 +11,7 @@ public class EnvironmentDetector
     /// <summary>
     /// 检测当前环境信息
     /// </summary>
-    public async Task<EnvironmentInfo> DetectAsync()
+    public static async Task<EnvironmentInfo> DetectAsync()
     {
         var info = new EnvironmentInfo();
 

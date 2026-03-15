@@ -19,6 +19,9 @@ public partial class DiagnoseWorkflow
 {
     private readonly ILogger<DiagnoseWorkflow> _logger;
     private static readonly string[] item = new[] { "analyze_error_type" };
+    private static readonly string[] CollectErrorInfoDependsOn = new[] { "analyze_error_type" };
+    private static readonly string[] LocateProblemDependsOn = new[] { "collect_error_info" };
+    private static readonly string[] FindSolutionDependsOn = new[] { "locate_problem" };
 
     /// <summary>
     /// 初始化 <see cref="DiagnoseWorkflow"/> 类的新实例
@@ -90,7 +93,7 @@ public partial class DiagnoseWorkflow
                         Tool = "mcp",
                         Description = "定位问题代码",
                         Required = true,
-                        DependsOn = new[] { "collect_error_info" }
+                        DependsOn = LocateProblemDependsOn
                     },
 
                     // 4. 查找解决方案
@@ -100,7 +103,7 @@ public partial class DiagnoseWorkflow
                         Tool = "internal",
                         Description = "提供解决方案",
                         Required = true,
-                        DependsOn = new[] { "locate_problem" }
+                        DependsOn = FindSolutionDependsOn
                     }
                 }
             },
@@ -202,9 +205,7 @@ public partial class DiagnoseWorkflow
         }
 
         // 提取行号
-        var lineMatch = System.Text.RegularExpressions.Regex.Match(
-            input,
-            @"(?:行|line|:)\s*(\d+)");
+        var lineMatch = LineRegex().Match(input);
 
         if (lineMatch.Success && int.TryParse(lineMatch.Groups[1].Value, out var line))
         {
@@ -212,9 +213,7 @@ public partial class DiagnoseWorkflow
         }
 
         // 提取错误代码
-        var codeMatch = System.Text.RegularExpressions.Regex.Match(
-            input,
-            @"\b(CS\d+)\b");
+        var codeMatch = ErrorCodeRegex().Match(input);
 
         if (codeMatch.Success)
         {
@@ -222,9 +221,7 @@ public partial class DiagnoseWorkflow
         }
 
         // 提取错误消息
-        var messageMatch = System.Text.RegularExpressions.Regex.Match(
-            input,
-            @"(?:错误|error|:)\s*(.+?)(?:\n|$)");
+        var messageMatch = ErrorMessageRegex().Match(input);
 
         if (messageMatch.Success)
         {
@@ -493,6 +490,15 @@ if (File.Exists(path))
 
     [System.Text.RegularExpressions.GeneratedRegex(@"([a-zA-Z_][a-zA-Z0-9_/\\]*\.cs)")]
     private static partial System.Text.RegularExpressions.Regex MyRegex();
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"(?:行|line|:)\s*(\d+)")]
+    private static partial System.Text.RegularExpressions.Regex LineRegex();
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"\b(CS\d+)\b")]
+    private static partial System.Text.RegularExpressions.Regex ErrorCodeRegex();
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"(?:错误|error|:)\s*(.+?)(?:\n|$)")]
+    private static partial System.Text.RegularExpressions.Regex ErrorMessageRegex();
 }
 
 /// <summary>

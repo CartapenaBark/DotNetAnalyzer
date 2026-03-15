@@ -82,7 +82,7 @@ public class InitCommandTests : IDisposable
         var detector = new EnvironmentDetector();
 
         // Act
-        var info = await detector.DetectAsync();
+        var info = await EnvironmentDetector.DetectAsync();
 
         // Assert
         Assert.NotNull(info);
@@ -259,7 +259,7 @@ public class InitCommandTests : IDisposable
             await File.WriteAllTextAsync(testFilePath, "");
 
             // Act
-            var info = await detector.DetectAsync();
+            var info = await EnvironmentDetector.DetectAsync();
 
             // Assert - 检查是否包含文件名或完整路径
             var hasTestSln = info.ProjectFiles.Any(p =>
@@ -303,7 +303,7 @@ public class InitCommandTests : IDisposable
 
             // Act
             var detector = new EnvironmentDetector();
-            var info = await detector.DetectAsync();
+            var info = await EnvironmentDetector.DetectAsync();
 
             // Assert - 直接使用 File.Exists 验证，而不依赖 info.ExistingConfig
             Assert.True(File.Exists(Path.Combine(TestTempDir, ".mcp.json")));

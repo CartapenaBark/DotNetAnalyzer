@@ -156,8 +156,7 @@ public class SkillInstaller
         // 3. 尝试从 dotnet-analyzer 的位置查找
         try
         {
-            var detector = new EnvironmentDetector();
-            var env = await detector.DetectAsync();
+            var env = await EnvironmentDetector.DetectAsync();
             var analyzerPath = env.DotnetAnalyzerPath;
 
             if (!string.IsNullOrEmpty(analyzerPath))

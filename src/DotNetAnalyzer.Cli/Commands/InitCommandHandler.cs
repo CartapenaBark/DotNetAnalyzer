@@ -32,8 +32,7 @@ public static class InitCommandHandler
             }
             else
             {
-                var detector = new EnvironmentDetector();
-                env = await detector.DetectAsync();
+                env = await EnvironmentDetector.DetectAsync();
             }
 
             if (options.Verbose)
@@ -187,21 +186,140 @@ public static class InitCommandHandler
             var mcpPath = Path.Combine(configDir, ".mcp.json");
             await File.WriteAllTextAsync(mcpPath, result.McpConfigJson);
 
-            // 写入 .claude/settings.json
+            // 写入 .claude/settings.json（项目级，可以直接覆盖或创建）
             var claudeDir = Path.Combine(configDir, ".claude");
             Directory.CreateDirectory(claudeDir);
             var settingsPath = Path.Combine(claudeDir, "settings.json");
-            await File.WriteAllTextAsync(settingsPath, result.SettingsJson);
+
+            // 如果已有配置，合并
+            var mergedSettings = await MergeSettingsAsync(settingsPath, result);
+            await File.WriteAllTextAsync(settingsPath, mergedSettings);
         }
         else
         {
             // 用户级配置 - 写入 ~/.claude/settings.json
+            // 必须合并现有配置，不能覆盖！
             var userClaudeDir = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
                 ".claude");
             Directory.CreateDirectory(userClaudeDir);
             var settingsPath = Path.Combine(userClaudeDir, "settings.json");
-            await File.WriteAllTextAsync(settingsPath, result.SettingsJson);
+
+            var mergedSettings = await MergeSettingsAsync(settingsPath, result);
+            await File.WriteAllTextAsync(settingsPath, mergedSettings);
         }
+    }
+
+    /// <summary>
+    /// 合并现有配置与新配置
+    /// </summary>
+    private static async Task<string> MergeSettingsAsync(string settingsPath, ConfigGenerationResult result)
+    {
+        // 如果文件不存在，直接返回新配置
+        if (!File.Exists(settingsPath))
+        {
+            return result.SettingsJson;
+        }
+
+        try
+        {
+            // 读取现有配置
+            var existingJson = await File.ReadAllTextAsync(settingsPath);
+            var existingNode = System.Text.Json.Nodes.JsonNode.Parse(existingJson) as System.Text.Json.Nodes.JsonObject;
+            var newNode = System.Text.Json.Nodes.JsonNode.Parse(result.SettingsJson) as System.Text.Json.Nodes.JsonObject;
+
+            if (existingNode == null || newNode == null)
+            {
+                return result.SettingsJson;
+            }
+
+            // 递归深度合并
+            MergeJsonObjects(existingNode, newNode);
+
+            var options = new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
+
+            return existingNode.ToJsonString(options);
+        }
+        catch
+        {
+            // 解析失败，返回新配置
+            return result.SettingsJson;
+        }
+    }
+
+    /// <summary>
+    /// 递归深度合并两个 JSON 对象
+    /// </summary>
+    private static void MergeJsonObjects(System.Text.Json.Nodes.JsonObject existing, System.Text.Json.Nodes.JsonObject @new)
+    {
+        foreach (var property in @new)
+        {
+            var key = property.Key;
+            var newValue = property.Value;
+
+            // 如果现有对象中没有这个 key，直接添加
+            if (!existing.ContainsKey(key))
+            {
+                existing[key] = newValue?.DeepClone();
+                continue;
+            }
+
+            var existingValue = existing[key];
+
+            // 两个都是对象：递归合并
+            if (newValue is System.Text.Json.Nodes.JsonObject newobj &&
+                existingValue is System.Text.Json.Nodes.JsonObject existingObj)
+            {
+                MergeJsonObjects(existingObj, newobj);
+            }
+            // 两个都是数组：合并去重
+            else if (newValue is System.Text.Json.Nodes.JsonArray newArray &&
+                     existingValue is System.Text.Json.Nodes.JsonArray existingArray)
+            {
+                var mergedArray = MergeArrays(existingArray, newArray);
+                existing[key] = mergedArray;
+            }
+            // 其他类型：新值覆盖旧值（但这种情况通常不会发生在 permissions 上）
+            else
+            {
+                existing[key] = newValue?.DeepClone();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 合并两个数组（去重）
+    /// </summary>
+    private static System.Text.Json.Nodes.JsonArray MergeArrays(
+        System.Text.Json.Nodes.JsonArray existing,
+        System.Text.Json.Nodes.JsonArray @new)
+    {
+        var mergedArray = new System.Text.Json.Nodes.JsonArray();
+        var seen = new HashSet<string>();
+
+        // 先添加现有元素
+        foreach (var item in existing)
+        {
+            if (item?.ToString() is { } str && seen.Add(str))
+            {
+                mergedArray.Add(str);
+            }
+        }
+
+        // 再添加新元素
+        foreach (var item in @new)
+        {
+            if (item?.ToString() is { } str && seen.Add(str))
+            {
+                mergedArray.Add(str);
+            }
+        }
+
+        return mergedArray;
     }
 }

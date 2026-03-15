@@ -51,7 +51,6 @@ public static class VisualizationTools
             }
 
             // 生成可视化
-            var visualizer = new DependencyGraphVisualizer(logger);
             var formatEnum = ParseVisualizationFormat(format);
             var options = new GraphVisualizationOptions
             {
@@ -59,7 +58,7 @@ public static class VisualizationTools
                 SimplifyThreshold = maxNodes
             };
 
-            var result = visualizer.Visualize(graph, formatEnum, options);
+            var result = DependencyGraphVisualizer.Visualize(graph, formatEnum, options);
 
             return JsonSerializer.Serialize(new
             {

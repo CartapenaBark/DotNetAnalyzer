@@ -226,7 +226,7 @@ internal sealed class McpStepExecutor : IStepExecutor
         };
     }
 
-    private Dictionary<string, object> ResolveParameters(
+    private static Dictionary<string, object> ResolveParameters(
         Dictionary<string, object>? parameters,
         WorkflowContext context)
     {

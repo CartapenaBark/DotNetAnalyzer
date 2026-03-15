@@ -20,6 +20,13 @@ public partial class RefactorWorkflow
 {
     private readonly ILogger<RefactorWorkflow> _logger;
     private static readonly string[] item = new[] { "identify_refactoring_type" };
+    private static readonly string[] CollectParametersDependsOn = new[] { "identify_refactoring_type" };
+    private static readonly string[] PreviewChangesDependsOn = new[] { "collect_parameters" };
+    private static readonly string[] ApplyRefactoringDependsOn = new[] { "preview_changes" };
+    private static readonly string[] VerifyDependsOn = new[] { "apply_refactoring" };
+    private static readonly string[] DefaultParameters = new[] { "value" };
+    private static readonly string[] DefaultAffectedFiles = new[] { "File1.cs", "File2.cs" };
+    private static readonly string[] DefaultMembers = new[] { "Method1", "Method2" };
 
     /// <summary>
     /// 初始化 <see cref="RefactorWorkflow"/> 类的新实例
@@ -83,7 +90,7 @@ public partial class RefactorWorkflow
                         Tool = "internal",
                         Description = "收集重构参数",
                         Required = true,
-                        DependsOn = item },
+                        DependsOn = CollectParametersDependsOn },
 
                     // 3. 生成预览
                     new()
@@ -92,7 +99,7 @@ public partial class RefactorWorkflow
                         Tool = "internal",
                         Description = "生成变更预览",
                         Required = true,
-                        DependsOn = new[] { "collect_parameters" }
+                        DependsOn = PreviewChangesDependsOn
                     },
 
                     // 4. 执行重构
@@ -102,7 +109,7 @@ public partial class RefactorWorkflow
                         Tool = "mcp",
                         Description = "执行重构操作",
                         Required = false, // 需要用户确认
-                        DependsOn = new[] { "preview_changes" },
+                        DependsOn = ApplyRefactoringDependsOn,
                         Condition = "options.confirmed == true"
                     },
 
@@ -113,7 +120,7 @@ public partial class RefactorWorkflow
                         Tool = "internal",
                         Description = "验证结果",
                         Required = true,
-                        DependsOn = new[] { "apply_refactoring" }
+                        DependsOn = VerifyDependsOn
                     }
                 }
             },
@@ -131,7 +138,7 @@ public partial class RefactorWorkflow
     /// <summary>
     /// 分析重构请求并生成重构计划
     /// </summary>
-    public RefactoringPlan AnalyzeRequest(WorkflowContext context)
+    public static RefactoringPlan AnalyzeRequest(WorkflowContext context)
     {
         var userInput = context.UserInput ?? string.Empty;
         var selectedCode = context.Data.TryGetValue("selected_code", out var code) ? code : null;
@@ -244,7 +251,7 @@ public partial class RefactorWorkflow
     /// <summary>
     /// 生成重构预览
     /// </summary>
-    public RefactoringPreview GeneratePreview(RefactoringPlan plan)
+    public static RefactoringPreview GeneratePreview(RefactoringPlan plan)
     {
         var preview = new RefactoringPreview
         {
@@ -283,7 +290,7 @@ public partial class RefactorWorkflow
             Details = new
             {
                 returnType = "void", // 可以从上下文推断
-                parameters = new[] { "value" },
+                parameters = DefaultParameters,
                 accessibility = "private"
             }
         });
@@ -316,7 +323,7 @@ public partial class RefactorWorkflow
             Description = $"重命名符号为: {newName}",
             Details = new
             {
-                affectedFiles = new[] { "File1.cs", "File2.cs" }, // 实际需要查找引用
+                affectedFiles = DefaultAffectedFiles, // 实际需要查找引用
                 referenceCount = 2
             }
         });
@@ -338,7 +345,7 @@ public partial class RefactorWorkflow
             Description = $"添加接口: {interfaceName}",
             Details = new
             {
-                members = new[] { "Method1", "Method2" } // 从选中代码提取
+                members = DefaultMembers // 从选中代码提取
             }
         });
 

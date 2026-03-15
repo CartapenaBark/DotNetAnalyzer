@@ -54,7 +54,7 @@ public class GraphLayoutEngine
     /// <param name="algorithm">布局算法</param>
     /// <param name="options">布局选项</param>
     /// <returns>包含布局信息的图</returns>
-    public LaidOutGraph ApplyLayout(
+    public static LaidOutGraph ApplyLayout(
         DependencyGraph graph,
         LayoutAlgorithm algorithm,
         LayoutOptions? options = null)
@@ -99,7 +99,7 @@ public class GraphLayoutEngine
     /// <summary>
     /// 应用层次布局
     /// </summary>
-    private Dictionary<string, NodePosition> ApplyHierarchicalLayout(
+    private static Dictionary<string, NodePosition> ApplyHierarchicalLayout(
         DependencyGraph graph,
         LayoutOptions options)
     {

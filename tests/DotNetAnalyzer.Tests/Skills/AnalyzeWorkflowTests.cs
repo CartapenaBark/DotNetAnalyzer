@@ -190,7 +190,7 @@ public class AnalyzeWorkflowTests
         };
 
         // Act
-        var report = workflow.GenerateMarkdownReport(analysisResult);
+        var report = AnalyzeWorkflow.GenerateMarkdownReport(analysisResult);
 
         // Assert
         Assert.NotEmpty(report);
@@ -236,7 +236,7 @@ public class AnalyzeWorkflowTests
         };
 
         // Act
-        var report = workflow.GenerateMarkdownReport(analysisResult);
+        var report = AnalyzeWorkflow.GenerateMarkdownReport(analysisResult);
 
         // Assert
         Assert.NotEmpty(report);
@@ -287,7 +287,7 @@ public class AnalyzeWorkflowTests
         };
 
         // Act
-        var report = workflow.GenerateMarkdownReport(analysisResult);
+        var report = AnalyzeWorkflow.GenerateMarkdownReport(analysisResult);
 
         // Assert
         Assert.NotEmpty(report);
@@ -328,7 +328,7 @@ public class AnalyzeWorkflowTests
         };
 
         // Act
-        var report = workflow.GenerateMarkdownReport(analysisResult);
+        var report = AnalyzeWorkflow.GenerateMarkdownReport(analysisResult);
 
         // Assert
         Assert.NotEmpty(report);
@@ -371,7 +371,7 @@ public class AnalyzeWorkflowTests
         };
 
         // Act
-        var report = workflow.GenerateMarkdownReport(analysisResult);
+        var report = AnalyzeWorkflow.GenerateMarkdownReport(analysisResult);
 
         // Assert
         Assert.NotEmpty(report);
@@ -405,7 +405,7 @@ public class AnalyzeWorkflowTests
         };
 
         // Act
-        var report = workflow.GenerateMarkdownReport(analysisResult);
+        var report = AnalyzeWorkflow.GenerateMarkdownReport(analysisResult);
 
         // Assert
         Assert.NotEmpty(report);
@@ -446,7 +446,7 @@ public class AnalyzeWorkflowTests
         };
 
         // Act
-        var report = workflow.GenerateMarkdownReport(analysisResult);
+        var report = AnalyzeWorkflow.GenerateMarkdownReport(analysisResult);
 
         // Assert
         Assert.NotEmpty(report);
@@ -492,7 +492,7 @@ public class AnalyzeWorkflowTests
         };
 
         // Act
-        var report = workflow.GenerateMarkdownReport(analysisResult);
+        var report = AnalyzeWorkflow.GenerateMarkdownReport(analysisResult);
 
         // Assert
         Assert.NotEmpty(report);

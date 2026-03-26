@@ -398,11 +398,6 @@ FodyWeavers.xsd
 
 # Claude Code
 .Claude/
-.mcp.json
-CLAUDE.md
 
 # OpenSpec
 openspec/*
-
-# CodeX
-.codex/

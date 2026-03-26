@@ -59,7 +59,7 @@
 **环境**:
 - Windows 11
 - .NET 8.0.10
-- DotNetAnalyzer v0.1.0-alpha
+- DotNetAnalyzer v1.1.2
 
 **复现步骤**:
 1. 创建新的控制台应用
@@ -531,5 +531,5 @@ feat(symbols): add find_references implementation
 
 **感谢您对 DotNetAnalyzer 的贡献！**
 
-**版本**: v0.1.0-alpha
-**最后更新**: 2026-02-08
+**版本**: v1.1.2
+**最后更新**: 2026-03-27

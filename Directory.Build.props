@@ -29,7 +29,7 @@
   -->
   <PropertyGroup Label="Version">
     <!-- 从 Git 标签或分支获取版本信息 -->
-    <GitBaseVersion>1.1.1</GitBaseVersion>
+    <GitBaseVersion>1.1.2</GitBaseVersion>
     <GitVersion Condition="'$(GitVersion)'==''">$(GitBaseVersion)</GitVersion>
 
     <!-- 默认版本号（当 Git 信息不可用时） -->

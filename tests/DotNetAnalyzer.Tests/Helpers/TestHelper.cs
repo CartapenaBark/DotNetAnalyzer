@@ -117,4 +117,12 @@ public static class TestHelper
             $"无法找到测试资产目录。当前目录: {currentDir}，" +
             $"已尝试的路径: {string.Join(", ", possiblePaths.Select(p => Path.Combine(p, "tests", "TestAssets")))}");
     }
+
+    /// <summary>
+    /// 获取仓库根目录的绝对路径
+    /// </summary>
+    public static string GetRepositoryRoot()
+    {
+        return Path.GetFullPath(Path.Combine(GetTestAssetsPath(), "..", ".."));
+    }
 }

@@ -12,7 +12,6 @@ using DotNetAnalyzer.Core.Analysis.CodeQuality.SmellDetectors;
 using DotNetAnalyzer.Core.Monitoring;
 using DotNetAnalyzer.Core.Caching;
 using DotNetAnalyzer.Core.Visualization;
-using DotNetAnalyzer.Cli.Commands;
 
 namespace DotNetAnalyzer.Cli;
 
@@ -32,11 +31,6 @@ internal sealed class Program
                 case "--help":
                 case "-h":
                     ShowHelp();
-                    return;
-                case "init":
-                    // Init 命令 - 初始化 MCP 配置
-                    var initExitCode = await InitCommand.ExecuteAsync(args[1..]);
-                    Environment.Exit(initExitCode);
                     return;
                 case "mcp":
                     // MCP serve 子命令（默认行为）
@@ -114,11 +108,12 @@ internal sealed class Program
         var assembly = Assembly.GetExecutingAssembly();
         var assemblyVersion = assembly.GetName().Version;
         var informationalVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        var normalizedInformationalVersion = informationalVersion?.Split('+', 2)[0];
 
         // 优先使用 InformationalVersion（如果存在），否则使用 AssemblyVersion
         // informationalVersion 通常包含语义化版本（如 0.6.1）
         // assemblyVersion 通常只是 AssemblyVersion（如 0.6.1.0）
-        return !string.IsNullOrEmpty(informationalVersion) ? informationalVersion
+        return !string.IsNullOrEmpty(normalizedInformationalVersion) ? normalizedInformationalVersion
                : assemblyVersion?.ToString() ?? "unknown";
     }
 
@@ -135,13 +130,12 @@ internal sealed class Program
         Console.WriteLine("  -h, --help        Show help information");
         Console.WriteLine();
         Console.WriteLine("Commands:");
-        Console.WriteLine("  init              Initialize MCP configuration for Claude Code");
         Console.WriteLine("  mcp serve         Start MCP server (default)");
         Console.WriteLine();
         Console.WriteLine("When run without options, dotnet-analyzer starts as an MCP server");
         Console.WriteLine("and waits for stdio input (for use with Claude Code).");
         Console.WriteLine();
         Console.WriteLine("For more information, visit:");
-        Console.WriteLine("  https://github.com/yourusername/DotNetAnalyzer");
+        Console.WriteLine("  https://github.com/CartapenaBark/DotNetAnalyzer");
     }
 }

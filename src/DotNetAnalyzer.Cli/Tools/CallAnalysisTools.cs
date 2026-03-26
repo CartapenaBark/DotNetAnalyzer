@@ -71,7 +71,7 @@ public static class CallAnalysisTools
     /// <summary>
     /// 获取方法内调用的所有其他方法
     /// </summary>
-    [McpServerTool, Description("获取方法内调用的所有其他方法，支持递归深度分析")]
+    [McpServerTool, Description("获取方法内调用的所有其他方法，支持递归深度分析（复杂跨文档场景为启发式）")]
     public static async Task<string> GetCalleeInfo(
         IWorkspaceManager workspaceManager,
         [Description("文件路径")] string filePath,
@@ -118,7 +118,14 @@ public static class CallAnalysisTools
             return JsonSerializer.Serialize(new
             {
                 success = true,
-                data = result
+                data = result,
+                credibility = new
+                {
+                    level = "heuristic",
+                    isStable = false,
+                    summary = "当前被调用者分析在复杂跨文档场景下仍可能不完整。",
+                    remediation = "后续需补齐跨文档调用树解析后再升级为稳定能力。"
+                }
             }, JsonOptions.Default);
         }
         catch (Exception ex)

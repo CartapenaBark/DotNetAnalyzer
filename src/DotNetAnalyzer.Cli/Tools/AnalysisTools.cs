@@ -248,7 +248,7 @@ public static class AnalysisTools
     /// <summary>
     /// 获取测试覆盖率
     /// </summary>
-    [McpServerTool, Description("获取项目的测试覆盖率信息")]
+    [McpServerTool, Description("获取项目的测试覆盖率估算信息（启发式结果）")]
     public static async Task<string> GetTestCoverage(
         IWorkspaceManager workspaceManager,
         [Description("项目路径")] string projectPath)
@@ -286,6 +286,13 @@ public static class AnalysisTools
                         coveragePercentage = fc.CoveragePercentage,
                         uncoveredMethods = fc.UncoveredMethods
                     })
+                },
+                credibility = new
+                {
+                    level = "heuristic",
+                    isStable = false,
+                    summary = "当前覆盖率结果基于测试文件命名和启发式估算，不等同于真实覆盖率采集结果。",
+                    remediation = "后续可接入 coverlet 或其他覆盖率产物，替换当前近似实现。"
                 }
             }, JsonOptions.Default);
         }

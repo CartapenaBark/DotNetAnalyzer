@@ -606,7 +606,8 @@ DotNetAnalyzer 支持以下 Visual Studio 解决方案格式：
 ## 更多资源
 
 - [项目 README](README.md)
-- [故障排除](docs/troubleshooting.md)
+- [工具测试指南](docs/TOOLS_TESTING_GUIDE.md)
+- [CLAUDE.md](CLAUDE.md) - 给 Claude Code 的项目说明
 - [故障排除](docs/TROUBLESHOOTING.md) - （待创建）
 
 ## 配置示例

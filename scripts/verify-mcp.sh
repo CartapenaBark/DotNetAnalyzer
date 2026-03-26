@@ -30,11 +30,11 @@ else
     echo ""
     echo "故障排除步骤:"
     echo "  1. 重新构建项目: dotnet build src/DotNetAnalyzer.Cli -c Release"
-    echo "  2. 重新安装工具: dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 0.6.1"
+    echo "  2. 重新安装工具: dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 1.1.2"
     echo "  3. 测试连接: claude mcp list"
     echo ""
     echo "详细信息请参考:"
     echo "  - https://modelcontextprotocol.io/docs/"
-    echo "  - https://www.claude-cn.org/claude-code-docs-zh/building/mcp.html"
+    echo "  - docs/development-workflow.md"
     exit 1
 fi

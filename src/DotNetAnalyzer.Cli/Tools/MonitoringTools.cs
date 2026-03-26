@@ -128,7 +128,7 @@ public static class MonitoringTools
     /// <param name="changedFilePath">变更的文件路径</param>
     /// <param name="changeType">变更类型</param>
     /// <returns>影响分析结果</returns>
-    [McpServerTool, Description("分析代码变更的影响范围")]
+    [McpServerTool, Description("分析代码变更的影响范围（启发式结果）")]
     public static async Task<string> AnalyzeChangeImpact(
         IWorkspaceManager workspaceManager,
         ILogger<ChangeImpactAnalyzer> logger,
@@ -165,7 +165,17 @@ public static class MonitoringTools
                 })
             };
 
-            return JsonSerializer.Serialize(new { data = report }, JsonOptions.Default);
+            return JsonSerializer.Serialize(new
+            {
+                data = report,
+                credibility = new
+                {
+                    level = "heuristic",
+                    isStable = false,
+                    summary = "当前影响分析只覆盖直接公共符号引用，未包含完整的传递依赖和精确测试映射。",
+                    remediation = "后续需补齐依赖图和测试引用分析，才能升级为稳定结果。"
+                }
+            }, JsonOptions.Default);
         }
         catch (Exception ex)
         {

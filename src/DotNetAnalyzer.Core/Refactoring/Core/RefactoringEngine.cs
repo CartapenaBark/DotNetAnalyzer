@@ -64,7 +64,7 @@ public sealed class RefactoringEngine : IRefactoringEngine
         {
             try
             {
-                var refactorer = (IRefactorer?)Activator.CreateInstance(item.Type);
+                var refactorer = TryCreateRefactorer(item.Type);
                 if (refactorer != null)
                 {
                     var attributeName = item.Attribute?.Name ?? throw new InvalidOperationException("RefactorerAttribute cannot be null");
@@ -78,6 +78,30 @@ public sealed class RefactoringEngine : IRefactoringEngine
                 Console.Error.WriteLine($"无法实例化重构器 {attributeName}: {ex.Message}");
             }
         }
+    }
+
+    private static IRefactorer? TryCreateRefactorer(Type refactorerType)
+    {
+        var constructor = refactorerType
+            .GetConstructors()
+            .OrderBy(ctor => ctor.GetParameters().Length)
+            .FirstOrDefault(ctor => ctor.GetParameters().All(parameter => parameter.IsOptional));
+
+        if (constructor == null)
+        {
+            return null;
+        }
+
+        var arguments = constructor
+            .GetParameters()
+            .Select(parameter => parameter.HasDefaultValue
+                ? parameter.DefaultValue
+                : parameter.ParameterType.IsValueType
+                    ? Activator.CreateInstance(parameter.ParameterType)
+                    : null)
+            .ToArray();
+
+        return (IRefactorer?)constructor.Invoke(arguments);
     }
 
     /// <summary>
@@ -179,7 +203,7 @@ public sealed class RefactoringEngine : IRefactoringEngine
     private async Task<Document?> GetDocumentAsync(RefactoringRequest request)
     {
         // 从 WorkspaceManager 获取解决方案
-        var project = await _workspaceManager.GetProjectAsync(request.FilePath);
+        var project = await _workspaceManager.GetProjectAsync(request.ProjectPath);
         if (project == null)
             return null;
 

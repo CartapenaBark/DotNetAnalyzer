@@ -1,0 +1,12 @@
+{
+  "solutionPath": "DotNetAnalyzer.slnx",
+  "configuration": "Release",
+  "testFramework": "net10.0",
+  "testFilter": "Category!=Performance",
+  "packageProject": "src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj",
+  "packageOutputDir": "Bin/nupkg",
+  "authoritativeDocuments": [
+    "docs/development-workflow.md",
+    "CONTRIBUTING.md"
+  ]
+}

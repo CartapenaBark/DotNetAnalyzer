@@ -403,3 +403,6 @@ CLAUDE.md
 
 # OpenSpec
 openspec/*
+
+# CodeX
+.codex/

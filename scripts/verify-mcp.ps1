@@ -35,11 +35,11 @@ if ($mcpStatus -match "dotnet-analyzer.*✓ Connected") {
     Write-Host ""
     Write-Host "故障排除步骤:" -ForegroundColor Yellow
     Write-Host "  1. 重新构建项目: dotnet build src/DotNetAnalyzer.Cli -c Release"
-    Write-Host "  2. 重新安装工具: dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 0.6.1"
+    Write-Host "  2. 重新安装工具: dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 1.1.2"
     Write-Host "  3. 测试连接: claude mcp list"
     Write-Host ""
     Write-Host "详细信息请参考:" -ForegroundColor Cyan
     Write-Host "  - https://modelcontextprotocol.io/docs/"
-    Write-Host "  - https://www.claude-cn.org/claude-code-docs-zh/building/mcp.html"
+    Write-Host "  - docs/development-workflow.md"
     exit 1
 }

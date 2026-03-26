@@ -43,13 +43,13 @@ jobs:
           ${{ runner.os }}-nuget-
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore DotNetAnalyzer.slnx -p:Configuration=Release --verbosity minimal
 
     - name: Build
-      run: dotnet build -c Release -p:Version=${{ needs.extract_version.outputs.version }}
+      run: dotnet build DotNetAnalyzer.slnx -c Release --no-restore --verbosity minimal -p:Version=${{ needs.extract_version.outputs.version }}
 
     - name: Test (.NET 10.0)
-      run: dotnet test -c Release --framework net10.0 --verbosity normal
+      run: dotnet test DotNetAnalyzer.slnx -c Release --framework net10.0 --no-build --verbosity normal --filter "Category!=Performance"
 
     - name: Pack
       run: dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release -p:Version=${{ needs.extract_version.outputs.version }}

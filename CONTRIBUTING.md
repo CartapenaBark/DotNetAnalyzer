@@ -118,27 +118,21 @@ cd DotNetAnalyzer
 ### 构建项目
 
 ```bash
-# 还原依赖
-dotnet restore
+# 唯一推荐的本地验证入口
+bash scripts/validate-ci-cd.sh
 
-# 构建解决方案
-dotnet build
-
-# 运行测试（当前无测试）
-dotnet test
-
-# 创建 NuGet 包
-dotnet pack -c Release
+# 等价底层命令
+dotnet restore DotNetAnalyzer.slnx -p:Configuration=Release --verbosity minimal
+dotnet build DotNetAnalyzer.slnx -c Release --no-restore --verbosity minimal
+dotnet test DotNetAnalyzer.slnx -c Release --framework net10.0 --no-build --verbosity normal --filter "Category!=Performance"
+dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release --no-build --output ./Bin/nupkg
 ```
 
 ### 安装本地构建版本
 
 ```bash
 # 从本地 NuGet 源安装
-dotnet tool install --global --add-source ./src/DotNetAnalyzer.Cli/bin/Release DotNetAnalyzer
-
-# 或使用 .csproj 直接安装
-dotnet tool install --global DotNetAnalyzer.Cli
+dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 1.1.2
 ```
 
 ### 项目结构
@@ -173,6 +167,7 @@ DotNetAnalyzer/
 ├── CHANGELOG.md                     # 更新日志
 ├── CONTRIBUTING.md                  # 本文件
 ├── CONFIGURATION.md                 # 配置指南
+├── CLAUDE.md                        # Claude 项目说明
 └── DotNetAnalyzer.slnx              # 解决方案文件
 ```
 
@@ -190,12 +185,12 @@ DotNetAnalyzer/
 
 3. **本地测试**
    ```bash
-   # 构建
-   dotnet build -c Release
+   # 执行权威验证流程
+   bash scripts/validate-ci-cd.sh
 
    # 安装测试版本
    dotnet tool uninstall -g DotNetAnalyzer
-   dotnet tool install --global --add-source ./src/DotNetAnalyzer.Cli/bin/Release DotNetAnalyzer
+   dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 1.1.2
 
    # 在测试项目上测试
    cd /path/to/test/project

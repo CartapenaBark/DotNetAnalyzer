@@ -3,7 +3,7 @@
 > 一个强大的 MCP (Model Context Protocol) 服务器工具，将 Roslyn 的代码分析能力引入 Claude Code
 
 [![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet)
-[![NuGet](https://img.shields.io/badge/nuget-1.1.1-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
+[![NuGet](https://img.shields.io/badge/nuget-1.1.2-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 📖 简介
@@ -29,23 +29,24 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 ## 🎯 核心功能
 
-**当前版本 (v1.1.1)** 提供 **82 个 MCP 工具**，支持强命名、完整的代码分析和可视化能力。
+**当前版本 (v1.1.2)** 提供 **64 个 MCP 工具**，覆盖代码分析、重构、代码质量与可视化能力；对启发式或实验性结果会显式标注可信度。
 
 ### 功能概览
 
 | 类别 | 工具数 | 说明 |
 |:----:|:------:|:-----|
-| 🔍 **代码诊断** | 1 | 编译器诊断、错误修复 |
-| 📁 **项目管理** | 3 | 依赖分析、构建顺序、.slnx 支持 |
-| 🔬 **代码分析** | 1 | 语法树、类型分析 |
-| 🎯 **符号查询** | 3 | 引用查找、符号定位 |
+| 🔍 **代码诊断** | 2 | 编译器诊断、代码度量 |
+| 📁 **项目管理** | 5 | 依赖分析、构建顺序、.slnx 支持 |
+| 🔬 **代码分析** | 6 | 语法树、覆盖率、死代码、性能与文档生成 |
+| 🎯 **符号查询** | 4 | 引用查找、声明定位、符号详情 |
 | 🧭 **导航工具** | 7 | 跳转定义、类型层次、代码度量 |
-| 🔧 **重构工具** | 15 | 提取方法、重命名、接口提取 |
-| ✨ **代码生成** | 11 | 接口实现、构造函数、格式化 |
-| 📊 **高级分析** | 7 | 调用图（SVG/JSON/Mermaid）、语法树比较 |
-| 🧪 **代码质量** | 4 | 测试覆盖率、死代码检测、性能分析 |
-| ⚡ **代码操作** | 3 | 代码操作、重构建议、补全 |
-| 🔎 **高级查询** | 5 | 符号解析、文档列表 |
+| 🔧 **重构工具** | 5 | 提取方法、重命名、变量引入、重构器枚举 |
+| ✨ **代码生成** | 6 | 接口实现、构造函数、格式化与 using 管理 |
+| 📊 **调用与比较** | 8 | 调用图、调用者/被调用者、语法树与代码差异 |
+| 🧪 **代码质量** | 4 | 异味检测、技术债务、综合质量报告 |
+| ⚡ **代码操作** | 4 | 代码操作、重构建议、补全 |
+| 🔎 **高级查询** | 4 | 符号解析、定义与引用聚合、文档列表 |
+| 👀 **监控与可视化** | 9 | 文件监听、变更影响、缓存、依赖图与热力图 |
 
 📄 **[完整 API 文档](docs/api-guide.md)** | 🏗️ **[系统架构](docs/ARCHITECTURE.md)**
 
@@ -65,7 +66,7 @@ DotNetAnalyzer 采用分层架构设计，通过 MCP 协议连接 Claude Code �
 **核心组件**：
 - `WorkspaceManager` - LRU 缓存项目，并发加载控制
 - `CompilationCache` - 编译结果缓存，自动失效
-- `ToolRegistry` - 74 个 MCP 工具的注册和调用
+- `ToolRegistry` - 64 个 MCP 工具的注册和调用
 - `RefactoringEngine` - 重构操作执行引擎
 - `PathValidator` - 路径安全验证
 
@@ -73,57 +74,13 @@ DotNetAnalyzer 采用分层架构设计，通过 MCP 协议连接 Claude Code �
 
 ## 🚀 快速开始
 
-### 一键配置（推荐）
-
-```bash
-# 1. 安装工具
-dotnet tool install --global DotNetAnalyzer
-
-# 2. 自动配置（新功能！）
-dotnet-analyzer init
-
-# 3. 重启 Claude Code
-```
-
-就这么简单！`init` 命令会自动：
-- ✅ 检测您的开发环境
-- ✅ 生成所需的配置文件
-- ✅ 安装预定义技能（Skills）
-- ✅ 验证配置正确性
-
-### 🎯 使用预定义技能
-
-DotNetAnalyzer 提供了三个预定义技能，可以直接在 Claude Code 中使用自然语言触发：
-
-| 技能 | 用途 | 触发词示例 |
-|:----|:-----|:----------|
-| **dotnet-analyze** | 代码质量分析 | "分析代码质量"、"检查技术债务"、"审计架构" |
-| **dotnet-refactor** | 引导式代码重构 | "重构这个方法"、"提取方法"、"重命名变量" |
-| **dotnet-diagnose** | 智能问题诊断 | "为什么报错"、"调试这个异常"、"分析性能" |
-
-**使用示例**：
-
-```
-你：分析这个项目的代码质量
-
-Claude：正在分析项目...
-📊 分析完成！
-
-# 代码分析报告
-- ✓ 项目: MyApp.sln
-- ✓ 文件数: 45
-- 代码度量: 平均圈复杂度 3.2
-- 建议: 提高测试覆盖率
-```
-
-📄 **[查看完整集成指南](docs/claude-code-integration.md)** - 包含详细配置选项、自定义技能和故障排除
-
-<details>
-<summary><b>手动配置（可选）</b></summary>
-
-如果您更喜欢手动配置，请参考下面的详细步骤。
-
 ### 前置要求
+
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) 或更高版本
+- [Claude Code](https://claude.ai/code) (支持 MCP 协议)
+- 一个 .NET 解决方案或项目
+
+### 安装
 
 #### 方式一：从 NuGet 安装（推荐）✨
 
@@ -142,7 +99,7 @@ dotnet-tool list --global
 
 **NuGet 包信息**:
 - 📦 包名: `DotNetAnalyzer`
-- 🏷️ 版本: `1.1.1`
+- 🏷️ 版本: `1.1.2`
 - 🔗 链接: [https://www.nuget.org/packages/DotNetAnalyzer](https://www.nuget.org/packages/DotNetAnalyzer)
 - .NET 8.0 或更高版本
 
@@ -153,14 +110,11 @@ dotnet-tool list --global
 git clone https://github.com/CartapenaBark/DotNetAnalyzer.git
 cd DotNetAnalyzer
 
-# 还原依赖
-dotnet restore
-
-# 构建并打包为本地工具
-dotnet pack -c Release
+# 运行权威验证链路
+bash scripts/validate-ci-cd.sh
 
 # 从本地 NuGet 包安装
-dotnet tool install --global DotNetAnalyzer --add-source ./nupkg
+dotnet tool install --global DotNetAnalyzer --add-source ./Bin/nupkg --version 1.1.2
 ```
 
 ### 更新
@@ -302,17 +256,14 @@ Claude: [调用 extract_method] ...
 ### 本地构建
 
 ```bash
-# 构建项目
-dotnet build -c Release
+# 运行权威本地验证链路
+bash scripts/validate-ci-cd.sh
 
-# 运行测试
-dotnet test
-
-# 运行所有测试（包括性能测试）
-dotnet test --filter "Category=Performance"
-
-# 创建 NuGet 包
-dotnet pack -c Release
+# 单独查看底层命令
+dotnet restore DotNetAnalyzer.slnx -p:Configuration=Release --verbosity minimal
+dotnet build DotNetAnalyzer.slnx -c Release --no-restore --verbosity minimal
+dotnet test DotNetAnalyzer.slnx -c Release --framework net10.0 --no-build --verbosity normal --filter "Category!=Performance"
+dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release --no-build --output ./Bin/nupkg
 ```
 
 ### GitHub Actions CI/CD
@@ -339,17 +290,14 @@ dotnet pack -c Release
 
 ## 🗺️ 开发路线图
 
-所有 6 个 Phase 已完成，共实现 **74 个 MCP 工具**。
+当前公开 **64 个 MCP 工具**，并对低可信结果提供显式分级。
 
-| Phase | 状态 | 工具数 |
+| 能力域 | 状态 | 工具数 |
 |-------|------|--------|
-| 1: MCP Server Foundation | ✅ | 22 |
-| 2: Navigation Enhancement | ✅ | 7 |
-| 3: Code Refactoring | ✅ | 15 |
-| 4: Code Generation and Fixing | ✅ | 11 |
-| 5: Advanced Features | ✅ | 7 |
-| 6: Code Quality and Visualization | ✅ | 4 |
-| 附加: Code Actions + Advanced Query | ✅ | 8 |
+| 代码分析 / 导航 / 符号查询 | ✅ | 17 |
+| 项目管理 / 监控 / 查询 | ✅ | 15 |
+| 重构 / 代码生成 / 代码操作 | ✅ | 15 |
+| 调用分析 / 比较 / 可视化 / 质量分析 | ✅ | 17 |
 
 ## 🤝 贡献
 
@@ -388,9 +336,9 @@ dotnet pack -c Release
 开发过程中可以本地安装和测试：
 
 ```bash
-# 从当前目录构建并安装
-dotnet pack -c Release
-dotnet tool install --global DotNetAnalyzer --add-source ./src/DotNetAnalyzer.Cli/bin/Release
+# 运行本地验证并生成包
+bash scripts/validate-ci-cd.sh
+dotnet tool install --global DotNetAnalyzer --add-source ./Bin/nupkg --version 1.1.2
 
 # 测试工具
 dotnet-analyzer --version
@@ -408,10 +356,14 @@ dotnet tool uninstall --global DotNetAnalyzer
 
 ### 用户指南
 - [API 使用指南](docs/api-guide.md) - 完整的 MCP 工具 API 参考文档
-  - 所有 8 个核心工具的详细说明
+  - 当前工具分组与关键接口说明
   - 参数、返回值和使用示例
   - 配置选项和最佳实践
   - 故障排除指南
+- [分析能力可信度矩阵](docs/analysis-credibility.md) - 稳定 / 启发式 / 实验性能力边界
+  - 哪些结果可以视为稳定行为
+  - 哪些结果会在运行时附带可信度标记
+  - 每项低可信能力的后续收敛路径
 
 - [使用示例](docs/examples.md) - 实际使用场景和代码示例
   - 基础示例（诊断检查、解决方案分析）
@@ -428,10 +380,10 @@ dotnet tool uninstall --global DotNetAnalyzer
   - 性能优化建议
 
 ### 开发者文档
-- [故障排除](docs/troubleshooting.md) - 常见问题解决方案
-- [FAQ](docs/FAQ.md) - 常见问题解答
-- <!-- TODO: [集成测试指南](docs/INTEGRATION_TESTING.md) - 如何运行和编写集成测试 -->
-- <!-- TODO: [工具测试指南](docs/TOOLS_TESTING_GUIDE.md) - MCP 工具测试指南 -->
+- [开发工作流](docs/development-workflow.md) - 唯一推荐的本地验证流程
+- [版本管理](docs/VERSION_MANAGEMENT.md) - 版本升级与发布流程
+- [架构文档](docs/ARCHITECTURE.md) - 组件关系、工具分层与调用流程
+- [CLAUDE.md](CLAUDE.md) - 给 Claude Code 的项目说明
 
 ### 项目文档
 - [CHANGELOG](CHANGELOG.md) - 版本更新历史
@@ -464,6 +416,8 @@ dotnet tool uninstall --global DotNetAnalyzer
 
 完整更新历史请查看 [CHANGELOG.md](CHANGELOG.md)
 
+- **v1.1.2** (2026-03-22) - 产品可信度基线、验证链路统一与元数据修正
+- **v1.1.0** (2026-03-21) - 代码质量分析与产品可信度基线
 - **v1.0.1** (2026-03-13) - 文档优化，架构图迁移到独立文档
 - **v1.0.0** (2026-03-12) - 正式版，74 个 MCP 工具
 - **v0.8.0** - .NET 10.0 支持，框架统一

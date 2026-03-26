@@ -22,45 +22,27 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-analyzer</ToolCommandName>
     <PackageId>DotNetAnalyzer</PackageId>
-    <Version>1.1.1</Version>
+    <Version>1.1.2</Version>
     <Authors>CartapenaBark</Authors>
-    <Description>MCP server with 82 tools for .NET code analysis, refactoring, code generation, and quality analysis</Description>
+    <Description>MCP server with 64 tools for .NET code analysis, refactoring, code generation, quality analysis, and visualization</Description>
     <PackageTags>mcp;roslyn;code-analysis;claude;dotnet</PackageTags>
     <PackageProjectUrl>https://github.com/CartapenaBark/DotNetAnalyzer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/CartapenaBark/DotNetAnalyzer</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <!-- 版本号配置 -->
-    <AssemblyVersion>1.1.1.0</AssemblyVersion>
-    <FileVersion>1.1.1.0</FileVersion>
-    <InformationalVersion>1.1.1</InformationalVersion>
     <PackageReleaseNotes><![CDATA[
-      v1.1.1 - Claude Code Integration
+      v1.1.2 - Product Trust Baseline
 
-      🎉 NEW FEATURES:
-        • ✨ Claude Code Plugin Integration - 自动配置 MCP 服务器和技能
-        • 🎯 预定义技能 - dotnet-analyze, dotnet-refactor, dotnet-diagnose
-        • 🚀 一键安装 - 跨平台安装脚本 (Linux/macOS/Windows)
-        • 📦 init 命令 - 自动检测环境并生成配置文件
-        • 🔧 技能安装器 - 自动复制技能文件到用户项目
+      🔧 TRUST & VALIDATION:
+        • Unified restore/build/test/pack flow across local scripts and CI
+        • Added authoritative metadata source and consistency regression tests
+        • Fixed refactoring project/document resolution for end-to-end preview flows
+        • Marked heuristic and experimental analysis capabilities with explicit credibility levels
 
-      📊 IMPROVEMENTS:
-        • 修复了 System.CommandLine 依赖问题（使用手动解析）
-        • 修复了版本号配置问题（统一使用 Directory.Build.props）
-        • 消除了所有编译警告（0 warnings, 0 errors）
-        • 改进了文档结构（FAQ、故障排除、集成指南）
-
-      📚 DOCUMENTATION:
-        • 新增 Claude Code 集成指南
-        • 新增 FAQ 文档
-        • 新增故障排除文档
-        • 改进了 README 和文档引用路径
-
-      🔄 MAINTENANCE:
-        • 将技能文件移至 templates/ 目录（避免被 .gitignore 忽略）
-        • 清理了临时脚本文件
-        • 更新了所有文档中的版本引用
+      📝 DOCUMENTATION:
+        • Updated contributor workflow to a single recommended validation path
+        • Corrected CLI help, README, API guide, and package metadata drift
 
       v1.1.0 - Code Quality Analysis
 
@@ -223,8 +205,8 @@
     <Company>CartapenaBark</Company>
     <Product>DotNetAnalyzer - MCP Code Analysis Server</Product>
     <Copyright>Copyright (c) 2026 CartapenaBark</Copyright>
-    <!-- 允许访问内部成员以便测试 -->
-    <InternalsVisibleTo>DotNetAnalyzer.Tests</InternalsVisibleTo>
+    <!-- 生成程序集版本信息，确保 CLI 版本输出与包版本保持一致 -->
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>

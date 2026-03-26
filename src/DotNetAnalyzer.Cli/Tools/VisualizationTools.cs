@@ -90,7 +90,7 @@ public static class VisualizationTools
     /// <param name="heatmapType">热力图类型（complexity、change-frequency）</param>
     /// <param name="format">输出格式（mermaid、json）</param>
     /// <returns>热力图</returns>
-    [McpServerTool, Description("生成架构热力图")]
+    [McpServerTool, Description("生成架构热力图；change-frequency 类型当前为实验性结果")]
     public static async Task<string> GenerateHeatmap(
         IWorkspaceManager workspaceManager,
         ILogger<HeatmapGenerator> logger,
@@ -107,12 +107,27 @@ public static class VisualizationTools
             var generator = new HeatmapGenerator(logger);
             HeatmapData data;
 
+            object credibility = new
+            {
+                level = "verified",
+                isStable = true,
+                summary = "复杂度热力图基于真实代码异味分析生成。",
+                remediation = (string?)null
+            };
+
             if (heatmapType.Equals("change-frequency", StringComparison.OrdinalIgnoreCase))
             {
                 // TODO: 实现变更频率热力图
                 // 这里需要从缓存或其他数据源获取变更历史
                 data = HeatmapGenerator.GenerateComplexityHeatmap(new CodeSmellCollection());
                 data.Title = "变更频率热力图（模拟数据）";
+                credibility = new
+                {
+                    level = "experimental",
+                    isStable = false,
+                    summary = "当前尚未接入真实变更历史，返回的是实验性占位结果。",
+                    remediation = "后续需接入 git 或其他历史数据源后再对外宣称稳定。"
+                };
             }
             else
             {
@@ -134,7 +149,8 @@ public static class VisualizationTools
                 data = result,
                 type = heatmapType,
                 format = format,
-                cellCount = data.Cells.Count
+                cellCount = data.Cells.Count,
+                credibility
             }, JsonOptions.Default);
         }
         catch (Exception ex)

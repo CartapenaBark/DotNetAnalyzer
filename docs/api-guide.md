@@ -134,7 +134,9 @@ Claude: [调用 get_diagnostics] ...
 
 ## MCP 工具概览
 
-DotNetAnalyzer v0.6.1 提供 **41 个 MCP 工具**，分为以下类别：
+DotNetAnalyzer v1.1.2 提供 **64 个 MCP 工具**，覆盖代码分析、导航、重构、质量分析、可视化和监控能力。
+
+> 当前文档中的能力说明以 `eng/product-metadata.json` 与源码扫描得到的工具清单为准；对启发式或实验性结果，请同步参考 [分析能力可信度矩阵](analysis-credibility.md)。
 
 ### 核心工具 (Phase 1) - 22 个
 
@@ -772,7 +774,7 @@ Claude: [调用 get_diagnostics，指定 filePath]
 
 ## 导航增强工具 (Phase 2)
 
-✨ **v0.6.1 新增**: Phase 2 提供了 7 个强大的代码导航和语义分析工具，使 Claude Code 能够深度理解代码结构和关系。
+导航工具目前仍提供 7 个核心能力，用于支持符号定位、类型层次和语义分析。
 
 ### 工具概览
 
@@ -1492,19 +1494,12 @@ Claude: [调用 find_references]
 
 ## API 版本历史
 
-### v0.6.1 (当前版本)
+### v1.1.2 (当前版本)
 
-- ✅ **Phase 2 完成**: 新增 7 个导航增强工具
-  - `go_to_definition` - 跳转到符号定义
-  - `get_type_hierarchy` - 类型继承层次分析
-  - `get_member_hierarchy` - 成员层次结构分析
-  - `get_semantic_model` - 语义模型详细信息
-  - `get_syntax_tree` - 语法树结构分析
-  - `get_code_metrics` - 代码复杂度和质量度量
-- ✅ 工具总数: 41 个（Phase 1: 22 个，Phase 2: 7 个，Phase 3-5: 12 个）
-- ✅ 完整的类型层次分析支持
-- ✅ 代码度量指标（圈复杂度、可维护性指数等）
-- ✅ 语法树 JSON 序列化
+- ✅ 当前公开工具总数: 64 个
+- ✅ 导航、重构、比较、质量分析和可视化工具已统一纳入同一 CLI 程序集
+- ✅ 对 `get_test_coverage`、`analyze_change_impact`、`get_callee_info`、`generate_heatmap(change-frequency)` 等低可信能力增加了显式分级
+- ✅ 关键重构链路已补充项目/文档解析端到端测试
 
 ### v0.6.0
 
@@ -1533,13 +1528,13 @@ Claude: [调用 find_references]
 ## 更多资源
 
 - [主 README](../README.md)
-- [配置指南](CONFIGURATION.md)
-- [集成测试指南](INTEGRATION_TESTING.md)
-- [工具测试指南](TOOLS_TESTING_GUIDE.md)
-- [故障排除](MCP_TROUBLESHOOTING.md)
+- [配置指南](../CONFIGURATION.md)
+- [开发工作流](development-workflow.md)
+- [分析能力可信度矩阵](analysis-credibility.md)
+- [版本管理](VERSION_MANAGEMENT.md)
 - [CHANGELOG](../CHANGELOG.md)
 
 ---
 
-**版本**: v0.6.1
-**最后更新**: 2026-02-10
+**版本**: v1.1.2
+**最后更新**: 2026-03-22

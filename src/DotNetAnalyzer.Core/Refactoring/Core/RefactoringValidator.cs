@@ -79,8 +79,8 @@ public sealed partial class RefactoringValidator : IRefactoringValidator
             var position = sourceText.Lines.GetPosition(
                 new LinePosition(line, column));
 
-            var symbol = context.SemanticModel.GetSymbolInfo(
-                context.Root.FindToken(position).Parent!).Symbol;
+            var node = context.Root.FindToken(position).Parent;
+            var symbol = ResolveSymbol(context.SemanticModel, node);
 
             if (symbol == null)
             {
@@ -97,6 +97,30 @@ public sealed partial class RefactoringValidator : IRefactoringValidator
                 RefactoringErrorCode.INVALID_SYMBOL_LOCATION,
                 $"无法解析符号位置: {ex.Message}");
         }
+    }
+
+    private static ISymbol? ResolveSymbol(SemanticModel semanticModel, SyntaxNode? node)
+    {
+        if (node == null)
+        {
+            return null;
+        }
+
+        var currentNode = node;
+        while (currentNode != null)
+        {
+            var symbol = semanticModel.GetSymbolInfo(currentNode).Symbol
+                ?? semanticModel.GetDeclaredSymbol(currentNode);
+
+            if (symbol != null)
+            {
+                return symbol;
+            }
+
+            currentNode = currentNode.Parent;
+        }
+
+        return null;
     }
 
     /// <summary>

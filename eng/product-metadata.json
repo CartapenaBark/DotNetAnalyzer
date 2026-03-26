@@ -1,0 +1,14 @@
+{
+  "displayName": "DotNetAnalyzer",
+  "packageId": "DotNetAnalyzer",
+  "toolCommandName": "dotnet-analyzer",
+  "currentVersion": "1.1.2",
+  "toolCount": 64,
+  "repositoryUrl": "https://github.com/CartapenaBark/DotNetAnalyzer",
+  "packageUrl": "https://www.nuget.org/packages/DotNetAnalyzer",
+  "maintainedDocuments": [
+    "README.md",
+    "docs/api-guide.md",
+    "docs/development-workflow.md"
+  ]
+}

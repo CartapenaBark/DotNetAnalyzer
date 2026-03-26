@@ -31,10 +31,10 @@ jobs:
           ${{ runner.os }}-nuget-
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore DotNetAnalyzer.slnx -p:Configuration=Release --verbosity minimal
 
     - name: Build
-      run: dotnet build -c Release
+      run: dotnet build DotNetAnalyzer.slnx -c Release --no-restore --verbosity minimal
 
     - name: Test (.NET 10.0)
-      run: dotnet test -c Release --framework net10.0 --verbosity normal --filter "Category!=Performance"
+      run: dotnet test DotNetAnalyzer.slnx -c Release --framework net10.0 --no-build --verbosity normal --filter "Category!=Performance"

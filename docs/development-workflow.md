@@ -1,225 +1,90 @@
 # DotNetAnalyzer 开发工作流
 
-本文档描述了 DotNetAnalyzer 项目的开发工作流程，包括提交前验证步骤。
+本文档定义仓库唯一推荐的本地验证流程。脚本、CI 工作流和贡献者说明都必须与这里保持一致。
 
-## 📋 提交前验证清单
+```mermaid
+flowchart LR
+    A[eng/validation-flow.json] --> B[docs/development-workflow.md]
+    A --> C[scripts/validate-ci-cd.*]
+    A --> D[GitHub Actions]
+    E[eng/product-metadata.json] --> F[README / API 文档]
+    E --> G[CLI help / 包元数据]
+    F --> H[一致性测试]
+    G --> H
+```
 
-在提交任何代码更改之前，**必须**运行以下验证步骤：
+## 权威验证链路
 
-### 1. MCP 服务器连接验证
+仓库当前维护的权威验证参数如下：
 
-dotnet-analyzer 作为一个 MCP 服务器，必须确保可以正常连接到 Claude Code。
+- 解决方案：`DotNetAnalyzer.slnx`
+- 配置：`Release`
+- 测试目标框架：`net10.0`
+- CI / 本地默认测试过滤器：`Category!=Performance`
+- 本地包输出目录：`Bin/nupkg`
 
-#### Linux/macOS
+### Linux / macOS
+
+```bash
+bash scripts/validate-ci-cd.sh
+```
+
+### Windows PowerShell
+
+```powershell
+pwsh -File scripts/validate-ci-cd.ps1
+```
+
+### Windows CMD
+
+```cmd
+scripts\validate-ci-cd.bat
+```
+
+## 底层命令序列
+
+如果你需要手动排查问题，请保持与权威脚本完全一致的顺序和参数：
+
+```bash
+dotnet restore DotNetAnalyzer.slnx -p:Configuration=Release --verbosity minimal
+dotnet build DotNetAnalyzer.slnx -c Release --no-restore --verbosity minimal
+dotnet test DotNetAnalyzer.slnx -c Release --framework net10.0 --no-build --verbosity normal --filter "Category!=Performance"
+dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release --no-build --output ./Bin/nupkg
+```
+
+## MCP 连接冒烟验证
+
+当你修改了 CLI 入口、MCP 配置或打包逻辑时，再额外执行一次 MCP 连接验证：
+
+### Linux / macOS
 
 ```bash
 bash scripts/verify-mcp.sh
 ```
 
-#### Windows PowerShell
+### Windows PowerShell
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/verify-mcp.ps1
+pwsh -File scripts/verify-mcp.ps1
 ```
 
-或：
+## 贡献者日常流程
 
-```cmd
-scripts\verify-mcp.ps1
-```
+1. 修改代码与文档。
+2. 运行 `scripts/validate-ci-cd.*` 完成本地验证。
+3. 如果改动涉及 CLI/MCP 连接，再运行 `scripts/verify-mcp.*`。
+4. 提交变更并发起 Pull Request。
 
-#### 手动验证
+## 常见问题
 
-```bash
-# 列出所有 MCP 服务器状态
-claude mcp list
-```
+### 为什么 restore 必须显式传 `Configuration=Release`？
 
-确保输出显示：
+仓库使用集中式输出目录与中间产物目录，`obj` 路径依赖 `Configuration`。如果先用默认配置 restore，再用 `Release` 配置执行 `--no-restore` 的 build/test，会直接读取错误位置的还原产物。
 
-```
-dotnet-analyzer: dotnet-analyzer mcp serve - ✓ Connected
-```
+### 为什么测试固定跑 `net10.0`？
 
-### 2. 构建验证
+当前 CI 主验证链路以 `net10.0` 作为统一测试目标框架，这样可以减少多目标框架与集中式输出目录叠加后的漂移风险，同时保证本地与 CI 的行为一致。
 
-```bash
-# 清理并重新构建
-dotnet clean
-dotnet build -c Release
+### 元数据漂移在哪里校验？
 
-# 运行所有测试
-dotnet test -c Release
-```
-
-### 3. 工具测试
-
-```bash
-# 测试 --version 参数
-dotnet-analyzer --version
-# 应输出: dotnet-analyzer version 0.6.1
-
-# 测试 --help 参数
-dotnet-analyzer --help
-```
-
-## 🔄 完整提交流程
-
-### 修改代码后的标准流程
-
-1. **编写代码**
-   ```bash
-   # 编辑源文件
-   ```
-
-2. **本地测试**
-   ```bash
-   # 运行验证脚本
-   bash scripts/verify-mcp.sh  # Linux/macOS
-   # 或
-   powershell scripts/verify-mcp.ps1  # Windows
-   ```
-
-3. **构建和测试**
-   ```bash
-   dotnet build -c Release
-   dotnet test -c Release
-   ```
-
-4. **重新安装工具（如果修改了 CLI）**
-   ```bash
-   dotnet pack src/DotNetAnalyzer.Cli -c Release
-   dotnet tool uninstall --global DotNetAnalyzer
-   dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 0.6.1
-   ```
-
-5. **验证 MCP 连接**
-   ```bash
-   claude mcp list
-   ```
-
-6. **提交代码**
-   ```bash
-   git add .
-   git commit -m "feat: 描述你的更改"
-   git push origin main
-   ```
-
-## 🛠️ 故障排除
-
-### MCP 连接失败
-
-**症状**: `claude mcp list` 显示 `dotnet-analyzer: ... ✗ Failed to connect`
-
-**原因和解决方案**:
-
-1. **工具未安装**
-   ```bash
-   dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 0.6.1
-   ```
-
-2. **工具版本过旧**
-   ```bash
-   dotnet tool uninstall --global DotNetAnalyzer
-   dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 0.6.1
-   ```
-
-3. **配置文件问题**
-   - dotnet-analyzer 现在可以在任何目录运行（appsettings.json 可选）
-   - 如果有自定义配置需求，在项目目录创建 appsettings.json
-
-4. **Claude Code CLI 问题**
-   ```bash
-   # 更新 Claude Code CLI
-   claude --version
-   ```
-
-### 构建失败
-
-**症状**: `dotnet build` 返回错误
-
-**解决方案**:
-
-```bash
-# 清理所有构建输出
-dotnet clean
-rm -rf Bin/  # Linux/macOS
-# 或
-rmdir /s /q Bin  # Windows
-
-# 重新还原依赖
-dotnet restore
-
-# 重新构建
-dotnet build -c Release
-```
-
-### 测试失败
-
-**症状**: `dotnet test` 返回失败
-
-**解决方案**:
-
-```bash
-# 查看详细测试输出
-dotnet test -c Release --logger "console;verbosity=detailed"
-
-# 运行特定测试
-dotnet test -c Release --filter "FullyQualifiedName~TestMethodName"
-```
-
-## 📚 参考资料
-
-- **MCP 官方文档**: https://modelcontextprotocol.io/docs/
-- **Claude Code MCP 中文文档**: https://www.claude-cn.org/claude-code-docs-zh/building/mcp.html
-- **项目 README**: [README.md](../README.md)
-- **API 指南**: [docs/api-guide.md](api-guide.md)
-
-## 🎯 最佳实践
-
-1. **频繁验证**: 每次修改代码后都运行验证脚本
-2. **小步提交**: 经常提交小批量更改，而不是大量更改
-3. **测试覆盖**: 为新功能添加相应的单元测试
-4. **文档更新**: 同步更新 API 文档和示例
-5. **MCP 测试**: 在 Claude Code 中实际测试 MCP 工具的功能
-
-## ⚡ 快速参考
-
-```bash
-# 完整的开发-测试-提交流程（一键）
-# 创建一个快捷脚本 alias 或批处理文件
-
-#!/bin/bash
-# dev-commit.sh - 开发提交流程脚本
-
-set -e
-
-echo "🔧 构建项目..."
-dotnet build -c Release
-
-echo "🧪 运行测试..."
-dotnet test -c Release
-
-echo "📦 打包工具..."
-dotnet pack src/DotNetAnalyzer.Cli -c Release --no-build
-
-echo "🔄 重新安装工具..."
-dotnet tool uninstall --global DotNetAnalyzer
-dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 0.6.1
-
-echo "✅ 验证 MCP 连接..."
-claude mcp list | grep dotnet-analyzer
-
-echo "📝 提交更改..."
-git add .
-git commit -m "$1"
-git push origin main
-
-echo "✨ 完成！"
-```
-
-使用方式：
-
-```bash
-bash dev-commit.sh "feat: 添加新功能"
-```
+版本号、命令入口、仓库链接和工具数量由 `eng/product-metadata.json` 与源码扫描共同约束，相关一致性检查已经纳入测试项目，会随 `dotnet test` 一起执行。

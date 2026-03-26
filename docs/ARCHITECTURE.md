@@ -181,18 +181,18 @@ graph TB
 
 ```mermaid
 graph TB
-    subgraph "DotNetAnalyzer MCP 工具集 (74 个工具)"
-        A[代码诊断<br/>1 个工具]
-        B[项目管理<br/>3 个工具]
-        C[代码分析<br/>1 个工具]
-        D[符号查询<br/>3 个工具]
+    subgraph "DotNetAnalyzer MCP 工具集 (64 个工具)"
+        A[代码诊断<br/>2 个工具]
+        B[项目管理<br/>5 个工具]
+        C[代码分析<br/>6 个工具]
+        D[符号查询<br/>4 个工具]
         E[导航工具<br/>7 个工具]
-        F[重构工具<br/>15 个工具]
-        G[代码生成<br/>11 个工具]
-        H[高级分析<br/>7 个工具]
+        F[重构工具<br/>5 个工具]
+        G[代码生成<br/>6 个工具]
+        H[调用/比较<br/>8 个工具]
         I[代码质量<br/>4 个工具]
-        J[代码操作<br/>3 个工具]
-        K[高级查询<br/>5 个工具]
+        J[代码操作<br/>4 个工具]
+        K[高级查询<br/>4 个工具]
 
         A1[get_diagnostics]
         B1[list_projects]
@@ -425,7 +425,7 @@ DotNetAnalyzer/
 ├── src/
 │   ├── DotNetAnalyzer.Cli/          # CLI 工具入口（.NET 全局工具）
 │   │   ├── Program.cs               # 主程序入口，配置 MCP 服务器
-│   │   ├── Tools/                   # MCP 工具实现（74 个工具）
+│   │   ├── Tools/                   # MCP 工具实现（64 个工具）
 │   │   │   ├── DiagnosticsTools.cs
 │   │   │   ├── ProjectTools.cs
 │   │   │   ├── AnalysisTools.cs
@@ -494,6 +494,7 @@ DotNetAnalyzer/
 ## 相关文档
 
 - [README.md](../README.md) - 项目概述和快速开始
+- [CLAUDE.md](../CLAUDE.md) - 给 Claude Code 的项目说明
 - [开发工作流](development-workflow.md) - 开发流程指南
 - [编码规范](CODING_STANDARDS.md) - 代码规范（必读）
 - [API 使用指南](api-guide.md) - MCP 工具 API 参考文档

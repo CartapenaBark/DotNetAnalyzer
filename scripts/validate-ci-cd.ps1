@@ -7,7 +7,9 @@ $ErrorActionPreference = "Stop"
 $CLI_PROJECT = "src\DotNetAnalyzer.Cli\DotNetAnalyzer.Cli.csproj"
 $SOLUTION = "DotNetAnalyzer.slnx"
 $CONFIGURATION = "Release"
-$OUTPUT_DIR = ".\nupkg"
+$TARGET_FRAMEWORK = "net10.0"
+$TEST_FILTER = "Category!=Performance"
+$OUTPUT_DIR = ".\Bin\nupkg"
 
 function Write-ColorOutput($ForegroundColor) {
     $fc = $host.UI.RawUI.ForegroundColor
@@ -34,7 +36,7 @@ Write-Output ""
 
 # 步骤 2: 还原依赖
 Write-ColorOutput Yellow "[2/6] 还原依赖..."
-dotnet restore $SOLUTION --verbosity minimal
+dotnet restore $SOLUTION -p:Configuration=$CONFIGURATION --verbosity minimal
 if ($LASTEXITCODE -ne 0) {
     Write-ColorOutput Red "✗ 依赖还原失败！"
     exit 1
@@ -54,7 +56,7 @@ Write-Output ""
 
 # 步骤 4: 测试
 Write-ColorOutput Yellow "[4/6] 运行测试..."
-dotnet test $SOLUTION -c $CONFIGURATION --no-build --verbosity normal
+dotnet test $SOLUTION -c $CONFIGURATION --framework $TARGET_FRAMEWORK --no-build --verbosity normal --filter $TEST_FILTER
 if ($LASTEXITCODE -ne 0) {
     Write-ColorOutput Red "✗ 测试失败！"
     Write-ColorOutput Red "请修复测试错误后重试"

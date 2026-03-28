@@ -75,7 +75,7 @@ public sealed class DataClumpsDetector : ICodeSmellDetector
                 Severity = Models.CodeQuality.CodeSmellSeverity.Minor,
                 Location = new CodeLocation
                 {
-                    FilePath = document.FilePath ?? "",
+                    FilePath = document.FilePath ?? string.Empty,
                     StartLine = location.StartLinePosition.Line,
                     StartColumn = location.StartLinePosition.Character,
                     EndLine = location.EndLinePosition.Line,
@@ -234,7 +234,7 @@ public sealed class DataClumpsDetector : ICodeSmellDetector
 
                 // 从参数名推断类名
                 var parts = ParameterNames.Select(n => char.ToUpper(n[0]) + n.Substring(1));
-                return string.Join("", parts) + "Data";
+                return string.Join(string.Empty, parts) + "Data";
             }
         }
     }

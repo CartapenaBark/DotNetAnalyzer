@@ -70,7 +70,7 @@ public sealed class UnnecessaryCodeRemover : IRefactorer
             changes.Add(CodeChange.Replace(
                 filePath,
                 usingDirective.Span,
-                "",
+                string.Empty,
                 "移除未使用的using指令"));
         }
 
@@ -81,7 +81,7 @@ public sealed class UnnecessaryCodeRemover : IRefactorer
             changes.Add(CodeChange.Replace(
                 filePath,
                 unreachable.Span,
-                "",
+                string.Empty,
                 "移除不可达代码"));
         }
 
@@ -92,7 +92,7 @@ public sealed class UnnecessaryCodeRemover : IRefactorer
             changes.Add(CodeChange.Replace(
                 filePath,
                 variable.Span,
-                "",
+                string.Empty,
                 "移除未使用的变量"));
         }
 

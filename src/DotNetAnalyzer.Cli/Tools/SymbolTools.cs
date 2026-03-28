@@ -499,7 +499,7 @@ public static partial class SymbolTools
 
     private static string ExtractContext(Document? document, int lineNumber)
     {
-        if (document == null) return "";
+        if (document == null) return string.Empty;
 
         try
         {
@@ -515,7 +515,7 @@ public static partial class SymbolTools
             // 忽略错误，返回空字符串
         }
 
-        return "";
+        return string.Empty;
     }
 
     private static string? ExtractXmlSummary(string xmlComment)

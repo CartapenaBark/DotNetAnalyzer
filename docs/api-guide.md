@@ -75,6 +75,14 @@ mindmap
             get_test_coverage
             find_dead_code
             analyze_performance
+        架构规则
+            check_architecture_rules
+            evaluate_architecture
+        反编译与分析
+            decompile_assembly
+            analyze_il
+            get_assembly_metadata
+            get_api_surface
 ```
 
 ## 目录
@@ -86,6 +94,8 @@ mindmap
 - [项目管理工具](#项目管理工具)
 - [代码诊断工具](#代码诊断工具)
 - [导航增强工具 (Phase 2)](#导航增强工具-phase-2) ✨
+- [架构规则检查工具](#架构规则检查工具) ✨
+- [反编译与分析工具](#反编译与分析工具) ✨
 - [配置选项](#配置选项)
 - [最佳实践](#最佳实践)
 - [故障排除](#故障排除)
@@ -134,7 +144,7 @@ Claude: [调用 get_diagnostics] ...
 
 ## MCP 工具概览
 
-DotNetAnalyzer v1.1.2 提供 **64 个 MCP 工具**，覆盖代码分析、导航、重构、质量分析、可视化和监控能力。
+DotNetAnalyzer v1.2.0 提供 **70 个 MCP 工具**，覆盖代码分析、导航、重构、质量分析、架构规则检查、反编译、可视化和监控能力。
 
 > 当前文档中的能力说明以 `eng/product-metadata.json` 与源码扫描得到的工具清单为准；对启发式或实验性结果，请同步参考 [分析能力可信度矩阵](analysis-credibility.md)。
 
@@ -1321,6 +1331,319 @@ if (semanticInfo.type.interfaces.Contains("IEnumerable"))
 
 ---
 
+## 架构规则检查工具
+
+架构规则检查工具用于验证项目的架构约束，包括依赖方向、层级命名约定等，支持 SARIF v2.1.0 格式报告输出。
+
+### 工具概览
+
+| 工具名称 | 描述 | 主要用途 |
+|---------|------|----------|
+| `check_architecture_rules` | 检查架构规则 | 使用内置规则检查架构约束，输出 SARIF 报告 |
+| `evaluate_architecture` | 评估架构 | 使用自定义规则文件评估架构 |
+
+### check_architecture_rules
+
+使用内置规则检查项目架构约束，包括依赖方向、层级层次和命名约定。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目路径 (.csproj) |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "report": {
+    "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+    "version": "2.1.0",
+    "runs": [
+      {
+        "tool": {
+          "driver": {
+            "name": "DotNetAnalyzer.Architecture",
+            "rules": [
+              {
+                "id": "AR001",
+                "shortDescription": { "text": "依赖方向违规" }
+              }
+            ]
+          }
+        },
+        "results": [
+          {
+            "ruleId": "AR001",
+            "level": "error",
+            "message": { "text": "..." },
+            "locations": [{ "physicalLocation": { "artifactLocation": { "uri": "..." } } }]
+          }
+        ]
+      }
+    ]
+  },
+  "summary": {
+    "totalViolations": 2,
+    "rulesChecked": 3
+  }
+}
+```
+
+#### 内置规则
+
+| 规则 ID | 规则名称 | 描述 |
+|---------|----------|------|
+| `AR001` | 依赖方向 | 检查命名空间之间的依赖方向是否违反约束 |
+| `AR002` | 层级层次 | 检查类型声明是否违反层级层次规则 |
+| `AR003` | 命名约定 | 检查命名空间和类型名称是否符合约定 |
+
+#### 使用示例
+
+```
+你: "检查这个项目的架构规则"
+Claude: [调用 check_architecture_rules]
+```
+
+### evaluate_architecture
+
+使用自定义规则文件评估项目架构。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目路径 (.csproj) |
+| `rulesFilePath` | string? | ❌ | 自定义规则文件路径（JSON 格式），省略时使用内置规则 |
+
+#### 返回值
+
+与 `check_architecture_rules` 相同格式的 SARIF 报告。
+
+#### 自定义规则文件格式
+
+```json
+{
+  "rules": [
+    {
+      "id": "CUSTOM001",
+      "name": "自定义规则名称",
+      "type": "DependencyDirection",
+      "fromNamespace": "MyApp.Core",
+      "toNamespace": "MyApp.Infrastructure",
+      "severity": "error"
+    }
+  ]
+}
+```
+
+#### 使用示例
+
+```
+你: "使用自定义规则文件评估架构"
+Claude: [调用 evaluate_architecture]
+```
+
+---
+
+## 反编译与分析工具
+
+反编译与分析工具基于 ILSpy 集成，支持对 .NET 程序集进行反编译、IL 分析、元数据读取和 API Surface 提取。
+
+### 工具概览
+
+| 工具名称 | 描述 | 主要用途 |
+|---------|------|----------|
+| `decompile_assembly` | 反编译程序集 | 将 .NET 程序集反编译为 C# 源代码 |
+| `analyze_il` | 分析 IL 指令 | 分析程序集的 IL 中间语言指令 |
+| `get_assembly_metadata` | 读取程序集元数据 | 获取程序集的详细信息 |
+| `get_api_surface` | 提取 API Surface | 提取程序集的公开 API 列表 |
+
+### decompile_assembly
+
+将 .NET 程序集反编译为可读的 C# 源代码。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `assemblyPath` | string | ✅ | 程序集文件路径 (.dll / .exe) |
+| `typeName` | string? | ❌ | 可选：指定类型名称，仅反编译该类型 |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "assemblyPath": "path/to/assembly.dll",
+  "sourceCode": "using System;\n\nnamespace MyNamespace\n{\n    public class MyClass\n    {\n        // ...\n    }\n}",
+  "decompiledTypes": ["MyNamespace.MyClass", "MyNamespace.MyStruct"],
+  "language": "C#"
+}
+```
+
+#### 使用示例
+
+```
+你: "反编译这个 DLL 文件"
+Claude: [调用 decompile_assembly]
+
+你: "只反编译 MyClass 这个类型"
+Claude: [调用 decompile_assembly，指定 typeName="MyClass"]
+```
+
+### analyze_il
+
+分析 .NET 程序集的 IL（中间语言）指令。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `assemblyPath` | string | ✅ | 程序集文件路径 (.dll / .exe) |
+| `typeName` | string? | ❌ | 可选：指定类型名称，仅分析该类型 |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "assemblyPath": "path/to/assembly.dll",
+  "analysis": {
+    "totalInstructions": 245,
+    "methods": [
+      {
+        "name": "MyNamespace.MyClass.Calculate",
+        "instructionCount": 32,
+        "maxStack": 4,
+        "localsCount": 3,
+        "hasExceptionHandlers": false
+      }
+    ],
+    "summary": {
+      "totalMethods": 15,
+      "totalInstructions": 245,
+      "averageInstructionsPerMethod": 16.3
+    }
+  }
+}
+```
+
+#### 使用示例
+
+```
+你: "分析这个程序集的 IL 指令"
+Claude: [调用 analyze_il]
+```
+
+### get_assembly_metadata
+
+读取 .NET 程序集的元数据信息。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `assemblyPath` | string | ✅ | 程序集文件路径 (.dll / .exe) |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "metadata": {
+    "assemblyName": "MyAssembly",
+    "version": "1.0.0.0",
+    "targetFramework": ".NET 8.0",
+    "isDebug": false,
+    "modules": [
+      {
+        "name": "MyAssembly.dll",
+        "types": 25,
+        "references": 8
+      }
+    ],
+    "references": [
+      "System.Runtime",
+      "System.Collections",
+      "Newtonsoft.Json"
+    ],
+    "attributes": [
+      { "name": "AssemblyTitleAttribute", "value": "MyAssembly" },
+      { "name": "AssemblyFileVersionAttribute", "value": "1.0.0.0" }
+    ]
+  }
+}
+```
+
+#### 使用示例
+
+```
+你: "获取这个程序集的元数据"
+Claude: [调用 get_assembly_metadata]
+```
+
+### get_api_surface
+
+提取 .NET 程序集的 API Surface（公开 API 列表）。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `assemblyPath` | string | ✅ | 程序集文件路径 (.dll / .exe) |
+| `accessibility` | string? | ❌ | 可选：可访问性过滤器（`public`、`internal`、`all`），默认 `public` |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "assemblyPath": "path/to/assembly.dll",
+  "apiSurface": {
+    "namespaces": [
+      {
+        "name": "MyNamespace",
+        "types": [
+          {
+            "name": "MyClass",
+            "kind": "class",
+            "accessibility": "public",
+            "members": [
+              {
+                "name": "Calculate",
+                "kind": "method",
+                "returnType": "int",
+                "parameters": ["int a", "int b"],
+                "accessibility": "public"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "summary": {
+      "totalNamespaces": 2,
+      "totalTypes": 15,
+      "totalMembers": 87
+    }
+  }
+}
+```
+
+#### 使用示例
+
+```
+你: "提取这个 DLL 的公开 API"
+Claude: [调用 get_api_surface]
+
+你: "提取所有 internal 和 public 的 API"
+Claude: [调用 get_api_surface，指定 accessibility="all"]
+```
+
+---
+
 ## 配置选项
 
 ### 环境变量
@@ -1494,9 +1817,17 @@ Claude: [调用 find_references]
 
 ## API 版本历史
 
-### v1.1.2 (当前版本)
+### v1.2.0 (当前版本)
 
-- ✅ 当前公开工具总数: 64 个
+- ✅ 当前公开工具总数: 70 个
+- ✅ 新增架构规则检查引擎（依赖方向、层级层次、命名约定）+ SARIF v2.1.0 报告输出
+- ✅ 新增 ILSpy 反编译集成（C# 反编译、IL 分析、程序集元数据、API Surface 提取）
+- ✅ 所有分析能力均已达到 verified 级别
+- ✅ MCP SDK 升级到 1.2.0
+
+### v1.1.2
+
+- ✅ 公开工具总数: 64 个
 - ✅ 导航、重构、比较、质量分析和可视化工具已统一纳入同一 CLI 程序集
 - ✅ 对 `get_test_coverage`、`analyze_change_impact`、`get_callee_info`、`generate_heatmap(change-frequency)` 等低可信能力增加了显式分级
 - ✅ 关键重构链路已补充项目/文档解析端到端测试
@@ -1536,5 +1867,5 @@ Claude: [调用 find_references]
 
 ---
 
-**版本**: v1.1.2
-**最后更新**: 2026-03-22
+**版本**: v1.2.0
+**最后更新**: 2026-03-28

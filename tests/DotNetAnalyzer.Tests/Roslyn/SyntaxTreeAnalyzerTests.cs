@@ -187,7 +187,7 @@ namespace Test
     public void AnalyzeTree_WithEmptyCode_ShouldReturnZeroCounts()
     {
         // Arrange
-        var code = @"";
+        var code = string.Empty;
         var syntaxTree = CSharpSyntaxTree.ParseText(code);
 
         // Act

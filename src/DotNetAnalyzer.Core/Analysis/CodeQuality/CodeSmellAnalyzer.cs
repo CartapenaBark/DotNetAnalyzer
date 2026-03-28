@@ -12,11 +12,41 @@ namespace DotNetAnalyzer.Core.Analysis.CodeQuality;
 /// 负责协调所有代码异味检测器，管理分析流程，聚合分析结果。
 /// 使用策略模式，可以动态添加或移除检测器。
 /// </remarks>
-public class CodeSmellAnalyzer
+public partial class CodeSmellAnalyzer
 {
     private readonly ILogger<CodeSmellAnalyzer> _logger;
     private readonly IEnumerable<ICodeSmellDetector> _detectors;
     private readonly SemaphoreSlim _semaphore;
+
+    [LoggerMessage(
+        LogLevel.Information,
+        "开始分析项目: {ProjectPath}")]
+    private static partial void LogAnalysisStarted(
+        ILogger logger, string projectPath);
+
+    [LoggerMessage(
+        LogLevel.Information,
+        "分析完成: {ProjectPath}, 耗时: {Duration}s, 发现 {Count} 个代码异味")]
+    private static partial void LogAnalysisCompleted(
+        ILogger logger, string projectPath, double duration, int count);
+
+    [LoggerMessage(
+        LogLevel.Warning,
+        "检测器 {DetectorName} 在分析 {Document} 时超时")]
+    private static partial void LogDetectorTimeout(
+        ILogger logger, string detectorName, string document);
+
+    [LoggerMessage(
+        LogLevel.Error,
+        "检测器 {DetectorName} 在分析 {Document} 时失败")]
+    private static partial void LogDetectorFailed(
+        ILogger logger, Exception ex, string detectorName, string document);
+
+    [LoggerMessage(
+        LogLevel.Warning,
+        "未找到代码异味检测器: {SmellType}")]
+    private static partial void LogDetectorNotFound(
+        ILogger logger, string smellType);
 
     /// <summary>
     /// 初始化 <see cref="CodeSmellAnalyzer"/> 的新实例
@@ -48,7 +78,7 @@ public class CodeSmellAnalyzer
     {
         options ??= new CodeAnalysisOptions();
 
-        _logger.LogInformation("开始分析项目: {ProjectPath}", project.FilePath);
+        LogAnalysisStarted(_logger, project.FilePath ?? string.Empty);
         var startTime = DateTime.UtcNow;
 
         var result = new ConcurrentBag<CodeSmell>();
@@ -81,7 +111,7 @@ public class CodeSmellAnalyzer
                 {
                     CompletedDocuments = completedDocuments,
                     TotalDocuments = totalDocuments,
-                    CurrentFile = doc.FilePath ?? "",
+                    CurrentFile = doc.FilePath ?? string.Empty,
                     Percentage = (int)((double)completedDocuments / totalDocuments * 100)
                 });
             }
@@ -94,11 +124,9 @@ public class CodeSmellAnalyzer
         await Task.WhenAll(analysisTasks);
 
         var duration = DateTime.UtcNow - startTime;
-        _logger.LogInformation(
-            "分析完成: {ProjectPath}, 耗时: {Duration}s, 发现 {Count} 个代码异味",
-            project.FilePath,
-            duration.TotalSeconds,
-            result.Count);
+        LogAnalysisCompleted(
+            _logger, project.FilePath ?? string.Empty,
+            duration.TotalSeconds, result.Count);
 
         return new CodeSmellCollection { Smells = result.ToList() };
     }
@@ -150,19 +178,16 @@ public class CodeSmellAnalyzer
                 }
                 catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
                 {
-                    _logger.LogWarning(
-                        "检测器 {DetectorName} 在分析 {Document} 时超时",
-                        detector.Name,
-                        document.FilePath);
+                    LogDetectorTimeout(
+                        _logger, detector.Name,
+                        document.FilePath ?? string.Empty);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(
-                    ex,
-                    "检测器 {DetectorName} 在分析 {Document} 时失败",
-                    detector.Name,
-                    document.FilePath);
+                LogDetectorFailed(
+                    _logger, ex, detector.Name,
+                    document.FilePath ?? string.Empty);
             }
         }
 
@@ -190,7 +215,7 @@ public class CodeSmellAnalyzer
 
         if (detector == null)
         {
-            _logger.LogWarning("未找到代码异味检测器: {SmellType}", smellType);
+            LogDetectorNotFound(_logger, smellType);
             return Array.Empty<CodeSmell>();
         }
 
@@ -201,11 +226,9 @@ public class CodeSmellAnalyzer
         }
         catch (Exception ex)
         {
-            _logger.LogError(
-                ex,
-                "检测器 {DetectorName} 在分析 {Document} 时失败",
-                detector.Name,
-                document.FilePath);
+            LogDetectorFailed(
+                _logger, ex, detector.Name,
+                document.FilePath ?? string.Empty);
             return Array.Empty<CodeSmell>();
         }
     }

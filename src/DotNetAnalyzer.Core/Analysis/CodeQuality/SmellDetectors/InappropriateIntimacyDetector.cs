@@ -74,7 +74,7 @@ public sealed class InappropriateIntimacyDetector : ICodeSmellDetector
                         Severity = Models.CodeQuality.CodeSmellSeverity.Major,
                         Location = new CodeLocation
                         {
-                            FilePath = document.FilePath ?? "",
+                            FilePath = document.FilePath ?? string.Empty,
                             StartLine = location.StartLinePosition.Line,
                             StartColumn = location.StartLinePosition.Character,
                             EndLine = location.EndLinePosition.Line,
@@ -201,11 +201,11 @@ public sealed class InappropriateIntimacyDetector : ICodeSmellDetector
         var suggestions = new List<string>();
 
         suggestions.Add($"类 '{className}' 过度访问 '{intimacyInfo.TargetClassName}' 的内部成员，这破坏了封装性");
-        suggestions.Add("");
+        suggestions.Add(string.Empty);
         suggestions.Add($"内部访问次数: {intimacyInfo.InternalAccessCount}");
         suggestions.Add($"私有成员访问: {intimacyInfo.PrivateAccessCount}");
         suggestions.Add($"访问的成员: {string.Join(", ", intimacyInfo.AccessedMembers)}");
-        suggestions.Add("");
+        suggestions.Add(string.Empty);
         suggestions.Add("建议的重构策略：");
         suggestions.Add("- 将相关功能移到 '{intimacyInfo.TargetClassName}' 类中（使用 Move Method）");
         suggestions.Add("- 在 '{intimacyInfo.TargetClassName}' 中提供公共方法来封装这些操作");

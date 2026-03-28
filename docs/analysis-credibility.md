@@ -28,10 +28,10 @@ flowchart LR
 | `detect_code_smells` | `verified` | 基于真实语法树、语义模型和检测器执行 | 持续补充端到端测试 |
 | `generate_dependency_graph` | `verified` | 基于项目文档、类型声明、继承和接口关系生成结构 | 继续增强图裁剪与大图简化 |
 | `generate_heatmap` (`complexity`) | `verified` | 基于代码异味分析结果汇总复杂度热点 | 增加更多真实语义指标 |
-| `get_test_coverage` | `heuristic` | 当前依据测试文件命名与估算比例生成覆盖率结果 | 后续接入真实覆盖率产物或测试映射 |
-| `analyze_change_impact` | `heuristic` | 目前只覆盖直接公共符号引用，未完成传递依赖和精确测试映射 | 后续补齐依赖图与测试引用分析 |
-| `get_callee_info` | `heuristic` | 当前递归调用树对复杂跨文档场景覆盖不完整 | 后续扩展为跨文档符号解析 |
-| `generate_heatmap` (`change-frequency`) | `experimental` | 尚未接入真实变更历史，当前仅输出实验性占位结果 | 后续接入 git / 历史记录数据源 |
+| `get_test_coverage` | `verified` | 优先从 coverage.cobertura.xml 解析真实覆盖率数据；无覆盖文件时回退到启发式估算 | 持续补充端到端测试与更多覆盖率格式支持 |
+| `analyze_change_impact` | `verified` | 基于 BFS 传递依赖分析、跨项目传播和精确测试映射，结果来自真实语义模型和 SymbolFinder | 持续补充跨文档复杂场景的端到端测试 |
+| `get_callee_info` | `verified` | 基于真实语义模型的跨文档调用树解析，支持接口/实现分派、虚方法/重写分派、循环检测和深度限制 | 持续补充跨文档复杂场景的端到端测试 |
+| `generate_heatmap` (`change-frequency`) | `verified` | 基于 GitHistoryProvider 调用真实 git log 获取变更历史，输出真实的文件变更频率数据 | 持续补充端到端测试 |
 
 ## 使用原则
 

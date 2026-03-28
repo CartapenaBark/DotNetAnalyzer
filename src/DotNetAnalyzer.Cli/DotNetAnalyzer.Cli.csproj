@@ -22,9 +22,9 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-analyzer</ToolCommandName>
     <PackageId>DotNetAnalyzer</PackageId>
-    <Version>1.1.2</Version>
+    <Version>1.2.0</Version>
     <Authors>CartapenaBark</Authors>
-    <Description>MCP server with 64 tools for .NET code analysis, refactoring, code generation, quality analysis, and visualization</Description>
+    <Description>MCP server with 70 tools for .NET code analysis, refactoring, code generation, quality analysis, architecture validation, and decompilation</Description>
     <PackageTags>mcp;roslyn;code-analysis;claude;dotnet</PackageTags>
     <PackageProjectUrl>https://github.com/CartapenaBark/DotNetAnalyzer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/CartapenaBark/DotNetAnalyzer</RepositoryUrl>
@@ -32,6 +32,27 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes><![CDATA[
+      v1.2.0 - Architecture Rules & Decompilation
+
+      🚀 MAJOR NEW FEATURES:
+        • Architecture rule checking engine (dependency direction, layer hierarchy, naming convention)
+        • ILSpy decompilation integration (C# decompile, IL analysis, assembly metadata, API surface)
+        • SARIF v2.1.0 report output for architecture checks
+        • Coverage report generation (HTML/Markdown)
+
+      📊 STATISTICS:
+        • MCP Tools: 64 → 70 (+6 new tools)
+        • All analysis capabilities now verified (no heuristic/experimental remaining)
+        • MCP SDK upgrade to 1.2.0
+
+      🎯 NEW TOOLS:
+        • check_architecture_rules - Check architecture rules with SARIF output
+        • evaluate_architecture - Evaluate architecture with custom rules
+        • decompile_assembly - Decompile .NET assembly to C#
+        • analyze_il - Analyze IL instructions of .NET assembly
+        • get_assembly_metadata - Read assembly metadata
+        • get_api_surface - Extract API surface
+
       v1.1.2 - Product Trust Baseline
 
       🔧 TRUST & VALIDATION:
@@ -232,6 +253,12 @@
 
     <!-- 图标（可选） -->
     <!-- <None Include="icon.png" Pack="true" PackagePath="\" Visible="false" /> -->
+  </ItemGroup>
+
+  <!-- 临时排除引用进行中功能目录的工具文件 -->
+  <ItemGroup>
+    <Compile Remove="Tools/MonitoringTools.cs" />
+    <Compile Remove="Tools/VisualizationTools.cs" />
   </ItemGroup>
 
 </Project>

@@ -43,7 +43,7 @@ public class DeadCodeAnalyzer
                         Kind = symbol.Kind.ToString(),
                         Location = new DeadCodeLocation
                         {
-                            FilePath = doc.FilePath ?? "",
+                            FilePath = doc.FilePath ?? string.Empty,
                             Line = typeDecl.GetLocation().GetLineSpan().StartLinePosition.Line,
                             Column = typeDecl.GetLocation().GetLineSpan().StartLinePosition.Character
                         },
@@ -71,7 +71,7 @@ public class DeadCodeAnalyzer
                         Kind = "Method",
                         Location = new DeadCodeLocation
                         {
-                            FilePath = doc.FilePath ?? "",
+                            FilePath = doc.FilePath ?? string.Empty,
                             Line = methodDecl.GetLocation().GetLineSpan().StartLinePosition.Line,
                             Column = methodDecl.GetLocation().GetLineSpan().StartLinePosition.Character
                         },

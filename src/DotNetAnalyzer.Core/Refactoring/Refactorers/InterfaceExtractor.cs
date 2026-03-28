@@ -289,7 +289,7 @@ public sealed class InterfaceExtractor : IRefactorer
             {
                 RefKind.Ref => "ref ",
                 RefKind.Out => "out ",
-                _ => ""
+                _ => string.Empty
             };
             return $"{refKind}{p.Type.ToDisplayString()} {p.Name}";
         }));

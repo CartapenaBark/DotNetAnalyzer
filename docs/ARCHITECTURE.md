@@ -28,9 +28,20 @@ graph TB
         J[CompilationCache<br/>编译缓存]
     end
 
+    subgraph "架构分析层"
+        M[ArchitectureRuleEngine<br/>架构规则引擎]
+        N[SarifReportGenerator<br/>SARIF 报告生成]
+    end
+
+    subgraph "反编译层"
+        O[ILSpy Integration<br/>反编译引擎]
+        P[DecompilationService<br/>反编译服务]
+    end
+
     subgraph "项目层"
         K[.NET 解决方案/项目]
         L[.sln / .slnx<br/>/ .csproj]
+        Q[.NET 程序集<br/>.dll / .exe]
     end
 
     A -->|MCP 请求| B
@@ -44,11 +55,18 @@ graph TB
     I --> J
     J --> K
     K --> L
+    F --> M
+    M --> N
+    F --> P
+    P --> O
+    O --> Q
 
     style A fill:#e1f5ff
     style C fill:#c8e6c9
     style D fill:#fff9c4
     style H fill:#ffccbc
+    style M fill:#e8f5e9
+    style O fill:#fce4ec
     style K fill:#f3e5f5
 ```
 
@@ -143,6 +161,8 @@ graph TB
             I[Models/<br/>数据模型]
             J[Configuration/<br/>配置管理]
             K[Security/<br/>安全验证]
+            R[Architecture/<br/>架构规则引擎]
+            S[Decompilation/<br/>反编译服务]
         end
 
         subgraph "Roslyn 集成层"
@@ -164,6 +184,8 @@ graph TB
         E --> I
         E --> J
         E --> K
+        E --> R
+        E --> S
         G --> L
         G --> M
         G --> N
@@ -181,7 +203,7 @@ graph TB
 
 ```mermaid
 graph TB
-    subgraph "DotNetAnalyzer MCP 工具集 (64 个工具)"
+    subgraph "DotNetAnalyzer MCP 工具集 (70 个工具)"
         A[代码诊断<br/>2 个工具]
         B[项目管理<br/>5 个工具]
         C[代码分析<br/>6 个工具]
@@ -193,6 +215,8 @@ graph TB
         I[代码质量<br/>4 个工具]
         J[代码操作<br/>4 个工具]
         K[高级查询<br/>4 个工具]
+        L[架构规则<br/>2 个工具]
+        M[反编译与分析<br/>4 个工具]
 
         A1[get_diagnostics]
         B1[list_projects]
@@ -316,6 +340,20 @@ graph TB
         K --> K4
         K --> K5
 
+        L1[check_architecture_rules]
+        L2[evaluate_architecture]
+        M1[decompile_assembly]
+        M2[analyze_il]
+        M3[get_assembly_metadata]
+        M4[get_api_surface]
+
+        L --> L1
+        L --> L2
+        M --> M1
+        M --> M2
+        M --> M3
+        M --> M4
+
         style A fill:#ffcdd2
         style B fill:#f8bbd0
         style C fill:#e1bee7
@@ -327,6 +365,8 @@ graph TB
         style I fill:#b2dfdb
         style J fill:#c8e6c9
         style K fill:#dcedc8
+        style L fill:#fff3e0
+        style M fill:#e8eaf6
     end
 ```
 
@@ -425,7 +465,7 @@ DotNetAnalyzer/
 ├── src/
 │   ├── DotNetAnalyzer.Cli/          # CLI 工具入口（.NET 全局工具）
 │   │   ├── Program.cs               # 主程序入口，配置 MCP 服务器
-│   │   ├── Tools/                   # MCP 工具实现（64 个工具）
+│   │   ├── Tools/                   # MCP 工具实现（70 个工具）
 │   │   │   ├── DiagnosticsTools.cs
 │   │   │   ├── ProjectTools.cs
 │   │   │   ├── AnalysisTools.cs
@@ -457,6 +497,8 @@ DotNetAnalyzer/
 │       │   └── Refactorers/         # 具体重构器实现
 │       ├── Models/                  # 数据模型
 │       ├── Configuration/           # 配置选项（IOptions<T> 模式）
+│       ├── Architecture/            # 架构规则检查引擎
+│       ├── Decompilation/           # ILSpy 反编译服务
 │       └── Security/                # PathValidator（路径验证）
 │
 └── tests/

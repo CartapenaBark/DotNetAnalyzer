@@ -7,6 +7,44 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-03-28
+
+### 🚀 架构规则检查引擎
+
+- 新增 `ArchitectureRuleEngine` 架构规则检查引擎，支持 3 种内置规则
+  - `AR001` 依赖方向检查 - 验证命名空间间的依赖方向约束
+  - `AR002` 层级层次检查 - 验证类型声明的层级关系
+  - `AR003` 命名约定检查 - 验证命名空间和类型命名规范
+- 新增 `check_architecture_rules` MCP 工具 - 使用内置规则检查架构，输出 SARIF v2.1.0 报告
+- 新增 `evaluate_architecture` MCP 工具 - 支持自定义规则文件（JSON 格式）
+- 新增 SARIF v2.1.0 报告生成器
+
+### 🔬 ILSpy 反编译集成
+
+- 新增 `DecompilationService` 反编译服务，基于 ILSpy 集成
+- 新增 `decompile_assembly` MCP 工具 - 将 .NET 程序集反编译为 C# 源代码
+- 新增 `analyze_il` MCP 工具 - 分析程序集的 IL 中间语言指令
+- 新增 `get_assembly_metadata` MCP 工具 - 读取程序集元数据信息
+- 新增 `get_api_surface` MCP 工具 - 提取程序集的公开 API 列表
+
+### 🔧 质量收敛
+
+- `get_test_coverage` - 覆盖率分析从 heuristic 收敛为 verified（优先解析真实 coverage.cobertura.xml 数据）
+- `analyze_change_impact` - 变更影响分析从 heuristic 收敛为 verified（基于 BFS 传递依赖和 SymbolFinder）
+- `get_callee_info` - 被调用者分析从 heuristic 收敛为 verified（真实语义模型跨文档调用树解析）
+- `generate_heatmap` (change-frequency) - 变更频率热力图从 experimental 收敛为 verified（接入 GitHistoryProvider 真实 git log）
+- 所有对外分析能力均已达到 verified 级别
+
+### 📦 依赖升级
+
+- MCP SDK 从 `0.8.0-preview.1` 升级到 `1.2.0`
+
+### 📊 统计
+
+- MCP 工具总数: 64 → 70（+6 个新工具）
+- 新增架构规则检查能力（2 个工具）
+- 新增反编译与分析能力（4 个工具）
+
 ## [1.1.2] - 2026-03-22
 
 ### 🔧 产品可信度基线

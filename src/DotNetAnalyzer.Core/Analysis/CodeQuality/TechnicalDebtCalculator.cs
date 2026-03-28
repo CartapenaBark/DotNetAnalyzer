@@ -11,8 +11,14 @@ namespace DotNetAnalyzer.Core.Analysis.CodeQuality;
 /// <remarks>
 /// 负责计算项目的技术债务指标，包括债务比率、修复时间估算等。
 /// </remarks>
-public class TechnicalDebtCalculator
+public partial class TechnicalDebtCalculator
 {
+    [LoggerMessage(
+        LogLevel.Information,
+        "技术债务计算完成: 项目={ProjectPath}, 债务比率={DebtRatio:F2}, 总问题={TotalIssues}")]
+    private static partial void LogCalculationCompleted(
+        ILogger logger, string projectPath,
+        double debtRatio, int totalIssues);
     private static readonly JsonSerializerOptions s_jsonOptions = new()
     {
         WriteIndented = true,
@@ -78,11 +84,9 @@ public class TechnicalDebtCalculator
             DebtRatio = debt.DebtRatio
         };
 
-        _logger.LogInformation(
-            "技术债务计算完成: 项目={ProjectPath}, 债务比率={DebtRatio:F2}, 总问题={TotalIssues}",
-            project.FilePath,
-            debt.DebtRatio,
-            debt.TotalIssues);
+        LogCalculationCompleted(
+            _logger, project.FilePath ?? string.Empty,
+            debt.DebtRatio, debt.TotalIssues);
 
         return debt;
     }

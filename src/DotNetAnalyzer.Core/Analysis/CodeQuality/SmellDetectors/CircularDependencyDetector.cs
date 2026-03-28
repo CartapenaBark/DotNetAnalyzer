@@ -67,7 +67,7 @@ public sealed class CircularDependencyDetector : ICodeSmellDetector
                 Severity = Models.CodeQuality.CodeSmellSeverity.Critical,
                 Location = new CodeLocation
                 {
-                    FilePath = document.FilePath ?? "",
+                    FilePath = document.FilePath ?? string.Empty,
                     StartLine = location?.StartLinePosition.Line ?? 0,
                     StartColumn = location?.StartLinePosition.Character ?? 0,
                     EndLine = location?.EndLinePosition.Line ?? 0,

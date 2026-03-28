@@ -6,12 +6,53 @@ namespace DotNetAnalyzer.Core.Monitoring;
 /// <summary>
 /// 基于 .NET FileSystemWatcher 的文件监听器实现
 /// </summary>
-public sealed class FileSystemFileWatcher : IFileWatcher
+public sealed partial class FileSystemFileWatcher : IFileWatcher
 {
     private readonly ILogger<FileSystemFileWatcher> _logger;
     private readonly Dictionary<string, FileSystemWatcher> _watchers = new();
     private readonly Dictionary<string, Timer> _debounceTimers = new();
     private readonly int _debounceMilliseconds;
+
+    [LoggerMessage(
+        LogLevel.Warning,
+        "Already watching path: {Path}")]
+    private static partial void LogAlreadyWatching(
+        ILogger logger, string path);
+
+    [LoggerMessage(
+        LogLevel.Information,
+        "Started watching path: {Path}")]
+    private static partial void LogWatchingStarted(
+        ILogger logger, string path);
+
+    [LoggerMessage(
+        LogLevel.Error,
+        "Failed to start watching path: {Path}")]
+    private static partial void LogWatchStartFailed(
+        ILogger logger, Exception ex, string path);
+
+    [LoggerMessage(
+        LogLevel.Information,
+        "Stopped all file watching")]
+    private static partial void LogWatchingStopped(ILogger logger);
+
+    [LoggerMessage(
+        LogLevel.Error,
+        "File watcher error occurred")]
+    private static partial void LogWatcherError(
+        ILogger logger, Exception ex);
+
+    [LoggerMessage(
+        LogLevel.Debug,
+        "File changed event raised: {Path}, Type: {Type}")]
+    private static partial void LogFileChangedEvent(
+        ILogger logger, string path, FileChangeType type);
+
+    [LoggerMessage(
+        LogLevel.Error,
+        "Error raising file changed event")]
+    private static partial void LogEventRaiseError(
+        ILogger logger, Exception ex);
 
     /// <summary>
     /// 初始化 <see cref="FileSystemFileWatcher"/> 的新实例
@@ -46,7 +87,7 @@ public sealed class FileSystemFileWatcher : IFileWatcher
 
         if (_watchers.ContainsKey(path))
         {
-            _logger.LogWarning("Already watching path: {Path}", path);
+            LogAlreadyWatching(_logger, path);
             return;
         }
 
@@ -75,11 +116,11 @@ public sealed class FileSystemFileWatcher : IFileWatcher
             watcher.EnableRaisingEvents = true;
             _watchers[path] = watcher;
 
-            _logger.LogInformation("Started watching path: {Path}", path);
+            LogWatchingStarted(_logger, path);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to start watching path: {Path}", path);
+            LogWatchStartFailed(_logger, ex, path);
             Error?.Invoke(this, new ErrorEventArgs
             {
                 Message = $"Failed to start watching path: {path}",
@@ -105,7 +146,7 @@ public sealed class FileSystemFileWatcher : IFileWatcher
         _watchers.Clear();
         _debounceTimers.Clear();
 
-        _logger.LogInformation("Stopped all file watching");
+        LogWatchingStopped(_logger);
     }
 
     /// <inheritdoc />
@@ -135,7 +176,7 @@ public sealed class FileSystemFileWatcher : IFileWatcher
     private void OnError(object sender, System.IO.ErrorEventArgs e)
     {
         var exception = e.GetException();
-        _logger.LogError(exception, "File watcher error occurred");
+        LogWatcherError(_logger, exception);
 
         Error?.Invoke(this, new ErrorEventArgs
         {
@@ -167,12 +208,11 @@ public sealed class FileSystemFileWatcher : IFileWatcher
 
                 FileChanged?.Invoke(this, args);
 
-                _logger.LogDebug("File changed event raised: {Path}, Type: {Type}",
-                    fullPath, changeType);
+                LogFileChangedEvent(_logger, fullPath, changeType);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error raising file changed event");
+                LogEventRaiseError(_logger, ex);
             }
             finally
             {

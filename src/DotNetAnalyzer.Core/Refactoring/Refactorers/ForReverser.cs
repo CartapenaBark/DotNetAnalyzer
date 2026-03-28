@@ -76,7 +76,7 @@ public sealed class ForReverser : IRefactorer
         var changes = new List<CodeChange>
         {
             CodeChange.Replace(
-                context.Document.FilePath ?? "",
+                context.Document.FilePath ?? string.Empty,
                 forLoop.Span,
                 reversedFor,
                 "反转for循环方向")

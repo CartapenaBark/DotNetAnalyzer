@@ -135,7 +135,7 @@ public class CallerAnalyzer(IWorkspaceManager workspaceManager)
                 {
                     Location = new SourceLocation
                     {
-                        FilePath = document.FilePath ?? "",
+                        FilePath = document.FilePath ?? string.Empty,
                         Line = lineSpan.StartLinePosition.Line,
                         Column = lineSpan.StartLinePosition.Character
                     },
@@ -143,8 +143,8 @@ public class CallerAnalyzer(IWorkspaceManager workspaceManager)
                     {
                         Name = callerSymbol.Name,
                         Kind = callerSymbol.Kind.ToString(),
-                        ContainingType = callerSymbol.ContainingType?.Name ?? "",
-                        Namespace = callerSymbol.ContainingNamespace?.ToString() ?? ""
+                        ContainingType = callerSymbol.ContainingType?.Name ?? string.Empty,
+                        Namespace = callerSymbol.ContainingNamespace?.ToString() ?? string.Empty
                     },
                     CallKind = CallKind.Direct,
                     Context = GetCallContext(invocation)

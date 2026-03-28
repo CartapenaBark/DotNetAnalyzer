@@ -34,6 +34,11 @@ public class ImpactAnalysisResult
     public List<ImpactItem> IndirectImpacts { get; set; } = new();
 
     /// <summary>
+    /// 跨项目影响
+    /// </summary>
+    public List<ImpactItem> CrossProjectImpacts { get; set; } = new();
+
+    /// <summary>
     /// 总影响分数（0-100）
     /// </summary>
     public double ImpactScore { get; set; }
@@ -138,6 +143,11 @@ public class ImpactItem
     /// 是否是公共 API
     /// </summary>
     public bool IsPublicApi { get; set; }
+
+    /// <summary>
+    /// 影响级别：Direct / Indirect / CrossProject
+    /// </summary>
+    public string ImpactLevel { get; set; } = "Direct";
 }
 
 /// <summary>

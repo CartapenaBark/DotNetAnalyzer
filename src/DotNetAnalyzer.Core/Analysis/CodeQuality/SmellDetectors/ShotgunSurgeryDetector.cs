@@ -75,7 +75,7 @@ public sealed class ShotgunSurgeryDetector : ICodeSmellDetector
                     Severity = Models.CodeQuality.CodeSmellSeverity.Major,
                     Location = new CodeLocation
                     {
-                        FilePath = document.FilePath ?? "",
+                        FilePath = document.FilePath ?? string.Empty,
                         StartLine = location.StartLinePosition.Line,
                         StartColumn = location.StartLinePosition.Character,
                         EndLine = location.EndLinePosition.Line,
@@ -207,10 +207,10 @@ public sealed class ShotgunSurgeryDetector : ICodeSmellDetector
         var suggestions = new List<string>();
 
         suggestions.Add($"类 '{className}' 与过多其他类紧密耦合，每次修改都可能影响多个类");
-        suggestions.Add("");
+        suggestions.Add(string.Empty);
         suggestions.Add($"相关类数量: {analysis.RelatedClassCount}");
         suggestions.Add($"相关类: {string.Join(", ", analysis.RelatedClasses)}");
-        suggestions.Add("");
+        suggestions.Add(string.Empty);
         suggestions.Add("建议的重构策略：");
         suggestions.Add("- 重构以减少类之间的直接依赖");
         suggestions.Add("- 引入中间层或接口来解耦");

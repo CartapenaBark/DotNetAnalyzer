@@ -11,13 +11,34 @@ namespace DotNetAnalyzer.Core.Caching;
 /// <remarks>
 /// 基于内存的缓存实现，使用 LRU 淘汰策略。
 /// </remarks>
-public sealed class InMemoryAnalysisResultCache : IAnalysisResultCache, System.IDisposable
+public sealed partial class InMemoryAnalysisResultCache : IAnalysisResultCache, System.IDisposable
 {
     private readonly ILogger<InMemoryAnalysisResultCache> _logger;
     private readonly ConcurrentDictionary<string, CacheEntry> _cache;
     private readonly int _maxSize;
     private readonly LinkedList<string> _lruList;
     private readonly object _lock = new();
+
+    [LoggerMessage(LogLevel.Debug, "Cache hit: {Key}")]
+    private static partial void LogCacheHit(ILogger logger, string key);
+
+    [LoggerMessage(LogLevel.Debug, "Cache miss and added: {Key}")]
+    private static partial void LogCacheMiss(ILogger logger, string key);
+
+    [LoggerMessage(LogLevel.Debug, "Cache invalidated: {Key}")]
+    private static partial void LogCacheInvalidated(ILogger logger, string key);
+
+    [LoggerMessage(
+        LogLevel.Information,
+        "Invalidated {Count} cache entries matching pattern: {Pattern}")]
+    private static partial void LogPatternInvalidated(
+        ILogger logger, int count, string pattern);
+
+    [LoggerMessage(LogLevel.Information, "Cache cleared")]
+    private static partial void LogCacheCleared(ILogger logger);
+
+    [LoggerMessage(LogLevel.Debug, "Cache entry evicted: {Key}")]
+    private static partial void LogCacheEvicted(ILogger logger, string key);
 
     /// <summary>
     /// 初始化 <see cref="InMemoryAnalysisResultCache"/> 的新实例
@@ -46,7 +67,7 @@ public sealed class InMemoryAnalysisResultCache : IAnalysisResultCache, System.I
             if (!entry.IsExpired)
             {
                 UpdateLRU(key);
-                _logger.LogDebug("Cache hit: {Key}", key);
+                LogCacheHit(_logger, key);
 
                 Interlocked.Increment(ref _statisticsHitCount);
                 return (T)entry.Value!;
@@ -75,7 +96,7 @@ public sealed class InMemoryAnalysisResultCache : IAnalysisResultCache, System.I
 
         AddToCache(key, cacheEntry);
 
-        _logger.LogDebug("Cache miss and added: {Key}", key);
+        LogCacheMiss(_logger, key);
 
         return value;
     }
@@ -86,7 +107,7 @@ public sealed class InMemoryAnalysisResultCache : IAnalysisResultCache, System.I
         if (_cache.TryRemove(key, out var entry))
         {
             RemoveFromLRU(key);
-            _logger.LogDebug("Cache invalidated: {Key}", key);
+            LogCacheInvalidated(_logger, key);
         }
 
         return Task.CompletedTask;
@@ -106,8 +127,7 @@ public sealed class InMemoryAnalysisResultCache : IAnalysisResultCache, System.I
             RemoveFromLRU(key);
         }
 
-        _logger.LogInformation("Invalidated {Count} cache entries matching pattern: {Pattern}",
-            keysToRemove.Count, keyPattern);
+        LogPatternInvalidated(_logger, keysToRemove.Count, keyPattern);
 
         return Task.CompletedTask;
     }
@@ -122,7 +142,7 @@ public sealed class InMemoryAnalysisResultCache : IAnalysisResultCache, System.I
             _lruList.Clear();
         }
 
-        _logger.LogInformation("Cache cleared");
+        LogCacheCleared(_logger);
 
         return Task.CompletedTask;
     }
@@ -199,7 +219,7 @@ public sealed class InMemoryAnalysisResultCache : IAnalysisResultCache, System.I
             _cache.TryRemove(keyToRemove, out _);
             _lruList.RemoveLast();
 
-            _logger.LogDebug("Cache entry evicted: {Key}", keyToRemove);
+            LogCacheEvicted(_logger, keyToRemove);
         }
     }
     private long _statisticsHitCount;

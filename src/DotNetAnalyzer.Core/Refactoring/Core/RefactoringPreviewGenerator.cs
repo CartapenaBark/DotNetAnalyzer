@@ -111,7 +111,7 @@ public sealed class RefactoringPreviewGenerator : IRefactoringPreviewGenerator
     public string GenerateDiff(string oldContent, string newContent, string? filePath = null)
     {
         // 简单的 diff 实现（可以后续替换为专业的 diff 库）
-        var header = filePath != null ? $"--- {filePath}\n+++ {filePath}\n" : "";
+        var header = filePath != null ? $"--- {filePath}\n+++ {filePath}\n" : string.Empty;
         return $"{header}{GenerateSimpleDiff(oldContent, newContent)}";
     }
 

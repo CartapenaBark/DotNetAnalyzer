@@ -84,7 +84,7 @@ public class AdaptiveCacheManagerTests : IDisposable
         // Act & Assert
         Assert.Throws<ArgumentException>(() =>
         {
-            _manager.RegisterCache("", cache);
+            _manager.RegisterCache(string.Empty, cache);
         });
     }
 

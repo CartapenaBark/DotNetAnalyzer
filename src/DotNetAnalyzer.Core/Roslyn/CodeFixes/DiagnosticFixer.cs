@@ -59,7 +59,7 @@ public class DiagnosticFixer
             var fixResult = await FixDiagnosticAsync(solution, diagnostic, fixTitle);
             if (fixResult.Success)
             {
-                fixedLocations.Add(diagnostic.Location.SourceTree?.FilePath ?? "");
+                fixedLocations.Add(diagnostic.Location.SourceTree?.FilePath ?? string.Empty);
                 appliedFixes.Add(fixTitle ?? "Auto Fix");
             }
         }
@@ -87,7 +87,7 @@ public class DiagnosticFixer
         return new FixResult
         {
             Success = true,
-            FixedLocations = new List<string> { diagnostic.Location.SourceTree?.FilePath ?? "" },
+            FixedLocations = new List<string> { diagnostic.Location.SourceTree?.FilePath ?? string.Empty },
             AppliedFixes = new List<string> { fixTitle ?? "Fix" },
             DocumentsChanged = 1
         };

@@ -88,7 +88,7 @@ public sealed class LongMethodDetector : ICodeSmellDetector
                     lineCount,
                     threshold,
                     symbol?.Name ?? "Unknown",
-                    document.FilePath ?? "",
+                    document.FilePath ?? string.Empty,
                     severity: CalculateSeverity(lineCount, threshold));
 
                 result.Add(smell);
@@ -108,7 +108,7 @@ public sealed class LongMethodDetector : ICodeSmellDetector
                     lineCount,
                     threshold,
                     $"{property.Identifier.Text} accessor",
-                    document.FilePath ?? "",
+                    document.FilePath ?? string.Empty,
                     Models.CodeQuality.CodeSmellSeverity.Minor);
 
                 result.Add(smell);
@@ -127,7 +127,7 @@ public sealed class LongMethodDetector : ICodeSmellDetector
                     lineCount,
                     threshold,
                     symbol?.ContainingType.Name + ".ctor",
-                    document.FilePath ?? "",
+                    document.FilePath ?? string.Empty,
                     severity: CalculateSeverity(lineCount, threshold));
 
                 result.Add(smell);

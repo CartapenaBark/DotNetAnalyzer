@@ -84,7 +84,7 @@ public sealed class GodClassDetector : ICodeSmellDetector
                     Severity = Models.CodeQuality.CodeSmellSeverity.Critical,
                     Location = new CodeLocation
                     {
-                        FilePath = document.FilePath ?? "",
+                        FilePath = document.FilePath ?? string.Empty,
                         StartLine = location.StartLinePosition.Line,
                         StartColumn = location.StartLinePosition.Character,
                         EndLine = location.EndLinePosition.Line,
@@ -235,7 +235,7 @@ public sealed class GodClassDetector : ICodeSmellDetector
         var suggestions = new List<string>();
 
         suggestions.Add($"类 '{className}' 承担了过多职责，建议进行以下重构：");
-        suggestions.Add("");
+        suggestions.Add(string.Empty);
 
         if (analysis.PublicMethodCount >= DefaultMethodThreshold)
         {
@@ -247,7 +247,7 @@ public sealed class GodClassDetector : ICodeSmellDetector
             suggestions.Add($"- 字段过多 ({analysis.FieldCount} 个)，考虑提取相关的字段到单独的类中");
         }
 
-        suggestions.Add("");
+        suggestions.Add(string.Empty);
         suggestions.Add("可以考虑以下重构技术：");
         suggestions.Add("- 提取类 (Extract Class): 将相关的功能提取到新的类中");
         suggestions.Add("- 提取子类 (Extract Subclass): 如果有不同类型的行为");

@@ -4,14 +4,17 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using DotNetAnalyzer.Core.Abstractions;
+using DotNetAnalyzer.Core.Architecture;
 using DotNetAnalyzer.Core.Configuration;
 using DotNetAnalyzer.Core.Roslyn;
 using DotNetAnalyzer.Core.Memory;
+using DotNetAnalyzer.Core.Analysis;
 using DotNetAnalyzer.Core.Analysis.CodeQuality;
 using DotNetAnalyzer.Core.Analysis.CodeQuality.SmellDetectors;
 using DotNetAnalyzer.Core.Monitoring;
 using DotNetAnalyzer.Core.Caching;
 using DotNetAnalyzer.Core.Visualization;
+using DotNetAnalyzer.Core.Decompilation;
 
 namespace DotNetAnalyzer.Cli;
 
@@ -71,6 +74,10 @@ internal sealed class Program
         builder.Services.AddScoped<TechnicalDebtCalculator>();
         builder.Services.AddScoped<ChangeImpactAnalyzer>();
 
+        // 注册覆盖率分析服务
+        builder.Services.AddScoped<CoverageDataParser>();
+        builder.Services.AddScoped<TestCoverageAnalyzer>();
+
         // 注册所有代码异味检测器
         builder.Services.AddScoped<ICodeSmellDetector, LongMethodDetector>();
         builder.Services.AddScoped<ICodeSmellDetector, LargeClassDetector>();
@@ -93,6 +100,17 @@ internal sealed class Program
         builder.Services.AddScoped<DependencyGraphVisualizer>();
         builder.Services.AddScoped<HeatmapGenerator>();
         builder.Services.AddScoped<GraphLayoutEngine>();
+
+        // 注册架构分析服务
+        builder.Services.AddScoped<ArchitectureConfigReader>();
+        builder.Services.AddScoped<ArchitectureRuleEngine>();
+
+        // 注册反编译服务
+        builder.Services.AddSingleton<AssemblyCache>();
+        builder.Services.AddScoped<IDecompilationService,
+            CSharpDecompilerService>();
+        builder.Services.AddScoped<AssemblyMetadataReader>();
+        builder.Services.AddScoped<ILAnalyzer>();
 
         // 配置 MCP 服务器
         builder.Services

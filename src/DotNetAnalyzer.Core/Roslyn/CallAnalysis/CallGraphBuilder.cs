@@ -210,7 +210,7 @@ public class CallGraphBuilder
 
             location = new MethodLocation
             {
-                FilePath = syntaxTree.FilePath ?? "",
+                FilePath = syntaxTree.FilePath ?? string.Empty,
                 StartLine = lineSpan.StartLinePosition.Line,
                 StartColumn = lineSpan.StartLinePosition.Character
             };

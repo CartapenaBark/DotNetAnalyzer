@@ -106,7 +106,7 @@ public class DependencyGraphVisualizer
         foreach (var edge in graph.Edges)
         {
             var lineStyle = GetEdgeStyle(edge);
-            var label = edge.Strength < 1.0 ? $"|{edge.Strength:P0}|" : "";
+            var label = edge.Strength < 1.0 ? $"|{edge.Strength:P0}|" : string.Empty;
 
             builder.AppendLine($"    {edge.From} {lineStyle} {label} {edge.To}");
         }

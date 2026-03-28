@@ -153,7 +153,7 @@ public sealed class TemporaryInliner : IRefactorer
                 changes.Add(CodeChange.Replace(
                     filePath,
                     fullDeclaration.Span,
-                    "",
+                    string.Empty,
                     "删除变量声明"));
             }
         }

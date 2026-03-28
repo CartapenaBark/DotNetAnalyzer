@@ -85,7 +85,7 @@ public sealed class ForToForeachConverter : IRefactorer
         var changes = new List<CodeChange>
         {
             CodeChange.Replace(
-                context.Document.FilePath ?? "",
+                context.Document.FilePath ?? string.Empty,
                 forLoop.Span,
                 foreachCode,
                 "将for循环转换为foreach循环")

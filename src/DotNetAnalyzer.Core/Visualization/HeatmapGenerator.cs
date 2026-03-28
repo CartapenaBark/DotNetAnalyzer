@@ -1,3 +1,4 @@
+using DotNetAnalyzer.Core.Analysis;
 using DotNetAnalyzer.Core.Models.CodeQuality;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
@@ -26,6 +27,35 @@ public class HeatmapGenerator
     public HeatmapGenerator(ILogger<HeatmapGenerator> logger)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    /// <summary>
+    /// 基于 Git 历史生成变更频率热力图。
+    /// </summary>
+    /// <remarks>
+    /// 调用 <see cref="GitHistoryProvider"/> 获取真实变更数据，
+    /// 然后委托给 <see cref="GenerateChangeFrequencyHeatmap"/> 生成热力图。
+    /// </remarks>
+    /// <param name="gitProvider">Git 历史记录提供器。</param>
+    /// <param name="repositoryPath">Git 仓库根目录路径。</param>
+    /// <param name="periodDays">回溯天数（默认 30 天）。</param>
+    /// <param name="cancellationToken">取消令牌。</param>
+    /// <returns>热力图数据。</returns>
+    public static async Task<HeatmapData> GenerateChangeFrequencyHeatmapFromGit(
+        GitHistoryProvider gitProvider,
+        string repositoryPath,
+        int periodDays = 30,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(gitProvider);
+
+        var changeHistory = await gitProvider.GetChangeHistoryAsync(
+            repositoryPath, periodDays, cancellationToken);
+
+        var data = GenerateChangeFrequencyHeatmap(changeHistory);
+        data.Title = $"变更频率热力图（最近 {periodDays} 天）";
+
+        return data;
     }
 
     /// <summary>

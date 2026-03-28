@@ -93,7 +93,7 @@ public sealed class DuplicateCodeDetector : ICodeSmellDetector
                 Severity = Models.CodeQuality.CodeSmellSeverity.Major,
                 Location = new CodeLocation
                 {
-                    FilePath = document.FilePath ?? "",
+                    FilePath = document.FilePath ?? string.Empty,
                     StartLine = location.StartLinePosition.Line,
                     StartColumn = location.StartLinePosition.Character,
                     EndLine = location.EndLinePosition.Line,

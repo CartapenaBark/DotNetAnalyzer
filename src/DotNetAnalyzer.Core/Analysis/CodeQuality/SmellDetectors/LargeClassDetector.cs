@@ -97,7 +97,7 @@ public sealed class LargeClassDetector : ICodeSmellDetector
                     Severity = CalculateSeverity(lineCount, threshold),
                     Location = new CodeLocation
                     {
-                        FilePath = document.FilePath ?? "",
+                        FilePath = document.FilePath ?? string.Empty,
                         StartLine = location.StartLinePosition.Line,
                         StartColumn = location.StartLinePosition.Character,
                         EndLine = location.EndLinePosition.Line,

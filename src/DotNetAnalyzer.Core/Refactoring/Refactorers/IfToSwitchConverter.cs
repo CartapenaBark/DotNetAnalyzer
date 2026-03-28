@@ -96,7 +96,7 @@ public sealed class IfToSwitchConverter : IRefactorer
         var changes = new List<CodeChange>
         {
             CodeChange.Replace(
-                context.Document.FilePath ?? "",
+                context.Document.FilePath ?? string.Empty,
                 ifStatement.Span,
                 switchCode,
                 "将if-else链转换为switch语句")
@@ -154,7 +154,7 @@ public sealed class IfToSwitchConverter : IRefactorer
             var condition = ifStmt.Condition as BinaryExpressionSyntax;
             if (condition != null)
             {
-                var caseValue = condition.Right?.ToString() ?? "";
+                var caseValue = condition.Right?.ToString() ?? string.Empty;
                 cases.AppendLine($"        case {caseValue}:");
                 cases.AppendLine($"            {ifStmt.Statement}");
                 cases.AppendLine("            break;");

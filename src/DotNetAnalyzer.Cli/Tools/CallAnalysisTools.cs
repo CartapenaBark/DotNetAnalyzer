@@ -71,13 +71,13 @@ public static class CallAnalysisTools
     /// <summary>
     /// 获取方法内调用的所有其他方法
     /// </summary>
-    [McpServerTool, Description("获取方法内调用的所有其他方法，支持递归深度分析（复杂跨文档场景为启发式）")]
+    [McpServerTool, Description("获取方法内调用的所有其他方法，支持跨文档解析、接口/虚方法分派和循环检测")]
     public static async Task<string> GetCalleeInfo(
         IWorkspaceManager workspaceManager,
         [Description("文件路径")] string filePath,
         [Description("行号（从0开始）")] int line,
         [Description("列号（从0开始）")] int column,
-        [Description("递归深度（0=仅直接调用）")] int depth = 0)
+        [Description("最大递归深度（默认10，0=仅直接调用）")] int depth = 10)
     {
         try
         {
@@ -121,10 +121,9 @@ public static class CallAnalysisTools
                 data = result,
                 credibility = new
                 {
-                    level = "heuristic",
-                    isStable = false,
-                    summary = "当前被调用者分析在复杂跨文档场景下仍可能不完整。",
-                    remediation = "后续需补齐跨文档调用树解析后再升级为稳定能力。"
+                    level = "verified",
+                    isStable = true,
+                    summary = "基于真实语义模型的跨文档被调用者分析，支持接口/虚方法分派。"
                 }
             }, JsonOptions.Default);
         }

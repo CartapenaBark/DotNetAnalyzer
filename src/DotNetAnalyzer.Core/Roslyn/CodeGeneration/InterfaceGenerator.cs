@@ -118,7 +118,7 @@ public class InterfaceGenerator
             {
                 RefKind.Ref => "ref ",
                 RefKind.Out => "out ",
-                _ => ""
+                _ => string.Empty
             };
             return $"{direction}{p.Type.ToDisplayString()} {p.Name}";
         }));

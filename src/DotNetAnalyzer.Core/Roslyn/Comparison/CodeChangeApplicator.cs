@@ -61,7 +61,7 @@ public class CodeChangeApplicator
                         Message = diagnostic.GetMessage(),
                         Location = new SourceLocation
                         {
-                            FilePath = document.FilePath ?? "",
+                            FilePath = document.FilePath ?? string.Empty,
                             Line = diagnostic.Location.GetLineSpan().StartLinePosition.Line,
                             Column = diagnostic.Location.GetLineSpan().StartLinePosition.Character
                         }
@@ -97,7 +97,7 @@ public class CodeChangeApplicator
                     Message = message,
                     Location = new SourceLocation
                     {
-                        FilePath = filePath ?? "",
+                        FilePath = filePath ?? string.Empty,
                         Line = 0,
                         Column = 0
                     }

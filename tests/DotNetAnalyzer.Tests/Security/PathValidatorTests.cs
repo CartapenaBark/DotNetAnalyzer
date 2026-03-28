@@ -368,7 +368,7 @@ public class PathValidatorTests
     public void ContainsPathTraversalPatterns_WithEmptyPath_ShouldReturnFalse()
     {
         // Act
-        var result = PathValidator.ContainsPathTraversalPatterns("");
+        var result = PathValidator.ContainsPathTraversalPatterns(string.Empty);
 
         // Assert
         result.Should().BeFalse();

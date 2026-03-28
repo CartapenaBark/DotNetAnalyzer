@@ -113,7 +113,7 @@ public class DiffGenerator
             {
                 if (currentHunk.Count > 0)
                 {
-                    currentHunk.Add(new DiffLine { Prefix = " ", Content = beforeLine ?? "" });
+                    currentHunk.Add(new DiffLine { Prefix = " ", Content = beforeLine ?? string.Empty });
                 }
             }
             else
@@ -200,8 +200,8 @@ public class DiffHunk
 /// </summary>
 public class DiffLine
 {
-    public string Prefix { get; set; } = "";
-    public string Content { get; set; } = "";
+    public string Prefix { get; set; } = string.Empty;
+    public string Content { get; set; } = string.Empty;
 }
 
 /// <summary>

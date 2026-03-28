@@ -208,6 +208,12 @@ public class CallTreeNode
     public string Method { get; set; } = string.Empty;
 
     /// <summary>
+    /// 获取或设置包含类型的完全限定名
+    /// </summary>
+    [JsonPropertyName("containingType")]
+    public string ContainingType { get; set; } = string.Empty;
+
+    /// <summary>
     /// 获取或设置子节点
     /// </summary>
     [JsonPropertyName("children")]
@@ -218,6 +224,40 @@ public class CallTreeNode
     /// </summary>
     [JsonPropertyName("depth")]
     public int Depth { get; set; }
+
+    /// <summary>
+    /// 获取或设置调用分派类型
+    /// </summary>
+    [JsonPropertyName("dispatchKind")]
+    public DispatchKind DispatchKind { get; set; } =
+        DispatchKind.Direct;
+
+    /// <summary>
+    /// 获取或设置是否因深度限制或循环检测而截断
+    /// </summary>
+    [JsonPropertyName("truncated")]
+    public bool Truncated { get; set; }
+}
+
+/// <summary>
+/// 调用分派类型，描述方法的调用方式
+/// </summary>
+public enum DispatchKind
+{
+    /// <summary>
+    /// 直接调用 -- 精确匹配声明
+    /// </summary>
+    Direct,
+
+    /// <summary>
+    /// 接口 -> 实现分派
+    /// </summary>
+    InterfaceImplementation,
+
+    /// <summary>
+    /// 虚方法 -> 重写方法分派
+    /// </summary>
+    VirtualOverride
 }
 
 /// <summary>
@@ -386,4 +426,10 @@ public class CalleeAnalysisResult
     /// </summary>
     [JsonPropertyName("callTree")]
     public CallTreeNode CallTree { get; set; } = new();
+
+    /// <summary>
+    /// 获取或设置是否因深度限制或循环检测导致分析被截断
+    /// </summary>
+    [JsonPropertyName("truncated")]
+    public bool Truncated { get; set; }
 }

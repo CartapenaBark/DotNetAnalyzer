@@ -248,9 +248,10 @@ public static class AnalysisTools
     /// <summary>
     /// 获取测试覆盖率
     /// </summary>
-    [McpServerTool, Description("获取项目的测试覆盖率估算信息（启发式结果）")]
+    [McpServerTool, Description("获取项目的测试覆盖率信息，优先使用 coverage.cobertura.xml 真实数据，回退到启发式估算")]
     public static async Task<string> GetTestCoverage(
         IWorkspaceManager workspaceManager,
+        TestCoverageAnalyzer coverageAnalyzer,
         [Description("项目路径")] string projectPath)
     {
         try
@@ -266,7 +267,8 @@ public static class AnalysisTools
                 return CreateErrorResponse($"无法加载项目: {projectPath}");
             }
 
-            var result = await TestCoverageAnalyzer.AnalyzeAsync(project);
+            var result = await coverageAnalyzer.AnalyzeAsync(project);
+            var isVerified = result.Credibility == "verified";
 
             return JsonSerializer.Serialize(new
             {
@@ -289,10 +291,14 @@ public static class AnalysisTools
                 },
                 credibility = new
                 {
-                    level = "heuristic",
-                    isStable = false,
-                    summary = "当前覆盖率结果基于测试文件命名和启发式估算，不等同于真实覆盖率采集结果。",
-                    remediation = "后续可接入 coverlet 或其他覆盖率产物，替换当前近似实现。"
+                    level = result.Credibility,
+                    isStable = isVerified,
+                    summary = isVerified
+                        ? "覆盖率数据来自 coverage.cobertura.xml，结果可视为稳定行为。"
+                        : "当前覆盖率结果基于测试文件命名和启发式估算，不等同于真实覆盖率采集结果。",
+                    remediation = isVerified
+                        ? null
+                        : "运行 dotnet test --collect:\"XPlat Code Coverage\" 生成覆盖文件以获取真实数据。"
                 }
             }, JsonOptions.Default);
         }

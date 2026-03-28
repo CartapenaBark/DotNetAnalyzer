@@ -19,9 +19,13 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="5.0.0" />
 
+    <!-- ILSpy 反编译 -->
+    <PackageReference Include="ICSharpCode.Decompiler" Version="9.0.0.7889" />
+
     <!-- 其他依赖 -->
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
     <PackageReference Include="ModelContextProtocol" Version="0.8.0-preview.1" />
   </ItemGroup>
+
 
 </Project>

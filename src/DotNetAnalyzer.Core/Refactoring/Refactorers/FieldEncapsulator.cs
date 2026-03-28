@@ -268,7 +268,7 @@ public sealed class FieldEncapsulator : IRefactorer
         bool isStatic,
         string fieldName)
     {
-        var staticModifier = isStatic ? "static " : "";
+        var staticModifier = isStatic ? "static " : string.Empty;
         return $@"
     public {staticModifier}{fieldType} {propertyName}
     {{

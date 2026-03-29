@@ -80,7 +80,7 @@ namespace TestNamespace
     }
 
     [Fact]
-    public void FindNodeAtPosition_ShouldFindCorrectNode()
+    public async Task FindNodeAtPositionAsync_ShouldFindCorrectNode()
     {
         // Arrange
         var code = @"
@@ -94,7 +94,7 @@ namespace Test
         var syntaxTree = CSharpSyntaxTree.ParseText(code);
 
         // Act - 查找第4行的节点
-        var node = SyntaxTreeAnalyzer.FindNodeAtPosition(syntaxTree, 4, 10);
+        var node = await SyntaxTreeAnalyzer.FindNodeAtPositionAsync(syntaxTree, 4, 10);
 
         // Assert
         node.Should().NotBeNull();
@@ -102,7 +102,7 @@ namespace Test
     }
 
     [Fact]
-    public void FindNodeAtPosition_WithInvalidLine_ShouldHandleGracefully()
+    public async Task FindNodeAtPositionAsync_WithInvalidLine_ShouldHandleGracefully()
     {
         // Arrange
         var code = @"
@@ -116,8 +116,8 @@ namespace Test
         var syntaxTree = CSharpSyntaxTree.ParseText(code);
 
         // Act & Assert - 行号超出范围应该抛出异常
-        Assert.Throws<ArgumentOutOfRangeException>(() =>
-            SyntaxTreeAnalyzer.FindNodeAtPosition(syntaxTree, 100, 10));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
+            SyntaxTreeAnalyzer.FindNodeAtPositionAsync(syntaxTree, 100, 10));
     }
 
     [Fact]

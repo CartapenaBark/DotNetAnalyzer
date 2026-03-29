@@ -17,7 +17,7 @@ namespace DotNetAnalyzer.Core.Analysis.Desktop;
 ///   <item>MEM003 — 静态事件持有实例引用</item>
 /// </list>
 /// </remarks>
-public sealed class MemoryLeakDetector
+public sealed partial class MemoryLeakDetector
 {
     private readonly ILogger<MemoryLeakDetector> _logger;
 
@@ -83,9 +83,7 @@ public sealed class MemoryLeakDetector
             DetectStaticEventHolders(root, semanticModel, filePath, warnings);
         }
 
-        _logger.LogDebug(
-            "内存泄漏检测完成，发现 {WarningCount} 个警告",
-            warnings.Count);
+        Log.DetectionCompleted(_logger, warnings.Count);
 
         return warnings;
     }
@@ -97,7 +95,7 @@ public sealed class MemoryLeakDetector
     /// 在类中检测 += 事件订阅，如果该类包含 Dispose 或其他清理方法，
     /// 但没有对应的 -= 取消订阅操作，则报告警告。
     /// </remarks>
-    private void DetectUnsubscribedEvents(
+    private static void DetectUnsubscribedEvents(
         SyntaxNode root,
         string filePath,
         List<MemoryLeakWarning> warnings)
@@ -195,7 +193,7 @@ public sealed class MemoryLeakDetector
     /// <remarks>
     /// 检测通过 new 或工厂方法创建 IDisposable 实例但未调用 .Dispose() 或 using 语句。
     /// </remarks>
-    private void DetectUndisposedResources(
+    private static void DetectUndisposedResources(
         SyntaxNode root,
         SemanticModel semanticModel,
         string filePath,
@@ -285,7 +283,7 @@ public sealed class MemoryLeakDetector
     /// <summary>
     /// 检测方法局部变量中的 IDisposable 泄漏。
     /// </summary>
-    private void DetectLocalDisposableLeaks(
+    private static void DetectLocalDisposableLeaks(
         MethodDeclarationSyntax method,
         TypeDeclarationSyntax containingType,
         SemanticModel semanticModel,
@@ -308,7 +306,7 @@ public sealed class MemoryLeakDetector
             }
 
             // 检查是否为 using 声明 (C# 8.0+)
-            if (localDeclaration.UsingKeyword.Kind() == SyntaxKind.UsingKeyword)
+            if (localDeclaration.UsingKeyword.IsKind(SyntaxKind.UsingKeyword))
             {
                 continue;
             }
@@ -355,7 +353,7 @@ public sealed class MemoryLeakDetector
     /// <remarks>
     /// 静态事件订阅实例方法处理程序时，静态事件会持有实例引用，阻止 GC 回收。
     /// </remarks>
-    private void DetectStaticEventHolders(
+    private static void DetectStaticEventHolders(
         SyntaxNode root,
         SemanticModel semanticModel,
         string filePath,
@@ -636,5 +634,18 @@ public sealed class MemoryLeakDetector
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// 日志消息定义
+    /// </summary>
+    private static partial class Log
+    {
+        [LoggerMessage(
+            LogLevel.Debug,
+            "内存泄漏检测完成，发现 {WarningCount} 个警告")]
+        public static partial void DetectionCompleted(
+            ILogger logger,
+            int warningCount);
     }
 }

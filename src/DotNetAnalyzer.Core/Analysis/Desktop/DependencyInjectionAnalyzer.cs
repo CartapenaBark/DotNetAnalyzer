@@ -49,7 +49,7 @@ public sealed class DiMissingRegistration
 /// 扫描项目中的 DI 注册（AddSingleton/AddScoped/AddTransient），
 /// 对比构造函数参数需求，报告缺少的注册信息。
 /// </remarks>
-public sealed class DependencyInjectionAnalyzer
+public sealed partial class DependencyInjectionAnalyzer
 {
     private readonly ILogger<DependencyInjectionAnalyzer> _logger;
 
@@ -142,9 +142,8 @@ public sealed class DependencyInjectionAnalyzer
                 missingRegistrations);
         }
 
-        _logger.LogDebug(
-            "DI 分析完成，发现 {RegCount} 个注册，{MissingCount} 个缺少注册",
-            registrations.Count, missingRegistrations.Count);
+        Log.AnalysisCompleted(
+            _logger, registrations.Count, missingRegistrations.Count);
 
         return new DiAnalysisResult
         {
@@ -158,7 +157,7 @@ public sealed class DependencyInjectionAnalyzer
     /// <summary>
     /// 收集 DI 注册调用。
     /// </summary>
-    private void CollectRegistrations(
+    private static void CollectRegistrations(
         SyntaxNode root,
         SemanticModel semanticModel,
         string filePath,
@@ -226,7 +225,7 @@ public sealed class DependencyInjectionAnalyzer
     /// <summary>
     /// 检测缺少注册的构造函数依赖。
     /// </summary>
-    private void DetectMissingRegistrations(
+    private static void DetectMissingRegistrations(
         SyntaxNode root,
         SemanticModel semanticModel,
         string filePath,
@@ -433,5 +432,19 @@ public sealed class DependencyInjectionAnalyzer
     {
         var lastDot = typeName.LastIndexOf('.');
         return lastDot < 0 ? typeName : typeName[(lastDot + 1)..];
+    }
+
+    /// <summary>
+    /// 日志消息定义。
+    /// </summary>
+    private static partial class Log
+    {
+        [LoggerMessage(
+            LogLevel.Debug,
+            "DI 分析完成，发现 {RegCount} 个注册，{MissingCount} 个缺少注册")]
+        public static partial void AnalysisCompleted(
+            ILogger logger,
+            int regCount,
+            int missingCount);
     }
 }

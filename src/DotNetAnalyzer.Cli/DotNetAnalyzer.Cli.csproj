@@ -22,7 +22,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-analyzer</ToolCommandName>
     <PackageId>DotNetAnalyzer</PackageId>
-    <Version>1.4.0</Version>
+    <Version>1.5.0</Version>
     <Authors>CartapenaBark</Authors>
     <Description>MCP server with 92 tools for .NET code analysis, refactoring, code generation, quality analysis, architecture validation, security detection, dependency health, performance optimization, XAML analysis, desktop pattern detection, and project file manipulation</Description>
     <PackageTags>mcp;roslyn;code-analysis;claude;dotnet</PackageTags>

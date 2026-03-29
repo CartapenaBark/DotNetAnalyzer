@@ -17,7 +17,7 @@ namespace DotNetAnalyzer.Core.Analysis.Desktop;
 ///   <item>MVVM003 — Command 属性未实现 ICommand</item>
 /// </list>
 /// </remarks>
-public sealed class MvvmViolationDetector
+public sealed partial class MvvmViolationDetector
 {
     private readonly ILogger<MvvmViolationDetector> _logger;
 
@@ -141,9 +141,7 @@ public sealed class MvvmViolationDetector
             DetectCommandNotImplementingICommand(root, semanticModel, filePath, violations);
         }
 
-        _logger.LogDebug(
-            "MVVM 违规检测完成，发现 {ViolationCount} 个违规",
-            violations.Count);
+        Log.DetectionCompleted(_logger, violations.Count);
 
         return violations;
     }
@@ -151,7 +149,7 @@ public sealed class MvvmViolationDetector
     /// <summary>
     /// MVVM001: 检测 code-behind 文件中包含业务逻辑的方法。
     /// </summary>
-    private void DetectCodeBehindBusinessLogic(
+    private static void DetectCodeBehindBusinessLogic(
         SyntaxNode root,
         string filePath,
         List<MvvmViolation> violations)
@@ -223,7 +221,7 @@ public sealed class MvvmViolationDetector
     /// <summary>
     /// MVVM002: 检测 ViewModel 类中引用 UI 命名空间。
     /// </summary>
-    private void DetectViewModelUiReferences(
+    private static void DetectViewModelUiReferences(
         SyntaxNode root,
         SemanticModel semanticModel,
         string filePath,
@@ -320,7 +318,7 @@ public sealed class MvvmViolationDetector
     /// <summary>
     /// MVVM003: 检测名为 *Command 但未实现 ICommand 的属性。
     /// </summary>
-    private void DetectCommandNotImplementingICommand(
+    private static void DetectCommandNotImplementingICommand(
         SyntaxNode root,
         SemanticModel semanticModel,
         string filePath,
@@ -407,7 +405,8 @@ public sealed class MvvmViolationDetector
             }
 
             // 仅当 current 是类但不是基类时向上查找
-            if (current.BaseType == null || current == current.BaseType)
+            if (current.BaseType == null ||
+                SymbolEqualityComparer.Default.Equals(current, current.BaseType))
             {
                 break;
             }
@@ -416,5 +415,18 @@ public sealed class MvvmViolationDetector
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// 日志消息定义
+    /// </summary>
+    private static partial class Log
+    {
+        [LoggerMessage(
+            LogLevel.Debug,
+            "MVVM 违规检测完成，发现 {ViolationCount} 个违规")]
+        public static partial void DetectionCompleted(
+            ILogger logger,
+            int violationCount);
     }
 }

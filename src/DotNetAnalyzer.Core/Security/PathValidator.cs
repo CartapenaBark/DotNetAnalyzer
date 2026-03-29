@@ -40,6 +40,62 @@ public static class PathValidator
     private const char ParentDirectoryPrefix = '.';
 
     /// <summary>
+    /// Windows 保留设备名称
+    /// </summary>
+    private static readonly string[] ReservedDeviceNames =
+    [
+        "CON", "PRN", "AUX", "NUL",
+        "COM0", "COM1", "COM2", "COM3", "COM4", "COM5",
+        "COM6", "COM7", "COM8", "COM9",
+        "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5",
+        "LPT6", "LPT7", "LPT8", "LPT9"
+    ];
+
+    /// <summary>
+    /// 检查路径的所有段中是否包含 Windows 保留设备名称。
+    /// </summary>
+    /// <param name="normalizedPath">已规范化的绝对路径。</param>
+    /// <returns>如果任意路径段包含保留设备名，返回 true。</returns>
+    private static bool ContainsReservedDeviceNameInSegments(string normalizedPath)
+    {
+        var segments = normalizedPath.Split(
+            [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar],
+            StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var segment in segments)
+        {
+            var nameWithoutExtension = Path.GetFileNameWithoutExtension(segment);
+            if (string.IsNullOrEmpty(nameWithoutExtension))
+            {
+                continue;
+            }
+
+            // 精确匹配 CON/PRN/AUX/NUL 等保留名称（不区分大小写）
+            foreach (var reserved in ReservedDeviceNames)
+            {
+                if (string.Equals(nameWithoutExtension, reserved, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            // 匹配 COM1-COM9、LPT1-LPT9 模式（3字母前缀 + 1数字）
+            if (nameWithoutExtension.Length == 4 &&
+                char.IsDigit(nameWithoutExtension[3]))
+            {
+                var prefix = nameWithoutExtension[..3];
+                if (string.Equals(prefix, "COM", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(prefix, "LPT", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// 规范化路径并执行基本验证
     /// </summary>
     /// <param name="path">要规范化的路径</param>
@@ -104,6 +160,15 @@ public static class PathValidator
                         "路径包含非法的设备名称",
                         path,
                         "Contains reserved device name");
+                }
+
+                // 检查路径的每个段是否包含保留设备名称（防止 COM1\..\foo 绕过）
+                if (ContainsReservedDeviceNameInSegments(normalizedPath))
+                {
+                    throw new PathValidationException(
+                        "路径包含非法的设备名称",
+                        path,
+                        "Contains reserved device name in path segment");
                 }
             }
 

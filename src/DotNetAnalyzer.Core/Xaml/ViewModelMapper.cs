@@ -139,7 +139,7 @@ public sealed partial class ViewModelMapper
     /// <summary>
     /// 尝试使用多种策略为 XAML 视图建立 ViewModel 映射
     /// </summary>
-    private async Task<ViewViewModelPair?> TryMapAsync(
+    private static async Task<ViewViewModelPair?> TryMapAsync(
         XamlDocumentInfo xamlInfo,
         Project project,
         List<Document> csDocuments,
@@ -299,7 +299,7 @@ public sealed partial class ViewModelMapper
     /// <summary>
     /// 策略 3: 从 code-behind 中的 DataContext 赋值推断
     /// </summary>
-    private async Task<ViewViewModelPair?> TryMapFromCodeBehindAsync(
+    private static async Task<ViewViewModelPair?> TryMapFromCodeBehindAsync(
         XamlDocumentInfo xamlInfo,
         Project project,
         List<Document> csDocuments,
@@ -375,7 +375,7 @@ public sealed partial class ViewModelMapper
     /// <summary>
     /// 策略 4: 通过命名约定推断 ViewModel
     /// </summary>
-    private ViewViewModelPair? TryMapByConvention(
+    private static ViewViewModelPair? TryMapByConvention(
         XamlDocumentInfo xamlInfo,
         Project project)
     {

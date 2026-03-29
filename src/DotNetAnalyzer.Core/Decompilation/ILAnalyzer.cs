@@ -220,7 +220,7 @@ public class ILAnalyzer
         {
             var methodBody = peFile.GetMethodBody(rva);
             var il = methodBody.GetILBytes();
-            ilBytes = il.ToArray();
+            ilBytes = il?.Length > 0 ? il.ToArray() : [];
         }
         catch (BadImageFormatException)
         {

@@ -7,6 +7,23 @@
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-03-29
+
+### 🔧 质量修复
+
+- 清零 75 个编译警告（CA1822/CA1848/CA1873/RS1034）
+- 消除 `.Result` 同步阻塞异步调用，改为 `async/await` 模式
+- `HttpClient` 改用 `IHttpClientFactory` 模式，自动管理连接池和 DNS 刷新
+- NuGet API URL 统一到 `IOptions<DependencyHealthOptions>` 单一来源
+- 路径验证加固 — 检查每个路径段的 Windows 保留设备名称，防止绕过
+- Desktop 模块日志改用 `LoggerMessage.Define` 源生成器
+
+### 📊 统计
+
+- 构建零警告零错误
+- 无状态方法添加 `static` 修饰符，减少不必要的实例分配
+- 测试质量提升 — 消除 `null!` 使用，增强弱断言
+
 ## [1.4.0] - 2026-03-29
 
 ### 🖼️ XAML 分析引擎

@@ -17,7 +17,7 @@ namespace DotNetAnalyzer.Core.Analysis.Desktop;
 ///   <item>ASYNC003 — fire-and-forget 未等待的 Task</item>
 /// </list>
 /// </remarks>
-public sealed class AsyncPatternAnalyzer
+public sealed partial class AsyncPatternAnalyzer
 {
     private readonly ILogger<AsyncPatternAnalyzer> _logger;
 
@@ -71,9 +71,7 @@ public sealed class AsyncPatternAnalyzer
             DetectFireAndForget(root, semanticModel, filePath, issues);
         }
 
-        _logger.LogDebug(
-            "异步反模式分析完成，发现 {IssueCount} 个问题",
-            issues.Count);
+        Log.AnalysisCompleted(_logger, issues.Count);
 
         return issues;
     }
@@ -108,7 +106,7 @@ public sealed class AsyncPatternAnalyzer
     /// <summary>
     /// ASYNC001: 检测 async void 方法（非事件处理器）。
     /// </summary>
-    private void DetectAsyncVoidMethods(
+    private static void DetectAsyncVoidMethods(
         SyntaxNode root,
         SemanticModel semanticModel,
         string filePath,
@@ -219,7 +217,7 @@ public sealed class AsyncPatternAnalyzer
     /// <summary>
     /// ASYNC002: 检测 .Result 和 .Wait() 死锁风险调用。
     /// </summary>
-    private void DetectDeadlockRisks(
+    private static void DetectDeadlockRisks(
         SyntaxNode root,
         SemanticModel semanticModel,
         string filePath,
@@ -311,7 +309,7 @@ public sealed class AsyncPatternAnalyzer
     /// <summary>
     /// ASYNC003: 检测 fire-and-forget 未等待的 Task 调用。
     /// </summary>
-    private void DetectFireAndForget(
+    private static void DetectFireAndForget(
         SyntaxNode root,
         SemanticModel semanticModel,
         string filePath,
@@ -426,5 +424,17 @@ public sealed class AsyncPatternAnalyzer
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// 日志消息定义
+    /// </summary>
+    private static partial class Log
+    {
+        [LoggerMessage(
+            LogLevel.Debug,
+            "异步反模式分析完成，发现 {IssueCount} 个问题")]
+        public static partial void AnalysisCompleted(
+            ILogger logger, int issueCount);
     }
 }

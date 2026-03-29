@@ -59,13 +59,13 @@ public static class SyntaxTreeAnalyzer
     /// <summary>
     /// 查找指定位置的语法节点
     /// </summary>
-    public static SyntaxNode? FindNodeAtPosition(SyntaxTree tree, int line, int column)
+    public static async Task<SyntaxNode?> FindNodeAtPositionAsync(SyntaxTree tree, int line, int column)
     {
         if (tree == null)
             throw new ArgumentNullException(nameof(tree));
 
-        var root = tree.GetRootAsync().Result;
-        var text = tree.GetTextAsync().Result;
+        var root = await tree.GetRootAsync().ConfigureAwait(false);
+        var text = await tree.GetTextAsync().ConfigureAwait(false);
         var position = text.Lines[line].Start + column;
 
         var token = root.FindToken(position);

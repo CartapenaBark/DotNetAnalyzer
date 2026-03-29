@@ -112,7 +112,7 @@ public sealed partial class XamlResourceAnalyzer
     /// <summary>
     /// 从解析的 XAML 文档中收集资源定义
     /// </summary>
-    private void CollectResourceDefinitions(
+    private static void CollectResourceDefinitions(
         XamlDocumentInfo xamlInfo,
         List<XamlResourceDefinition> definitions,
         Dictionary<string, List<string>> keyMap,

@@ -1,6 +1,8 @@
 using System.Diagnostics;
+using DotNetAnalyzer.Core.Configuration;
 using DotNetAnalyzer.Core.ProjectManipulation.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NuGet.Configuration;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
@@ -19,9 +21,6 @@ namespace DotNetAnalyzer.Core.ProjectManipulation;
 /// </remarks>
 public sealed class NuGetPackageService : IDisposable
 {
-    /// <summary>NuGet.org 源 URL。</summary>
-    private const string NuGetOrgUrl = "https://api.nuget.org/v3/index.json";
-
     /// <summary>默认网络请求超时时间。</summary>
     private static readonly TimeSpan s_requestTimeout = TimeSpan.FromSeconds(30);
 
@@ -62,11 +61,16 @@ public sealed class NuGetPackageService : IDisposable
     /// 初始化 <see cref="NuGetPackageService"/> 的新实例。
     /// </summary>
     /// <param name="logger">日志记录器。</param>
-    public NuGetPackageService(ILogger<NuGetPackageService> logger)
+    /// <param name="options">依赖健康度配置。</param>
+    public NuGetPackageService(
+        ILogger<NuGetPackageService> logger,
+        IOptions<DependencyHealthOptions> options)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        var source = new PackageSource(NuGetOrgUrl);
+        var nuGetApiUrl = options?.Value?.NuGetApiUrl
+            ?? "https://api.nuget.org/v3/index.json";
+        var source = new PackageSource(nuGetApiUrl);
         _sourceRepository = new SourceRepository(
             source, Repository.Provider.GetCoreV3());
 

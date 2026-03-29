@@ -91,6 +91,8 @@ public static partial class SymbolTools
                         var loc = location.GetLineSpan();
                         var isDef = symbol.Locations.Any(l => l.IsInSource &&
                                    l.GetLineSpan().StartLinePosition == loc.StartLinePosition);
+                        var context = await ExtractContextAsync(
+                            referenceLocation.Document, loc.StartLinePosition.Line);
 
                         referencesList.Add(new
                         {
@@ -100,7 +102,7 @@ public static partial class SymbolTools
                             endLine = loc.EndLinePosition.Line + 1,
                             endColumn = loc.EndLinePosition.Character + 1,
                             isDefinition = isDef,
-                            context = ExtractContext(referenceLocation.Document, loc.StartLinePosition.Line)
+                            context
                         });
                     }
                 }
@@ -497,13 +499,13 @@ public static partial class SymbolTools
         }, JsonOptions.Default);
     }
 
-    private static string ExtractContext(Document? document, int lineNumber)
+    private static async Task<string> ExtractContextAsync(Document? document, int lineNumber)
     {
         if (document == null) return string.Empty;
 
         try
         {
-            var text = document.GetTextAsync().Result;
+            var text = await document.GetTextAsync().ConfigureAwait(false);
             var lines = text.Lines;
             if (lineNumber >= 0 && lineNumber < lines.Count)
             {

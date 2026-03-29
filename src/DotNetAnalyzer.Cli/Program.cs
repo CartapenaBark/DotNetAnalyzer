@@ -76,8 +76,9 @@ internal sealed class Program
         builder.Services.AddOptions<DependencyHealthOptions>()
             .Bind(builder.Configuration.GetSection("DependencyHealth"));
 
-        // 注册 HttpClient 用于 NuGet API 调用
-        builder.Services.AddSingleton(new HttpClient());
+        // 注册 HttpClient 用于 NuGet API 调用（带超时配置）
+        builder.Services.AddSingleton(
+            new HttpClient { Timeout = TimeSpan.FromSeconds(30) });
 
         // 注册核心服务为 Scoped，以支持依赖注入和更好的资源管理
         builder.Services.AddScoped<IWorkspaceManager, WorkspaceManager>();

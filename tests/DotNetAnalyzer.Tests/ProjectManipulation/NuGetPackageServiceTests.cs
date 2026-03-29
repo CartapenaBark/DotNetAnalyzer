@@ -1,6 +1,8 @@
+using DotNetAnalyzer.Core.Configuration;
 using DotNetAnalyzer.Core.ProjectManipulation;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace DotNetAnalyzer.Tests.ProjectManipulation;
@@ -14,10 +16,13 @@ namespace DotNetAnalyzer.Tests.ProjectManipulation;
 /// </remarks>
 public class NuGetPackageServiceTests
 {
+    private static IOptions<DependencyHealthOptions> EmptyOptions =>
+        Options.Create(new DependencyHealthOptions());
+
     [Fact]
     public void Constructor_NullLogger_ThrowsArgumentNullException()
     {
-        var act = () => new NuGetPackageService(null!);
+        var act = () => new NuGetPackageService(null!, EmptyOptions);
         act.Should().Throw<ArgumentNullException>();
     }
 
@@ -25,7 +30,7 @@ public class NuGetPackageServiceTests
     public async Task GetLatestVersionAsync_NullPackageId_Throws()
     {
         using var service = new NuGetPackageService(
-            NullLogger<NuGetPackageService>.Instance);
+            NullLogger<NuGetPackageService>.Instance, EmptyOptions);
         var act = () => service.GetLatestVersionAsync(null!);
         await act.Should().ThrowAsync<ArgumentException>();
     }
@@ -34,7 +39,7 @@ public class NuGetPackageServiceTests
     public async Task GetLatestVersionAsync_EmptyPackageId_Throws()
     {
         using var service = new NuGetPackageService(
-            NullLogger<NuGetPackageService>.Instance);
+            NullLogger<NuGetPackageService>.Instance, EmptyOptions);
         var act = () => service.GetLatestVersionAsync(string.Empty);
         await act.Should().ThrowAsync<ArgumentException>();
     }
@@ -43,7 +48,7 @@ public class NuGetPackageServiceTests
     public async Task PackageExistsAsync_NullPackageId_Throws()
     {
         using var service = new NuGetPackageService(
-            NullLogger<NuGetPackageService>.Instance);
+            NullLogger<NuGetPackageService>.Instance, EmptyOptions);
         var act = () => service.PackageExistsAsync(null!);
         await act.Should().ThrowAsync<ArgumentException>();
     }
@@ -52,7 +57,7 @@ public class NuGetPackageServiceTests
     public async Task PackageExistsAsync_EmptyPackageId_Throws()
     {
         using var service = new NuGetPackageService(
-            NullLogger<NuGetPackageService>.Instance);
+            NullLogger<NuGetPackageService>.Instance, EmptyOptions);
         var act = () => service.PackageExistsAsync(string.Empty);
         await act.Should().ThrowAsync<ArgumentException>();
     }
@@ -61,7 +66,7 @@ public class NuGetPackageServiceTests
     public async Task SearchPackageAsync_NullTerm_Throws()
     {
         using var service = new NuGetPackageService(
-            NullLogger<NuGetPackageService>.Instance);
+            NullLogger<NuGetPackageService>.Instance, EmptyOptions);
         var act = () => service.SearchPackageAsync(null!);
         await act.Should().ThrowAsync<ArgumentException>();
     }
@@ -70,7 +75,7 @@ public class NuGetPackageServiceTests
     public async Task SearchPackageAsync_EmptyTerm_Throws()
     {
         using var service = new NuGetPackageService(
-            NullLogger<NuGetPackageService>.Instance);
+            NullLogger<NuGetPackageService>.Instance, EmptyOptions);
         var act = () => service.SearchPackageAsync(string.Empty);
         await act.Should().ThrowAsync<ArgumentException>();
     }
@@ -79,7 +84,7 @@ public class NuGetPackageServiceTests
     public async Task SearchPackageAsync_NegativeSkip_Throws()
     {
         using var service = new NuGetPackageService(
-            NullLogger<NuGetPackageService>.Instance);
+            NullLogger<NuGetPackageService>.Instance, EmptyOptions);
         var act = () => service.SearchPackageAsync(
             "test", skip: -1);
         await act.Should().ThrowAsync<ArgumentOutOfRangeException>();
@@ -89,7 +94,7 @@ public class NuGetPackageServiceTests
     public async Task SearchPackageAsync_ZeroTake_Throws()
     {
         using var service = new NuGetPackageService(
-            NullLogger<NuGetPackageService>.Instance);
+            NullLogger<NuGetPackageService>.Instance, EmptyOptions);
         var act = () => service.SearchPackageAsync(
             "test", take: 0);
         await act.Should().ThrowAsync<ArgumentOutOfRangeException>();
@@ -99,7 +104,7 @@ public class NuGetPackageServiceTests
     public async Task SearchPackageAsync_TakeExceedsMax_Throws()
     {
         using var service = new NuGetPackageService(
-            NullLogger<NuGetPackageService>.Instance);
+            NullLogger<NuGetPackageService>.Instance, EmptyOptions);
         var act = () => service.SearchPackageAsync(
             "test", take: 101);
         await act.Should().ThrowAsync<ArgumentOutOfRangeException>();
@@ -109,7 +114,7 @@ public class NuGetPackageServiceTests
     public async Task GetPackageInfoAsync_NullPackageId_Throws()
     {
         using var service = new NuGetPackageService(
-            NullLogger<NuGetPackageService>.Instance);
+            NullLogger<NuGetPackageService>.Instance, EmptyOptions);
         var act = () => service.GetPackageInfoAsync(null!);
         await act.Should().ThrowAsync<ArgumentException>();
     }
@@ -118,7 +123,7 @@ public class NuGetPackageServiceTests
     public async Task GetPackageInfoAsync_EmptyPackageId_Throws()
     {
         using var service = new NuGetPackageService(
-            NullLogger<NuGetPackageService>.Instance);
+            NullLogger<NuGetPackageService>.Instance, EmptyOptions);
         var act = () => service.GetPackageInfoAsync(string.Empty);
         await act.Should().ThrowAsync<ArgumentException>();
     }
@@ -127,7 +132,7 @@ public class NuGetPackageServiceTests
     public async Task Dispose_CalledTwice_NoException()
     {
         var service = new NuGetPackageService(
-            NullLogger<NuGetPackageService>.Instance);
+            NullLogger<NuGetPackageService>.Instance, EmptyOptions);
         service.Dispose();
         service.Dispose();
     }

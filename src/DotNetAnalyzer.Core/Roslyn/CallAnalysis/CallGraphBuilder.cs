@@ -238,14 +238,37 @@ public class CallGraphBuilder
     /// </summary>
     private static void CalculateMetrics(CallGraph graph)
     {
+        // 预构建入边和出边索引，避免循环内 O(E) 全量扫描
+        var incomingIndex = new Dictionary<string, List<CallGraphEdge>>();
+        var outgoingIndex = new Dictionary<string, List<CallGraphEdge>>();
+
+        foreach (var edge in graph.Edges)
+        {
+            if (!incomingIndex.TryGetValue(edge.To, out var incoming))
+            {
+                incoming = [];
+                incomingIndex[edge.To] = incoming;
+            }
+
+            incoming.Add(edge);
+
+            if (!outgoingIndex.TryGetValue(edge.From, out var outgoing))
+            {
+                outgoing = [];
+                outgoingIndex[edge.From] = outgoing;
+            }
+
+            outgoing.Add(edge);
+        }
+
         foreach (var node in graph.Nodes)
         {
-            var incomingEdges = graph.Edges.Where(e => e.To == node.Id).ToList();
-            var outgoingEdges = graph.Edges.Where(e => e.From == node.Id).ToList();
+            incomingIndex.TryGetValue(node.Id, out var incomingEdges);
+            outgoingIndex.TryGetValue(node.Id, out var outgoingEdges);
 
-            node.Metrics.FanIn = incomingEdges.Count;
-            node.Metrics.FanOut = outgoingEdges.Count;
-            node.Metrics.Complexity = CalculateCyclomaticComplexity(node, outgoingEdges);
+            node.Metrics.FanIn = incomingEdges?.Count ?? 0;
+            node.Metrics.FanOut = outgoingEdges?.Count ?? 0;
+            node.Metrics.Complexity = CalculateCyclomaticComplexity(node, outgoingEdges ?? []);
         }
     }
 

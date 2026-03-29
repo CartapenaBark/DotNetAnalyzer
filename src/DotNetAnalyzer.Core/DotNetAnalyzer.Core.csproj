@@ -9,6 +9,8 @@
     <IsPackable>false</IsPackable>
     <!-- 自动定义条件编译符号 -->
     <DefineConstants>$(DefineConstants);$(TargetFramework.Replace('NET', 'NET').Replace('.', '_'))</DefineConstants>
+    <!-- 抑制 Microsoft.Build netfx 兼容性警告（该包通过 MSBuild SDK 自动处理） -->
+    <NoWarn>NU1701</NoWarn>
     <!-- 禁用自动生成的 AssemblyInfo，使用项目中的自定义版本 -->
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
@@ -21,6 +23,12 @@
 
     <!-- ILSpy 反编译 -->
     <PackageReference Include="ICSharpCode.Decompiler" Version="9.0.0.7889" />
+
+    <!-- 项目文件操作 -->
+    <PackageReference Include="Microsoft.Build" Version="17.12.6" />
+
+    <!-- NuGet 包查询 -->
+    <PackageReference Include="NuGet.Protocol" Version="6.12.1" />
 
     <!-- 其他依赖 -->
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />

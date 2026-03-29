@@ -7,6 +7,53 @@
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-03-29
+
+### 🖼️ XAML 分析引擎
+
+- 新增 `XamlParser` — 基于 `System.Xml.Linq` 的 XAML 文件解析，提取元素树、命名空间、绑定表达式和资源引用
+- 新增 `XamlBindingValidator` — 结合 Roslyn `SemanticModel` 验证 Binding Path 是否对应 ViewModel 属性
+- 新增 `XamlResourceAnalyzer` — 分析 ResourceDictionary 合并关系和资源键引用完整性
+- 新增 `ViewModelMapper` — 通过 DataType/x:TypeArguments/DataContext 建立 View-ViewModel 映射
+- 新增 `analyze_xaml` MCP 工具 — 解析 XAML 文件结构
+- 新增 `validate_bindings` MCP 工具 — 验证数据绑定路径
+- 新增 `analyze_xaml_resources` MCP 工具 — 分析 XAML 资源引用
+- 新增 `map_view_viewmodel` MCP 工具 — 映射 View-ViewModel 关系
+
+### 🖥️ 桌面应用模式检测
+
+- 新增 `MvvmViolationDetector` — 检测 Code-behind 业务逻辑（MVVM001）、ViewModel 引用 UI 命名空间（MVVM002）、Command 未实现 ICommand（MVVM003）
+- 新增 `AsyncPatternAnalyzer` — 检测 async void（ASYNC001）、.Result/.Wait() 死锁风险（ASYNC002）、fire-and-forget Task（ASYNC003）
+- 新增 `DependencyInjectionAnalyzer` — 扫描 DI 注册（AddSingleton/AddScoped/AddTransient）、检测缺少注册的构造函数依赖
+- 新增 `MemoryLeakDetector` — 检测事件订阅未取消（MEM001）、IDisposable 未释放（MEM002）、静态事件持有实例引用（MEM003）
+- 新增 `detect_mvvm_violations` MCP 工具 — 检测 MVVM 模式违规
+- 新增 `detect_async_antipatterns` MCP 工具 — 检测异步反模式
+- 新增 `analyze_di_registration` MCP 工具 — 分析 DI 注册完整性
+- 新增 `find_missing_di_registrations` MCP 工具 — 查找缺少 DI 注册的服务
+- 新增 `detect_memory_leaks` MCP 工具 — 检测内存泄漏模式
+
+### 📝 项目文件操作
+
+- 新增 `ProjectFileEditor` — 基于 Microsoft.Build API 的类型安全 .csproj 操作（添加引用、修改属性、自动备份）
+- 新增 `ProjectFileAnalyzer` — 读取 .csproj 结构化信息（PackageReference、TargetFramework、ProjectReference）
+- 新增 `NuGetPackageService` — 基于 NuGet.Protocol 查询 NuGet.org API（最新版本、包存在性、包搜索）
+- 新增 `add_project_reference` MCP 工具 — 添加项目引用
+- 新增 `add_nuget_package` MCP 工具 — 添加 NuGet 包
+- 新增 `update_project_property` MCP 工具 — 更新项目属性
+
+### ⚡ 性能优化
+
+- 修复 `CallGraphBuilder.CalculateMetrics()` — 预构建索引，复杂度 O(N×E) → O(N+E)
+- 修复 `ChangeImpactAnalyzer` BFS 遍历 — 预计算集合，减少中间集合分配
+
+### 📊 统计
+
+- MCP 工具总数: 80 → 92（+12 个新工具）
+- 新增 XAML 分析能力（4 个工具）
+- 新增桌面应用模式检测能力（5 个工具）
+- 新增项目文件操作能力（3 个工具）
+- 新增 NuGet 依赖：`Microsoft.Build` (17.12.6)、`NuGet.Protocol` (6.12.1)
+
 ## [1.3.0] - 2026-03-29
 
 ### 🚀 安全漏洞检测引擎

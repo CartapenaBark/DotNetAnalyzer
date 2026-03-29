@@ -163,6 +163,9 @@ graph TB
             K[Security/<br/>安全验证]
             R[Architecture/<br/>架构规则引擎]
             S[Decompilation/<br/>反编译服务]
+            T[Xaml/<br/>XAML 分析]
+            U[Analysis.Desktop/<br/>桌面模式检测]
+            V[ProjectManipulation/<br/>项目文件操作]
         end
 
         subgraph "Roslyn 集成层"
@@ -186,6 +189,9 @@ graph TB
         E --> K
         E --> R
         E --> S
+        E --> T
+        E --> U
+        E --> V
         G --> L
         G --> M
         G --> N
@@ -203,7 +209,7 @@ graph TB
 
 ```mermaid
 graph TB
-    subgraph "DotNetAnalyzer MCP 工具集 (70 个工具)"
+    subgraph "DotNetAnalyzer MCP 工具集 (92 个工具)"
         A[代码诊断<br/>2 个工具]
         B[项目管理<br/>5 个工具]
         C[代码分析<br/>6 个工具]
@@ -217,6 +223,12 @@ graph TB
         K[高级查询<br/>4 个工具]
         L[架构规则<br/>2 个工具]
         M[反编译与分析<br/>4 个工具]
+        N[安全检测<br/>4 个工具]
+        O[依赖健康度<br/>3 个工具]
+        P[性能优化<br/>3 个工具]
+        Q[XAML 分析<br/>4 个工具]
+        R2[桌面模式检测<br/>5 个工具]
+        S2[项目文件操作<br/>3 个工具]
 
         A1[get_diagnostics]
         B1[list_projects]

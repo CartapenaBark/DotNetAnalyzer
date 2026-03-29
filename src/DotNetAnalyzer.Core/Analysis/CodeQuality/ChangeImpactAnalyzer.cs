@@ -475,6 +475,7 @@ public partial class ChangeImpactAnalyzer
             CancellationToken cancellationToken)
     {
         var crossProjectImpacts = new List<ImpactItem>();
+        var seenCrossImpacts = new HashSet<(string FilePath, string SymbolName)>();
 
         var solution = project.Solution;
         if (solution == null)
@@ -488,15 +489,20 @@ public partial class ChangeImpactAnalyzer
 
         var changedRoot = await changedTree.GetRootAsync(
             cancellationToken);
-        var publicSymbols = changedRoot
-            .DescendantNodes()
-            .Select(n => changedSemanticModel.GetDeclaredSymbol(n))
-            .OfType<ISymbol>()
-            .Where(s =>
-                s != null &&
-                s.DeclaredAccessibility == Accessibility.Public)
-            .Distinct(SymbolEqualityComparer.Default)
-            .ToList();
+        // 使用 HashSet 预去重，避免 LINQ 链生成中间集合
+        var seenSymbols = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
+        var publicSymbols = new List<ISymbol>();
+
+        foreach (var node in changedRoot.DescendantNodes())
+        {
+            var symbol = changedSemanticModel.GetDeclaredSymbol(node);
+            if (symbol != null &&
+                symbol.DeclaredAccessibility == Accessibility.Public &&
+                seenSymbols.Add(symbol))
+            {
+                publicSymbols.Add(symbol);
+            }
+        }
 
         foreach (var symbol in publicSymbols)
         {
@@ -526,17 +532,21 @@ public partial class ChangeImpactAnalyzer
                             continue;
                         }
 
-                        crossProjectImpacts.Add(new ImpactItem
+                        var impactPath = location.Document.FilePath ?? string.Empty;
+                        var impactKey = (impactPath, symbol.Name);
+                        if (seenCrossImpacts.Add(impactKey))
                         {
-                            FilePath =
-                                location.Document.FilePath ?? string.Empty,
-                            SymbolName = symbol.Name,
-                            SymbolKind = GetSymbolKind(symbol),
-                            ImpactScore = 60,
-                            DependencyDepth = 0,
-                            IsPublicApi = true,
-                            ImpactLevel = "CrossProject"
-                        });
+                            crossProjectImpacts.Add(new ImpactItem
+                            {
+                                FilePath = impactPath,
+                                SymbolName = symbol.Name,
+                                SymbolKind = GetSymbolKind(symbol),
+                                ImpactScore = 60,
+                                DependencyDepth = 0,
+                                IsPublicApi = true,
+                                ImpactLevel = "CrossProject"
+                            });
+                        }
                     }
                 }
             }
@@ -546,10 +556,7 @@ public partial class ChangeImpactAnalyzer
             }
         }
 
-        return crossProjectImpacts
-            .GroupBy(i => new { i.FilePath, i.SymbolName })
-            .Select(g => g.First())
-            .ToList();
+        return crossProjectImpacts;
     }
 
     /// <summary>

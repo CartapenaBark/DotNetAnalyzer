@@ -3,7 +3,7 @@
 > 一个强大的 MCP (Model Context Protocol) 服务器工具，将 Roslyn 的代码分析能力引入 Claude Code
 
 [![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet)
-[![NuGet](https://img.shields.io/badge/nuget-1.3.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
+[![NuGet](https://img.shields.io/badge/nuget-1.4.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 📖 简介
@@ -29,7 +29,7 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 ## 🎯 核心功能
 
-**当前版本 (v1.3.0)** 提供 **80 个 MCP 工具**，覆盖代码分析、重构、代码质量、架构规则检查、反编译、安全漏洞检测、依赖健康度分析与性能优化能力；所有分析能力均已达到 verified 级别。
+**当前版本 (v1.4.0)** 提供 **92 个 MCP 工具**，覆盖代码分析、重构、代码质量、架构规则检查、反编译、安全漏洞检测、依赖健康度分析、性能优化、XAML 分析、桌面模式检测与项目文件操作能力；所有分析能力均已达到 verified 级别。
 
 ### 功能概览
 
@@ -52,6 +52,9 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 | 🔒 **安全检测** | 4 | OWASP 漏洞扫描、SARIF 报告、规则查询、许可证合规 |
 | 📦 **依赖健康度** | 3 | CVE 漏洞扫描、依赖健康度、版本冲突检测 |
 | ⚡ **性能优化** | 3 | 解决方案性能分析、缓存优化、运行时统计 |
+| 🖼️ **XAML 分析** | 4 | XAML 解析、绑定验证、资源分析、View-ViewModel 映射 |
+| 🖥️ **桌面模式检测** | 5 | MVVM 违规、异步反模式、DI 注册、内存泄漏检测 |
+| 📝 **项目文件操作** | 3 | 添加项目引用、添加 NuGet 包、更新项目属性 |
 
 📄 **[完整 API 文档](docs/api-guide.md)** | 🏗️ **[系统架构](docs/ARCHITECTURE.md)**
 
@@ -71,7 +74,7 @@ DotNetAnalyzer 采用分层架构设计，通过 MCP 协议连接 Claude Code �
 **核心组件**：
 - `WorkspaceManager` - LRU 缓存项目，并发加载控制
 - `CompilationCache` - 编译结果缓存，自动失效
-- `ToolRegistry` - 80 个 MCP 工具的注册和调用
+- `ToolRegistry` - 92 个 MCP 工具的注册和调用
 - `RefactoringEngine` - 重构操作执行引擎
 - `PathValidator` - 路径安全验证
 - `ArchitectureRuleEngine` - 架构规则检查引擎
@@ -106,7 +109,7 @@ dotnet-tool list --global
 
 **NuGet 包信息**:
 - 📦 包名: `DotNetAnalyzer`
-- 🏷️ 版本: `1.2.0`
+- 🏷️ 版本: `1.4.0`
 - 🔗 链接: [https://www.nuget.org/packages/DotNetAnalyzer](https://www.nuget.org/packages/DotNetAnalyzer)
 - .NET 8.0 或更高版本
 
@@ -121,7 +124,7 @@ cd DotNetAnalyzer
 bash scripts/validate-ci-cd.sh
 
 # 从本地 NuGet 包安装
-dotnet tool install --global DotNetAnalyzer --add-source ./Bin/nupkg --version 1.2.0
+dotnet tool install --global DotNetAnalyzer --add-source ./Bin/nupkg --version 1.4.0
 ```
 
 ### 更新
@@ -297,7 +300,7 @@ dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release --no-bui
 
 ## 🗺️ 开发路线图
 
-当前公开 **80 个 MCP 工具**，所有分析能力均已达到 verified 级别。
+当前公开 **92 个 MCP 工具**，所有分析能力均已达到 verified 级别。
 
 | 能力域 | 状态 | 工具数 |
 |-------|------|--------|
@@ -310,6 +313,9 @@ dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release --no-bui
 | 安全漏洞检测 | ✅ | 4 |
 | 依赖健康度分析 | ✅ | 3 |
 | 性能优化 | ✅ | 3 |
+| XAML 分析 | ✅ | 4 |
+| 桌面模式检测 | ✅ | 5 |
+| 项目文件操作 | ✅ | 3 |
 
 ## 🤝 贡献
 
@@ -350,7 +356,7 @@ dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release --no-bui
 ```bash
 # 运行本地验证并生成包
 bash scripts/validate-ci-cd.sh
-dotnet tool install --global DotNetAnalyzer --add-source ./Bin/nupkg --version 1.2.0
+dotnet tool install --global DotNetAnalyzer --add-source ./Bin/nupkg --version 1.4.0
 
 # 测试工具
 dotnet-analyzer --version
@@ -428,6 +434,7 @@ dotnet tool uninstall --global DotNetAnalyzer
 
 完整更新历史请查看 [CHANGELOG.md](CHANGELOG.md)
 
+- **v1.4.0** (2026-03-29) - XAML 分析、桌面模式检测、项目文件操作、92 个工具
 - **v1.3.0** (2026-03-29) - 安全漏洞检测、依赖健康度分析、性能优化、80 个工具
 - **v1.2.0** (2026-03-28) - 架构规则检查引擎、ILSpy 反编译集成、SARIF 报告、70 个工具
 - **v1.1.2** (2026-03-22) - 产品可信度基线、验证链路统一与元数据修正

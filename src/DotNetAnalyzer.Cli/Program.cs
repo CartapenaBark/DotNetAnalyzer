@@ -19,6 +19,9 @@ using DotNetAnalyzer.Core.Security;
 using DotNetAnalyzer.Core.Security.Detectors;
 using DotNetAnalyzer.Core.DependencyHealth;
 using DotNetAnalyzer.Core.Performance;
+using DotNetAnalyzer.Core.Xaml;
+using DotNetAnalyzer.Core.Analysis.Desktop;
+using DotNetAnalyzer.Core.ProjectManipulation;
 
 namespace DotNetAnalyzer.Cli;
 
@@ -141,6 +144,23 @@ internal sealed class Program
 
         // 注册性能分析服务
         builder.Services.AddScoped<DotNetAnalyzer.Core.Performance.PerformanceAnalyzer>();
+
+        // 注册 XAML 分析服务
+        builder.Services.AddScoped<XamlParser>();
+        builder.Services.AddScoped<XamlBindingValidator>();
+        builder.Services.AddScoped<XamlResourceAnalyzer>();
+        builder.Services.AddScoped<ViewModelMapper>();
+
+        // 注册桌面应用模式检测服务
+        builder.Services.AddScoped<MvvmViolationDetector>();
+        builder.Services.AddScoped<AsyncPatternAnalyzer>();
+        builder.Services.AddScoped<DependencyInjectionAnalyzer>();
+        builder.Services.AddScoped<MemoryLeakDetector>();
+
+        // 注册项目文件操作服务
+        builder.Services.AddScoped<ProjectFileEditor>();
+        builder.Services.AddScoped<ProjectFileAnalyzer>();
+        builder.Services.AddScoped<NuGetPackageService>();
 
         // 配置 MCP 服务器
         builder.Services

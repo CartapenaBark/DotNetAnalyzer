@@ -147,7 +147,7 @@ Claude: [调用 get_diagnostics] ...
 
 ## MCP 工具概览
 
-DotNetAnalyzer v1.3.0 提供 **80 个 MCP 工具**，覆盖代码分析、导航、重构、质量分析、架构规则检查、反编译、安全检测、依赖健康度分析、性能优化、可视化和监控能力。
+DotNetAnalyzer v1.4.0 提供 **92 个 MCP 工具**，覆盖代码分析、导航、重构、质量分析、架构规则检查、反编译、安全检测、依赖健康度分析、性能优化、XAML 分析、桌面模式检测、项目文件操作和可视化能力。
 
 > 当前文档中的能力说明以 `eng/product-metadata.json` 与源码扫描得到的工具清单为准；对启发式或实验性结果，请同步参考 [分析能力可信度矩阵](analysis-credibility.md)。
 
@@ -2083,6 +2083,200 @@ Claude: [调用 get_workspace_stats]
 
 ---
 
+## XAML 分析工具
+
+XAML 分析工具为 WPF/UWP/WinUI 应用提供 XAML 文件解析、绑定验证、资源分析和 View-ViewModel 映射能力。
+
+### 工具概览
+
+| 工具名称 | 描述 | 主要用途 |
+|---------|------|----------|
+| `analyze_xaml` | 分析 XAML 文件 | 解析 XAML 文档结构、元素树、绑定表达式和资源引用 |
+| `validate_bindings` | 验证数据绑定 | 结合 Roslyn SemanticModel 验证 Binding Path 是否对应 ViewModel 属性 |
+| `analyze_xaml_resources` | 分析 XAML 资源 | 分析 ResourceDictionary 合并关系和资源键引用完整性 |
+| `map_view_viewmodel` | 映射 View-ViewModel | 通过 DataType/x:TypeArguments/DataContext 建立 View-ViewModel 映射关系 |
+
+### analyze_xaml
+
+解析 XAML 文件，提取元素树、命名空间、绑定表达式和资源引用信息。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目路径 (.csproj) |
+| `filePath` | string | ✅ | XAML 文件路径 |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "data": {
+    "documentInfo": {
+      "filePath": "Views/MainWindow.xaml",
+      "namespaces": [...],
+      "elements": [...],
+      "bindings": [...],
+      "resourceReferences": [...]
+    }
+  }
+}
+```
+
+### validate_bindings
+
+结合 Roslyn 语义模型验证 XAML 文件中的数据绑定路径是否正确对应 ViewModel 属性。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目路径 (.csproj) |
+| `xamlFilePath` | string | ✅ | XAML 文件路径 |
+
+### analyze_xaml_resources
+
+分析 XAML 文件中的 ResourceDictionary 合并关系和资源键引用。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目路径 (.csproj) |
+| `xamlFilePath` | string | ✅ | XAML 文件路径 |
+
+### map_view_viewmodel
+
+分析项目中所有 XAML 文件，通过 DataType、x:TypeArguments 或 DataContext 建立映射。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目路径 (.csproj) |
+
+---
+
+## 桌面应用模式检测工具
+
+桌面模式检测工具为 WPF/UWP/WinUI 应用提供 MVVM 违规检测、异步反模式分析、DI 注册完整性和内存泄漏模式检测。
+
+### 工具概览
+
+| 工具名称 | 描述 | 主要用途 |
+|---------|------|----------|
+| `detect_mvvm_violations` | 检测 MVVM 违规 | Code-behind 业务逻辑、ViewModel 引用 UI、Command 未实现 ICommand |
+| `detect_async_antipatterns` | 检测异步反模式 | async void、.Result/.Wait() 死锁、fire-and-forget Task |
+| `analyze_di_registration` | 分析 DI 注册 | 扫描 AddSingleton/AddScoped/AddTransient，检测缺少注册的依赖 |
+| `find_missing_di_registrations` | 查找缺少 DI 注册 | 列出构造函数参数中未被 DI 容器注册的服务类型 |
+| `detect_memory_leaks` | 检测内存泄漏 | 事件订阅未取消、IDisposable 未 Dispose、静态事件持有实例引用 |
+
+### detect_mvvm_violations
+
+检测项目中三种常见 MVVM 模式违规。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目路径 (.csproj 或 .sln) |
+
+#### 检测规则
+
+| 规则 ID | 规则名称 | 严重程度 | 描述 |
+|---------|----------|---------|------|
+| `MVVM001` | Code-behind 业务逻辑 | Warning | code-behind 文件中包含业务逻辑 |
+| `MVVM002` | ViewModel 引用 UI 命名空间 | Error | ViewModel 引用了 System.Windows 等 UI 命名空间 |
+| `MVVM003` | Command 未实现 ICommand | Warning | 属性名以 Command 结尾但类型未实现 ICommand |
+
+### detect_async_antipatterns
+
+检测三种常见异步反模式。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目路径 (.csproj 或 .sln) |
+
+#### 检测规则
+
+| 规则 ID | 规则名称 | 描述 |
+|---------|----------|------|
+| `ASYNC001` | async void | 非事件处理器的 async void 方法 |
+| `ASYNC002` | 死锁风险 | async 方法中的 .Result/.Wait() 调用 |
+| `ASYNC003` | fire-and-forget | 未等待的 Task 返回值调用 |
+
+### detect_memory_leaks
+
+检测三种常见内存泄漏模式。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目路径 (.csproj 或 .sln) |
+
+#### 检测规则
+
+| 规则 ID | 规则名称 | 描述 |
+|---------|----------|------|
+| `MEM001` | 事件订阅未取消 | Dispose 方法中未取消已订阅的事件 |
+| `MEM002` | IDisposable 未 Dispose | 未使用 using 或 Dispose() 的 IDisposable 实例 |
+| `MEM003` | 静态事件持有实例引用 | 实例方法订阅静态事件阻止 GC 回收 |
+
+---
+
+## 项目文件操作工具
+
+项目文件操作工具基于 Microsoft.Build API 和 NuGet.Protocol，提供类型安全的 .csproj 文件操作。
+
+### 工具概览
+
+| 工具名称 | 描述 | 主要用途 |
+|---------|------|----------|
+| `add_project_reference` | 添加项目引用 | 向 .csproj 添加 ProjectReference |
+| `add_nuget_package` | 添加 NuGet 包 | 向 .csproj 添加 PackageReference 并可选查询最新版本 |
+| `update_project_property` | 更新项目属性 | 修改 .csproj 中的 MSBuild 属性值 |
+
+### add_project_reference
+
+向 .csproj 文件添加项目引用（ProjectReference）。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 目标 .csproj 文件路径 |
+| `referencePath` | string | ✅ | 要引用的 .csproj 文件路径 |
+
+### add_nuget_package
+
+向 .csproj 文件添加 NuGet 包引用。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 目标 .csproj 文件路径 |
+| `packageName` | string | ✅ | NuGet 包名称 |
+| `version` | string | ❌ | 指定版本号（省略则查询最新版本） |
+
+### update_project_property
+
+修改 .csproj 文件中的 MSBuild 属性值。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 目标 .csproj 文件路径 |
+| `propertyName` | string | ✅ | 属性名称（如 TargetFramework、Version） |
+| `propertyValue` | string | ✅ | 新的属性值 |
+
+---
+
 ## 配置选项
 
 ### 环境变量
@@ -2256,7 +2450,17 @@ Claude: [调用 find_references]
 
 ## API 版本历史
 
-### v1.3.0 (当前版本)
+### v1.4.0 (当前版本)
+
+- ✅ 当前公开工具总数: 92 个
+- ✅ 新增 XAML 分析工具（XAML 解析、绑定验证、资源分析、View-ViewModel 映射）
+- ✅ 新增桌面应用模式检测（MVVM 违规检测、异步反模式分析、DI 注册分析、内存泄漏检测）
+- ✅ 新增项目文件操作工具（添加项目引用、添加 NuGet 包、更新项目属性）
+- ✅ 基于 Microsoft.Build API 的类型安全 .csproj 操作
+- ✅ 基于 NuGet.Protocol 的 NuGet.org API 集成
+- ✅ LINQ 性能修复：CallGraphBuilder O(N×E) → O(N+E)、ChangeImpactAnalyzer BFS 优化
+
+### v1.3.0
 
 - ✅ 当前公开工具总数: 80 个
 - ✅ 新增安全漏洞检测引擎（6 个 OWASP 检测器）+ SARIF v2.1.0 报告输出
@@ -2309,5 +2513,5 @@ Claude: [调用 find_references]
 
 ---
 
-**版本**: v1.3.0
+**版本**: v1.4.0
 **最后更新**: 2026-03-28

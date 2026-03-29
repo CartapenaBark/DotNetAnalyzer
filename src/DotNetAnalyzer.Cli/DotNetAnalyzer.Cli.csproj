@@ -22,9 +22,9 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-analyzer</ToolCommandName>
     <PackageId>DotNetAnalyzer</PackageId>
-    <Version>1.2.0</Version>
+    <Version>1.3.0</Version>
     <Authors>CartapenaBark</Authors>
-    <Description>MCP server with 70 tools for .NET code analysis, refactoring, code generation, quality analysis, architecture validation, and decompilation</Description>
+    <Description>MCP server with 80 tools for .NET code analysis, refactoring, code generation, quality analysis, architecture validation, security detection, dependency health, and performance optimization</Description>
     <PackageTags>mcp;roslyn;code-analysis;claude;dotnet</PackageTags>
     <PackageProjectUrl>https://github.com/CartapenaBark/DotNetAnalyzer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/CartapenaBark/DotNetAnalyzer</RepositoryUrl>
@@ -32,6 +32,38 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes><![CDATA[
+      v1.3.0 - Security Detection, Dependency Health & Performance Optimization
+
+      🚀 MAJOR NEW FEATURES:
+        • OWASP security vulnerability detection engine (6 detectors: SEC001-SEC006)
+        • NuGet dependency health analysis (CVE scan, version health, license compliance)
+        • Cross-project version conflict detection
+        • Solution performance analysis and cache optimization tools
+
+      🔒 SECURITY:
+        • SEC001 Hardcoded Credential Detection (CWE-798)
+        • SEC002 SQL Injection Detection (CWE-89)
+        • SEC003 Command Injection Detection (CWE-78)
+        • SEC004 Unsafe Deserialization Detection (CWE-502)
+        • SEC005 Path Traversal Detection (CWE-22)
+        • SEC006 XSS Detection (CWE-79)
+
+      📦 DEPENDENCY HEALTH:
+        • scan_nuget_vulnerabilities - Scan NuGet dependencies for known CVEs
+        • scan_dependencies_health - Comprehensive dependency health assessment
+        • detect_dependency_conflicts - Cross-project version conflict detection
+
+      ⚡ PERFORMANCE:
+        • EnhancedLruCache with ReaderWriterLockSlim (read-write separation)
+        • WorkspaceManager cache capacity 50→200, Solution-level cache
+        • CompilationCache capacity 20→50
+        • .csproj XML diff incremental invalidation detection
+
+      📊 STATISTICS:
+        • MCP Tools: 70 → 80 (+10 new tools)
+        • All analysis capabilities verified level
+        • Zero new external NuGet dependencies
+
       v1.2.0 - Architecture Rules & Decompilation
 
       🚀 MAJOR NEW FEATURES:

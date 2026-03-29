@@ -6,9 +6,9 @@ namespace DotNetAnalyzer.Core.Configuration;
 public class WorkspaceManagerOptions
 {
     /// <summary>
-    /// 缓存容量，默认值为 50
+    /// 缓存容量，默认值为 200
     /// </summary>
-    public int CacheCapacity { get; set; } = 50;
+    public int CacheCapacity { get; set; } = 200;
 
     /// <summary>
     /// 缓存过期时间，默认值为 30 分钟
@@ -32,4 +32,30 @@ public class WorkspaceManagerOptions
         set => _maxConcurrentLoads = value;
     }
     private int? _maxConcurrentLoads;
+
+    /// <summary>
+    /// 是否启用 Solution 级缓存，默认 false
+    /// </summary>
+    public bool SolutionCacheEnabled { get; set; }
+
+    /// <summary>
+    /// Solution 缓存过期时间，默认 30 分钟
+    /// </summary>
+    public TimeSpan SolutionCacheExpiration { get; set; } = TimeSpan.FromMinutes(30);
+
+    /// <summary>
+    /// 是否启用选择性加载（仅加载目标框架的项目），默认 false
+    /// </summary>
+    public bool SelectiveLoading { get; set; }
+
+    /// <summary>
+    /// 目标框架过滤器（如 "net8.0"），null 表示加载所有框架
+    /// </summary>
+    public string? TargetFrameworkFilter { get; set; }
+
+    /// <summary>
+    /// 是否启用增量哈希失效检测，默认 true
+    /// <para>false 时回退到文件修改时间检测（v1.2.0 行为）</para>
+    /// </summary>
+    public bool IncrementalHashingEnabled { get; set; } = true;
 }

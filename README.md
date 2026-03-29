@@ -3,7 +3,7 @@
 > 一个强大的 MCP (Model Context Protocol) 服务器工具，将 Roslyn 的代码分析能力引入 Claude Code
 
 [![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet)
-[![NuGet](https://img.shields.io/badge/nuget-1.2.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
+[![NuGet](https://img.shields.io/badge/nuget-1.3.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 📖 简介
@@ -29,7 +29,7 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 ## 🎯 核心功能
 
-**当前版本 (v1.2.0)** 提供 **70 个 MCP 工具**，覆盖代码分析、重构、代码质量、架构规则检查与反编译能力；所有分析能力均已达到 verified 级别。
+**当前版本 (v1.3.0)** 提供 **80 个 MCP 工具**，覆盖代码分析、重构、代码质量、架构规则检查、反编译、安全漏洞检测、依赖健康度分析与性能优化能力；所有分析能力均已达到 verified 级别。
 
 ### 功能概览
 
@@ -49,6 +49,9 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 | 👀 **监控与可视化** | 9 | 文件监听、变更影响、缓存、依赖图与热力图 |
 | 🏛️ **架构规则** | 2 | 依赖方向、层级约束、命名约定、SARIF 报告 |
 | 🔬 **反编译与分析** | 4 | C# 反编译、IL 分析、程序集元数据、API Surface |
+| 🔒 **安全检测** | 4 | OWASP 漏洞扫描、SARIF 报告、规则查询、许可证合规 |
+| 📦 **依赖健康度** | 3 | CVE 漏洞扫描、依赖健康度、版本冲突检测 |
+| ⚡ **性能优化** | 3 | 解决方案性能分析、缓存优化、运行时统计 |
 
 📄 **[完整 API 文档](docs/api-guide.md)** | 🏗️ **[系统架构](docs/ARCHITECTURE.md)**
 
@@ -68,7 +71,7 @@ DotNetAnalyzer 采用分层架构设计，通过 MCP 协议连接 Claude Code �
 **核心组件**：
 - `WorkspaceManager` - LRU 缓存项目，并发加载控制
 - `CompilationCache` - 编译结果缓存，自动失效
-- `ToolRegistry` - 70 个 MCP 工具的注册和调用
+- `ToolRegistry` - 80 个 MCP 工具的注册和调用
 - `RefactoringEngine` - 重构操作执行引擎
 - `PathValidator` - 路径安全验证
 - `ArchitectureRuleEngine` - 架构规则检查引擎
@@ -294,7 +297,7 @@ dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release --no-bui
 
 ## 🗺️ 开发路线图
 
-当前公开 **70 个 MCP 工具**，所有分析能力均已达到 verified 级别。
+当前公开 **80 个 MCP 工具**，所有分析能力均已达到 verified 级别。
 
 | 能力域 | 状态 | 工具数 |
 |-------|------|--------|
@@ -304,6 +307,9 @@ dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release --no-bui
 | 调用分析 / 比较 / 可视化 / 质量分析 | ✅ | 17 |
 | 架构规则检查 | ✅ | 2 |
 | 反编译与分析 | ✅ | 4 |
+| 安全漏洞检测 | ✅ | 4 |
+| 依赖健康度分析 | ✅ | 3 |
+| 性能优化 | ✅ | 3 |
 
 ## 🤝 贡献
 
@@ -422,6 +428,7 @@ dotnet tool uninstall --global DotNetAnalyzer
 
 完整更新历史请查看 [CHANGELOG.md](CHANGELOG.md)
 
+- **v1.3.0** (2026-03-29) - 安全漏洞检测、依赖健康度分析、性能优化、80 个工具
 - **v1.2.0** (2026-03-28) - 架构规则检查引擎、ILSpy 反编译集成、SARIF 报告、70 个工具
 - **v1.1.2** (2026-03-22) - 产品可信度基线、验证链路统一与元数据修正
 - **v1.1.0** (2026-03-21) - 代码质量分析与产品可信度基线

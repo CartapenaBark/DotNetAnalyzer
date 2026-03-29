@@ -296,40 +296,20 @@ public class CompilationCacheBoundaryTests : IDisposable
     }
 
     [Fact]
-    public async Task MaxCacheSize_Zero_ShouldHandleGracefully()
+    public void MaxCacheSize_Zero_ShouldThrowArgumentException()
     {
-        // Arrange - 创建大小为 0 的缓存
+        // Arrange - EnhancedLruCache 要求 capacity > 0
         var options = Options.Create(new CompilationCacheOptions
         {
             MaxCacheSize = 0
         });
-        var zeroCache = new CompilationCache(options);
 
-        var projectFile = Path.GetTempFileName() + ".csproj";
-        try
-        {
-            File.WriteAllText(projectFile, @"<Project Sdk=""Microsoft.NET.Sdk"">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-  </PropertyGroup>
-</Project>");
+        // Act & Assert
+        var act = () => new CompilationCache(options);
+        act.Should().Throw<ArgumentOutOfRangeException>()
+            .WithParameterName("capacity");
 
-            var project = _workspace.AddProject("ZeroCacheProject", LanguageNames.CSharp);
-
-            // Act & Assert - 即使缓存大小为 0，也应该能工作
-            var compilation = await zeroCache.GetOrCreateCompilationAsync(project);
-            compilation.Should().NotBeNull();
-
-            var stats = zeroCache.GetStats();
-            stats.MaxSize.Should().Be(0);
-
-            _output.WriteLine($"✅ 零容量缓存测试完成");
-        }
-        finally
-        {
-            if (File.Exists(projectFile))
-                File.Delete(projectFile);
-        }
+        _output.WriteLine($"✅ 零容量缓存正确抛出异常");
     }
 
     public void Dispose()

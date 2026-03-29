@@ -32,6 +32,11 @@ flowchart LR
 | `analyze_change_impact` | `verified` | 基于 BFS 传递依赖分析、跨项目传播和精确测试映射，结果来自真实语义模型和 SymbolFinder | 持续补充跨文档复杂场景的端到端测试 |
 | `get_callee_info` | `verified` | 基于真实语义模型的跨文档调用树解析，支持接口/实现分派、虚方法/重写分派、循环检测和深度限制 | 持续补充跨文档复杂场景的端到端测试 |
 | `generate_heatmap` (`change-frequency`) | `verified` | 基于 GitHistoryProvider 调用真实 git log 获取变更历史，输出真实的文件变更频率数据 | 持续补充端到端测试 |
+| `scan_security_vulnerabilities` | `verified` | 基于 Roslyn 语法树和语义模型的 6 个 OWASP 检测器（SEC001-SEC006），结果来自真实语法分析 | 持续补充端到端测试与更多模式覆盖 |
+| `check_license_compliance` | `verified` | 基于 NuGet.org REST API v3 获取真实许可证信息，与用户白名单比对 | 持续补充更多许可证格式支持 |
+| `scan_nuget_vulnerabilities` | `verified` | 基于 NuGet.org REST API v3 查询真实 CVE 数据库 | 持续补充漏洞数据库覆盖率 |
+| `scan_dependencies_health` | `verified` | 基于 NuGet API 真实版本数据、漏洞数据和 project.assets.json 实际依赖树解析 | 持续补充健康度评分模型 |
+| `detect_dependency_conflicts` | `verified` | 基于 project.assets.json 解析实际解析版本，跨项目比较 | 持续补充传递依赖冲突检测 |
 
 ## 使用原则
 

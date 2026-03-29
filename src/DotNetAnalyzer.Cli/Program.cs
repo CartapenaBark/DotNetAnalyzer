@@ -15,6 +15,10 @@ using DotNetAnalyzer.Core.Monitoring;
 using DotNetAnalyzer.Core.Caching;
 using DotNetAnalyzer.Core.Visualization;
 using DotNetAnalyzer.Core.Decompilation;
+using DotNetAnalyzer.Core.Security;
+using DotNetAnalyzer.Core.Security.Detectors;
+using DotNetAnalyzer.Core.DependencyHealth;
+using DotNetAnalyzer.Core.Performance;
 
 namespace DotNetAnalyzer.Cli;
 
@@ -64,6 +68,13 @@ internal sealed class Program
             .Bind(builder.Configuration.GetSection("CompilationCache"));
         builder.Services.AddOptions<MemoryMonitoringOptions>()
             .Bind(builder.Configuration.GetSection("MemoryMonitoring"));
+        builder.Services.AddOptions<SecurityOptions>()
+            .Bind(builder.Configuration.GetSection("Security"));
+        builder.Services.AddOptions<DependencyHealthOptions>()
+            .Bind(builder.Configuration.GetSection("DependencyHealth"));
+
+        // 注册 HttpClient 用于 NuGet API 调用
+        builder.Services.AddSingleton(new HttpClient());
 
         // 注册核心服务为 Scoped，以支持依赖注入和更好的资源管理
         builder.Services.AddScoped<IWorkspaceManager, WorkspaceManager>();
@@ -111,6 +122,25 @@ internal sealed class Program
             CSharpDecompilerService>();
         builder.Services.AddScoped<AssemblyMetadataReader>();
         builder.Services.AddScoped<ILAnalyzer>();
+
+        // 注册安全检测服务
+        builder.Services.AddScoped<SecurityAnalysisEngine>();
+        builder.Services.AddSingleton<ISecurityDetector, HardcodedCredentialDetector>();
+        builder.Services.AddSingleton<ISecurityDetector, SqlInjectionDetector>();
+        builder.Services.AddSingleton<ISecurityDetector, CommandInjectionDetector>();
+        builder.Services.AddSingleton<ISecurityDetector, UnsafeDeserializationDetector>();
+        builder.Services.AddSingleton<ISecurityDetector, PathTraversalDetector>();
+        builder.Services.AddSingleton<ISecurityDetector, XssInAspNetDetector>();
+
+        // 注册依赖健康度服务
+        builder.Services.AddScoped<INuGetClient, NuGetApiClient>();
+        builder.Services.AddScoped<ProjectFileDependencyExtractor>();
+        builder.Services.AddScoped<NuGetAssetsFileParser>();
+        builder.Services.AddScoped<DependencyHealthAnalyzer>();
+        builder.Services.AddScoped<DependencyConflictDetector>();
+
+        // 注册性能分析服务
+        builder.Services.AddScoped<DotNetAnalyzer.Core.Performance.PerformanceAnalyzer>();
 
         // 配置 MCP 服务器
         builder.Services

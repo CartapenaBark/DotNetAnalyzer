@@ -17,7 +17,7 @@ namespace DotNetAnalyzer.Core.Roslyn;
 /// <list type="bullet">
 ///   <item>使用 MSBuildWorkspace 加载 .csproj、.sln 和 .slnx 文件</item>
 ///   <item>每个实例拥有独立的工作区，支持并发测试</item>
-///   <item>LRU 缓存已加载的项目以提高性能（容量：50个项目）</item>
+///   <item>EnhancedLruCache 缓存已加载的项目以提高性能（读写分离，容量：200个项目）</item>
 ///   <item>线程安全的项目加载（使用 SemaphoreSlim）</item>
 ///   <item>文件修改时间检测实现缓存失效，通过比较文件修改时间戳自动检测项目变更</item>
 ///   <item>增量分析支持避免重复编译</item>
@@ -27,7 +27,7 @@ namespace DotNetAnalyzer.Core.Roslyn;
 public class WorkspaceManager : IWorkspaceManager
 {
     private MSBuildWorkspace? _workspace;
-    private readonly LruCache<string, Project> _projectCache;
+    private readonly EnhancedLruCache<string, Project> _projectCache;
     private readonly SemaphoreSlim _semaphore;
     /// <summary>
     /// 记录每个项目文件加载时的修改时间，用于检测文件是否被修改
@@ -56,7 +56,7 @@ public class WorkspaceManager : IWorkspaceManager
         _options = options.Value;
         _logger = logger;
         _cacheMetrics = new CacheMetrics();
-        _projectCache = new LruCache<string, Project>(
+        _projectCache = new EnhancedLruCache<string, Project>(
             capacity: _options.CacheCapacity,
             expirationTime: _options.CacheExpiration);
         _semaphore = new SemaphoreSlim(_options.MaxConcurrentLoads, _options.MaxConcurrentLoads);

@@ -96,6 +96,9 @@ mindmap
 - [导航增强工具 (Phase 2)](#导航增强工具-phase-2) ✨
 - [架构规则检查工具](#架构规则检查工具) ✨
 - [反编译与分析工具](#反编译与分析工具) ✨
+- [安全检测工具](#安全检测工具) ✨
+- [依赖健康度工具](#依赖健康度工具) ✨
+- [性能优化工具](#性能优化工具) ✨
 - [配置选项](#配置选项)
 - [最佳实践](#最佳实践)
 - [故障排除](#故障排除)
@@ -144,7 +147,7 @@ Claude: [调用 get_diagnostics] ...
 
 ## MCP 工具概览
 
-DotNetAnalyzer v1.2.0 提供 **70 个 MCP 工具**，覆盖代码分析、导航、重构、质量分析、架构规则检查、反编译、可视化和监控能力。
+DotNetAnalyzer v1.3.0 提供 **80 个 MCP 工具**，覆盖代码分析、导航、重构、质量分析、架构规则检查、反编译、安全检测、依赖健康度分析、性能优化、可视化和监控能力。
 
 > 当前文档中的能力说明以 `eng/product-metadata.json` 与源码扫描得到的工具清单为准；对启发式或实验性结果，请同步参考 [分析能力可信度矩阵](analysis-credibility.md)。
 
@@ -1644,6 +1647,442 @@ Claude: [调用 get_api_surface，指定 accessibility="all"]
 
 ---
 
+## 安全检测工具
+
+安全检测工具基于 Roslyn 语法树和语义模型，提供 OWASP Top 10 代码级安全漏洞扫描能力。检测结果输出 SARIF v2.1.0 格式。
+
+### 工具概览
+
+| 工具名称 | 描述 | 主要用途 |
+|---------|------|----------|
+| `scan_security_vulnerabilities` | 扫描安全漏洞 | 对项目执行 6 种 OWASP 安全检测 |
+| `generate_security_sarif` | 生成安全 SARIF 报告 | 输出 SARIF v2.1.0 格式的安全报告 |
+| `get_security_rules` | 获取安全规则 | 查询已注册的安全检测规则列表 |
+| `check_license_compliance` | 许可证合规检查 | 检查依赖的许可证是否合规 |
+
+### scan_security_vulnerabilities
+
+扫描项目的安全漏洞，包括硬编码凭据、SQL 注入、命令注入、不安全反序列化、路径遍历和 XSS。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目文件路径（.csproj 或 .sln） |
+| `severity` | string | ❌ | 最小报告严重程度（Critical/High/Medium/Low），默认 Medium |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "data": {
+    "totalFindings": 5,
+    "findingsBySeverity": {
+      "Critical": 0,
+      "High": 2,
+      "Medium": 3,
+      "Low": 0
+    },
+    "findings": [
+      {
+        "ruleId": "SEC002",
+        "ruleName": "SQL 注入检测",
+        "severity": "High",
+        "message": "检测到潜在的 SQL 注入风险：字符串拼接构造 SQL 语句",
+        "filePath": "src/Data/UserRepository.cs",
+        "startLine": 42,
+        "startColumn": 20,
+        "owaspCategory": "A03:2021 - Injection",
+        "cweId": "CWE-89",
+        "remediation": "使用参数化查询替代字符串拼接"
+      }
+    ]
+  }
+}
+```
+
+#### 安全检测规则
+
+| 规则 ID | 规则名称 | OWASP 类别 | CWE | 描述 |
+|---------|----------|-----------|-----|------|
+| `SEC001` | 硬编码凭据检测 | A02:2021 - Cryptographic Failures | CWE-798 | 检测密码、API 密钥、连接字符串中的硬编码敏感信息 |
+| `SEC002` | SQL 注入检测 | A03:2021 - Injection | CWE-89 | 检测字符串拼接构造 SQL 语句 |
+| `SEC003` | 命令注入检测 | A03:2021 - Injection | CWE-78 | 检测 Process.Start/ShellExecute 中的不安全输入 |
+| `SEC004` | 不安全反序列化检测 | A08:2021 - Software and Data Integrity Failures | CWE-502 | 检测 BinaryFormatter/SoapFormatter/XmlSerializer 的不安全用法 |
+| `SEC005` | 路径遍历检测 | A01:2021 - Broken Access Control | CWE-22 | 检测未验证的用户输入拼接文件路径 |
+| `SEC006` | XSS 检测 | A03:2021 - Injection | CWE-79 | 检测 ASP.NET 中的不安全 HTML 输出 |
+
+#### 使用示例
+
+```
+你: "扫描这个项目的安全漏洞"
+Claude: [调用 scan_security_vulnerabilities]
+
+你: "只显示高危和严重的安全问题"
+Claude: [调用 scan_security_vulnerabilities，指定 severity="High"]
+```
+
+### generate_security_sarif
+
+生成安全漏洞 SARIF v2.1.0 格式报告，可集成到 GitHub Code Scanning 等工具。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目文件路径（.csproj 或 .sln） |
+
+#### 返回值
+
+标准的 SARIF v2.1.0 JSON 格式报告，包含安全检测结果的完整位置、规则和修复建议信息。
+
+#### 使用示例
+
+```
+你: "生成安全扫描的 SARIF 报告"
+Claude: [调用 generate_security_sarif]
+```
+
+### get_security_rules
+
+获取所有已注册的安全检测规则列表，包括规则 ID、名称、描述和严重程度。
+
+#### 参数
+
+无参数。
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "data": {
+    "rules": [
+      {
+        "ruleId": "SEC001",
+        "name": "硬编码凭据检测",
+        "description": "检测代码中硬编码的密码、API 密钥和连接字符串",
+        "owaspCategory": "A02:2021 - Cryptographic Failures",
+        "cweId": "CWE-798",
+        "defaultSeverity": "High"
+      }
+    ],
+    "totalRules": 6
+  }
+}
+```
+
+#### 使用示例
+
+```
+你: "有哪些安全检测规则？"
+Claude: [调用 get_security_rules]
+```
+
+### check_license_compliance
+
+检查项目依赖的许可证合规性，支持白名单过滤。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目文件路径（.csproj） |
+| `allowedLicenses` | string | ❌ | 允许的许可证列表（逗号分隔，空表示全部允许） |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "data": {
+    "totalPackages": 25,
+    "compliantPackages": 23,
+    "nonCompliantPackages": 2,
+    "violations": [
+      {
+        "packageId": "SomePackage",
+        "version": "2.1.0",
+        "license": "GPL-3.0",
+        "reason": "许可证不在允许列表中"
+      }
+    ]
+  }
+}
+```
+
+#### 使用示例
+
+```
+你: "检查这个项目的许可证合规性"
+Claude: [调用 check_license_compliance]
+
+你: "只允许 MIT 和 Apache-2.0 许可证"
+Claude: [调用 check_license_compliance，指定 allowedLicenses="MIT,Apache-2.0"]
+```
+
+---
+
+## 依赖健康度工具
+
+依赖健康度工具通过 NuGet.org REST API v3 提供依赖安全扫描、版本健康度评估和跨项目版本冲突检测。
+
+### 工具概览
+
+| 工具名称 | 描述 | 主要用途 |
+|---------|------|----------|
+| `scan_nuget_vulnerabilities` | 扫描 NuGet 漏洞 | 检查依赖的已知 CVE 漏洞 |
+| `scan_dependencies_health` | 扫描依赖健康度 | 综合评估依赖过时、弃用、漏洞和许可证 |
+| `detect_dependency_conflicts` | 检测版本冲突 | 检测跨项目版本不一致 |
+
+### scan_nuget_vulnerabilities
+
+扫描项目 NuGet 依赖的已知漏洞，基于 NuGet.org API 查询 CVE 数据库。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目文件路径（.csproj） |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "data": {
+    "totalPackages": 25,
+    "vulnerablePackages": 3,
+    "vulnerabilities": [
+      {
+        "packageId": "Newtonsoft.Json",
+        "installedVersion": "12.0.3",
+        "latestVersion": "13.0.3",
+        "vulnerabilityUrl": "https://nvd.nist.gov/vuln/detail/CVE-2024-xxxxx",
+        "severity": "Medium",
+        "recommendation": "升级到 13.0.3 或更高版本"
+      }
+    ]
+  }
+}
+```
+
+#### 使用示例
+
+```
+你: "扫描这个项目的 NuGet 依赖漏洞"
+Claude: [调用 scan_nuget_vulnerabilities]
+```
+
+### scan_dependencies_health
+
+扫描项目依赖健康度，综合评估过时包、弃用包、漏洞和许可证合规。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `projectPath` | string | ✅ | 项目文件路径（.csproj） |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "data": {
+    "healthScore": 82,
+    "totalPackages": 25,
+    "outdatedPackages": 5,
+    "deprecatedPackages": 1,
+    "vulnerablePackages": 2,
+    "licenseIssues": 0,
+    "summary": {
+      "excellent": 18,
+      "good": 4,
+      "moderate": 2,
+      "poor": 1
+    }
+  }
+}
+```
+
+#### 使用示例
+
+```
+你: "分析这个项目的依赖健康度"
+Claude: [调用 scan_dependencies_health]
+```
+
+### detect_dependency_conflicts
+
+检测解决方案中多个项目对同一包使用不同版本的冲突。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `solutionPath` | string | ✅ | 解决方案路径（.sln 或 .slnx） |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "data": {
+    "totalConflicts": 3,
+    "conflicts": [
+      {
+        "packageId": "Serilog",
+        "versions": [
+          { "version": "2.12.0", "projects": ["Api", "Web"] },
+          { "version": "3.0.0", "projects": ["Worker"] }
+        ],
+        "recommendation": "统一升级到 3.0.0"
+      }
+    ]
+  }
+}
+```
+
+#### 使用示例
+
+```
+你: "检测解决方案中的版本冲突"
+Claude: [调用 detect_dependency_conflicts]
+```
+
+---
+
+## 性能优化工具
+
+性能优化工具提供解决方案性能分析、工作区缓存优化和运行时统计能力。
+
+### 工具概览
+
+| 工具名称 | 描述 | 主要用途 |
+|---------|------|----------|
+| `analyze_solution_performance` | 分析解决方案性能 | 项目数、文档数、代码行数、缓存命中率、优化建议 |
+| `optimize_workspace_cache` | 优化工作区缓存 | 释放不必要的缓存项 |
+| `get_workspace_stats` | 获取运行时统计 | 缓存容量、使用量、命中率等 |
+
+### analyze_solution_performance
+
+分析解决方案的性能指标，包括项目数、文档数、代码行数、缓存命中率和优化建议。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `solutionPath` | string | ✅ | 解决方案路径（.sln 或 .slnx） |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "data": {
+    "solutionPath": "MySolution.slnx",
+    "projectCount": 12,
+    "totalDocuments": 245,
+    "totalLinesOfCode": 52000,
+    "cacheMetrics": {
+      "workspaceCacheHitRate": 0.85,
+      "compilationCacheHitRate": 0.92
+    },
+    "recommendations": [
+      {
+        "type": "cache",
+        "message": "工作区缓存命中率低于 90%，建议增加缓存容量"
+      }
+    ]
+  }
+}
+```
+
+#### 使用示例
+
+```
+你: "分析这个解决方案的性能指标"
+Claude: [调用 analyze_solution_performance]
+```
+
+### optimize_workspace_cache
+
+优化工作区缓存，释放不必要的缓存项以减少内存占用。
+
+#### 参数
+
+| 参数名 | 类型 | 必需 | 描述 |
+|--------|------|------|------|
+| `solutionPath` | string | ❌ | 解决方案路径（可选，不指定则优化全部） |
+| `strategy` | string | ❌ | 优化策略：`auto`（自动，默认）或 `aggressive`（激进清理） |
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "data": {
+    "strategy": "auto",
+    "itemsRemoved": 15,
+    "memoryFreedMb": 128,
+    "remainingCacheSize": 35
+  }
+}
+```
+
+#### 使用示例
+
+```
+你: "优化工作区缓存"
+Claude: [调用 optimize_workspace_cache]
+
+你: "激进清理所有缓存"
+Claude: [调用 optimize_workspace_cache，指定 strategy="aggressive"]
+```
+
+### get_workspace_stats
+
+获取工作区运行时统计信息，包括缓存容量、使用量、命中率等。
+
+#### 参数
+
+无参数。
+
+#### 返回值
+
+```json
+{
+  "success": true,
+  "data": {
+    "workspaceCache": {
+      "capacity": 200,
+      "currentSize": 42,
+      "hitRate": 0.85,
+      "totalHits": 1250,
+      "totalMisses": 220
+    },
+    "compilationCache": {
+      "capacity": 50,
+      "currentSize": 28,
+      "hitRate": 0.92,
+      "totalHits": 3500,
+      "totalMisses": 300
+    }
+  }
+}
+```
+
+#### 使用示例
+
+```
+你: "查看工作区缓存统计"
+Claude: [调用 get_workspace_stats]
+```
+
+---
+
 ## 配置选项
 
 ### 环境变量
@@ -1817,13 +2256,16 @@ Claude: [调用 find_references]
 
 ## API 版本历史
 
-### v1.2.0 (当前版本)
+### v1.3.0 (当前版本)
 
-- ✅ 当前公开工具总数: 70 个
-- ✅ 新增架构规则检查引擎（依赖方向、层级层次、命名约定）+ SARIF v2.1.0 报告输出
-- ✅ 新增 ILSpy 反编译集成（C# 反编译、IL 分析、程序集元数据、API Surface 提取）
+- ✅ 当前公开工具总数: 80 个
+- ✅ 新增安全漏洞检测引擎（6 个 OWASP 检测器）+ SARIF v2.1.0 报告输出
+- ✅ 新增依赖健康度分析（NuGet CVE 扫描、版本健康度、许可证合规、版本冲突检测）
+- ✅ 新增性能优化工具（解决方案性能分析、缓存优化、运行时统计）
+- ✅ 缓存增强：WorkspaceManager 50→200、CompilationCache 20→50、Solution 级缓存
 - ✅ 所有分析能力均已达到 verified 级别
-- ✅ MCP SDK 升级到 1.2.0
+
+### v1.2.0
 
 ### v1.1.2
 
@@ -1867,5 +2309,5 @@ Claude: [调用 find_references]
 
 ---
 
-**版本**: v1.2.0
+**版本**: v1.3.0
 **最后更新**: 2026-03-28

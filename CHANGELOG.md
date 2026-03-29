@@ -7,6 +7,60 @@
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-03-29
+
+### 🚀 安全漏洞检测引擎
+
+- 新增 `ISecurityDetector` 接口，包含 OWASP/CWE 元数据和 `DetectAsync` 方法
+- 新增 6 个基于 Roslyn Syntax/Semantic 分析的 OWASP 安全检测器
+  - `SEC001` 硬编码凭据检测 - 检测密码、API 密钥、连接字符串中的硬编码敏感信息
+  - `SEC002` SQL 注入检测 - 检测字符串拼接构造 SQL 语句
+  - `SEC003` 命令注入检测 - 检测 Process.Start/ShellExecute 中的不安全输入
+  - `SEC004` 不安全反序列化检测 - 检测 BinaryFormatter/SoapFormatter/XmlSerializer 的不安全用法
+  - `SEC005` 路径遍历检测 - 检测未验证的用户输入拼接文件路径
+  - `SEC006` XSS 检测 - 检测 ASP.NET 中的不安全 HTML 输出
+- 新增 `SecurityAnalysisEngine` 并行扫描引擎，统一协调所有安全检测器
+- 新增 `scan_security_vulnerabilities` MCP 工具 - 扫描项目安全漏洞
+- 新增 `generate_security_sarif` MCP 工具 - 生成安全漏洞 SARIF v2.1.0 报告
+- 新增 `get_security_rules` MCP 工具 - 获取已注册的安全检测规则
+- 新增 `check_license_compliance` MCP 工具 - 检查依赖许可证合规性
+
+### 📦 依赖健康度分析
+
+- 新增 `INuGetClient` / `NuGetApiClient` - 使用 HttpClient 调用 NuGet.org REST API v3
+- 新增 `ProjectFileDependencyExtractor` - 解析 .csproj XML 获取 PackageReference
+- 新增 `NuGetAssetsFileParser` - 解析 project.assets.json 获取实际依赖树
+- 新增 `DependencyHealthAnalyzer` - 依赖健康度综合分析（过时包、弃用包、漏洞、许可证）
+- 新增 `DependencyConflictDetector` - 跨项目版本冲突检测
+- 新增 `scan_nuget_vulnerabilities` MCP 工具 - 扫描 NuGet 依赖已知漏洞
+- 新增 `scan_dependencies_health` MCP 工具 - 扫描依赖健康度
+- 新增 `detect_dependency_conflicts` MCP 工具 - 检测跨项目版本冲突
+
+### ⚡ 性能优化
+
+- 新增 `EnhancedLruCache<TKey, TValue>` - 使用 ReaderWriterLockSlim 实现读写分离缓存
+- `WorkspaceManager` 缓存容量 50→200，新增 Solution 级缓存
+- `CompilationCache` 容量 20→50，集成 EnhancedLruCache
+- 新增 .csproj XML diff 增量失效检测（`IncrementalHashingEnabled` 控制）
+- 新增 `PerformanceAnalyzer` - 解决方案性能指标分析
+- 新增 `analyze_solution_performance` MCP 工具 - 分析解决方案性能指标
+- 新增 `optimize_workspace_cache` MCP 工具 - 优化工作区缓存
+- 新增 `get_workspace_stats` MCP 工具 - 获取工作区运行时统计信息
+
+### 🔧 质量收敛
+
+- 安全检测结果基于真实 Roslyn 语法树和语义模型，达到 verified 级别
+- 依赖健康度扫描基于 NuGet.org 真实 API 数据和项目文件解析
+- `SarifReportGenerator` 扩展 2 个 GenerateFrom* 方法（安全报告、依赖健康报告）
+
+### 📊 统计
+
+- MCP 工具总数: 70 → 80（+10 个新工具）
+- 新增安全漏洞检测能力（4 个工具）
+- 新增依赖健康度分析能力（3 个工具）
+- 新增性能优化能力（3 个工具）
+- 缓存容量提升: WorkspaceManager 50→200，CompilationCache 20→50
+
 ## [1.2.0] - 2026-03-28
 
 ### 🚀 架构规则检查引擎

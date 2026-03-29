@@ -120,7 +120,7 @@ public class DecompilationToolsTests : IDisposable
         // Assert
         Assert.NotNull(result);
         Assert.False(result.Success);
-        Assert.NotEmpty(result.Error);
+        Assert.NotEmpty(result.Error!);
     }
 
     [Fact]
@@ -170,7 +170,7 @@ public class DecompilationToolsTests : IDisposable
         // Assert
         Assert.NotNull(result);
         Assert.False(result.Success);
-        Assert.NotEmpty(result.Error);
+        Assert.NotEmpty(result.Error!);
     }
 
     [Fact]
@@ -207,7 +207,7 @@ public class DecompilationToolsTests : IDisposable
         // Assert
         Assert.NotNull(result);
         Assert.False(result.Success);
-        Assert.NotEmpty(result.Error);
+        Assert.NotEmpty(result.Error!);
     }
 
     [Fact]
@@ -226,7 +226,7 @@ public class DecompilationToolsTests : IDisposable
         // Assert
         Assert.NotNull(result);
         Assert.True(result.Success, result.Error);
-        Assert.NotEmpty(result.TargetFramework);
-        Assert.NotEmpty(result.TargetFrameworkIdentifier);
+        Assert.NotEmpty(result.TargetFramework!);
+        Assert.NotEmpty(result.TargetFrameworkIdentifier!);
     }
 }

@@ -1,3 +1,5 @@
+[English](CODE_OF_CONDUCT.en.md) | 中文版
+
 # 贡献者公约行为准则
 
 ## 我们的承诺

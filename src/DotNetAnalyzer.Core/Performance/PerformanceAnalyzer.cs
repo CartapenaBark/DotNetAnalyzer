@@ -158,9 +158,9 @@ public partial class PerformanceAnalyzer
         {
             recommendations.Add(new PerformanceRecommendation
             {
-                Category = "缓存",
-                Title = "增加项目缓存容量",
-                Description = $"解决方案包含 {projectCount} 个项目，建议增加缓存容量到 {projectCount * 2}",
+                Category = "Cache",
+                Title = "Increase project cache capacity",
+                Description = $"Solution contains {projectCount} projects; consider increasing cache capacity to {projectCount * 2}",
                 Impact = "High",
                 EstimatedImprovementPercent = 30
             });
@@ -170,9 +170,9 @@ public partial class PerformanceAnalyzer
         {
             recommendations.Add(new PerformanceRecommendation
             {
-                Category = "选择性加载",
-                Title = "启用选择性加载",
-                Description = "启用 SelectiveLoading 仅加载需要的项目",
+                Category = "Selective Loading",
+                Title = "Enable selective loading",
+                Description = "Enable SelectiveLoading to load only required projects",
                 Impact = "High",
                 EstimatedImprovementPercent = 40
             });
@@ -182,9 +182,9 @@ public partial class PerformanceAnalyzer
         {
             recommendations.Add(new PerformanceRecommendation
             {
-                Category = "增量分析",
-                Title = "启用增量哈希失效检测",
-                Description = "对大型代码库启用 IncrementalHashingEnabled 减少不必要的重编译",
+                Category = "Incremental Analysis",
+                Title = "Enable incremental hash-based invalidation",
+                Description = "Enable IncrementalHashingEnabled for large codebases to reduce unnecessary recompilation",
                 Impact = "Medium",
                 EstimatedImprovementPercent = 20
             });
@@ -194,9 +194,9 @@ public partial class PerformanceAnalyzer
         {
             recommendations.Add(new PerformanceRecommendation
             {
-                Category = "优化",
-                Title = "解决方案性能良好",
-                Description = "当前解决方案规模适中，无需额外优化",
+                Category = "Optimization",
+                Title = "Solution performance is good",
+                Description = "Current solution size is moderate; no additional optimization needed",
                 Impact = "Low",
                 EstimatedImprovementPercent = 0
             });

@@ -130,7 +130,7 @@ public class BaseToolTests
             error.Should().NotBeNull();
             error.Should().Contain("success");
             error.Should().Contain("false");
-            error.Should().Contain("文件不存在");
+            error.Should().Contain("File not found");
         }
 
         [Fact]
@@ -177,7 +177,7 @@ public class BaseToolTests
             error.Should().NotBeNull();
             error.Should().Contain("success");
             error.Should().Contain("false");
-            error.Should().Contain("路径不存在");
+            error.Should().Contain("Path not found");
         }
     }
 }

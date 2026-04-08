@@ -3,8 +3,9 @@
 > 一个强大的 MCP (Model Context Protocol) 服务器工具，将 Roslyn 的代码分析能力引入 Claude Code
 
 [![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet)
-[![NuGet](https://img.shields.io/badge/nuget-1.5.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
+[![NuGet](https://img.shields.io/badge/nuget-1.6.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![English](https://img.shields.io/badge/lang-English-blue.svg)](README.en.md)
 
 ## 📖 简介
 
@@ -29,7 +30,7 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 ## 🎯 核心功能
 
-**当前版本 (v1.5.0)** 提供 **92 个 MCP 工具**，覆盖代码分析、重构、代码质量、架构规则检查、反编译、安全漏洞检测、依赖健康度分析、性能优化、XAML 分析、桌面模式检测与项目文件操作能力；所有分析能力均已达到 verified 级别。
+**当前版本 (v1.6.0)** 提供 **92 个 MCP 工具**，覆盖代码分析、重构、代码质量、架构规则检查、反编译、安全漏洞检测、依赖健康度分析、性能优化、XAML 分析、桌面模式检测与项目文件操作能力；所有分析能力均已达到 verified 级别。
 
 ### 功能概览
 
@@ -109,7 +110,7 @@ dotnet-tool list --global
 
 **NuGet 包信息**:
 - 📦 包名: `DotNetAnalyzer`
-- 🏷️ 版本: `1.5.0`
+- 🏷️ 版本: `1.6.0`
 - 🔗 链接: [https://www.nuget.org/packages/DotNetAnalyzer](https://www.nuget.org/packages/DotNetAnalyzer)
 - .NET 8.0 或更高版本
 
@@ -124,7 +125,7 @@ cd DotNetAnalyzer
 bash scripts/validate-ci-cd.sh
 
 # 从本地 NuGet 包安装
-dotnet tool install --global DotNetAnalyzer --add-source ./Bin/nupkg --version 1.5.0
+dotnet tool install --global DotNetAnalyzer --add-source ./Bin/nupkg --version 1.6.0
 ```
 
 ### 更新
@@ -356,7 +357,7 @@ dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release --no-bui
 ```bash
 # 运行本地验证并生成包
 bash scripts/validate-ci-cd.sh
-dotnet tool install --global DotNetAnalyzer --add-source ./Bin/nupkg --version 1.5.0
+dotnet tool install --global DotNetAnalyzer --add-source ./Bin/nupkg --version 1.6.0
 
 # 测试工具
 dotnet-analyzer --version

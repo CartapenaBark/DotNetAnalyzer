@@ -306,15 +306,18 @@ public sealed class XamlResourceAnalysisResult
 {
     /// <summary>项目中定义的所有资源。</summary>
     public required IReadOnlyList<XamlResourceDefinition>
-        DefinedResources { get; init; } = [];
+        DefinedResources
+    { get; init; } = [];
 
     /// <summary>所有资源引用。</summary>
     public required IReadOnlyList<XamlResourceRef>
-        References { get; init; } = [];
+        References
+    { get; init; } = [];
 
     /// <summary>发现的问题列表（缺失资源、重复键等）。</summary>
     public required IReadOnlyList<XamlResourceIssue>
-        Issues { get; init; } = [];
+        Issues
+    { get; init; } = [];
 
     /// <summary>资源定义总数。</summary>
     public int TotalDefinedResources => DefinedResources.Count;

@@ -4,6 +4,7 @@ using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.DependencyHealth;
 using DotNetAnalyzer.Core.DependencyHealth.Models;
 using DotNetAnalyzer.Core.Json;
+using DotNetAnalyzer.Resources;
 using ModelContextProtocol.Server;
 
 namespace DotNetAnalyzer.Cli.Tools;
@@ -21,19 +22,18 @@ public static class DependencyHealthTools
     /// <param name="analyzer">依赖健康度分析器</param>
     /// <param name="projectPath">项目文件路径（.csproj）</param>
     /// <returns>漏洞扫描报告（JSON 格式）</returns>
-    [McpServerTool, Description(
-        "扫描项目 NuGet 依赖的已知漏洞")]
+    [McpServerTool, Description(ToolStrings.ScanNuGetVulnerabilities)]
     public static async Task<string> ScanNuGetVulnerabilities(
         IWorkspaceManager workspaceManager,
         DependencyHealthAnalyzer analyzer,
-        [Description("项目文件路径（.csproj）")] string projectPath)
+        [Description(ToolStrings.ProjectFilePathParam)] string projectPath)
     {
         try
         {
             var project = await workspaceManager.GetProjectAsync(projectPath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {projectPath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProject(projectPath));
             }
 
             var report = await analyzer.AnalyzeAsync(projectPath);
@@ -54,7 +54,7 @@ public static class DependencyHealthTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"扫描 NuGet 漏洞时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorScanningNuGetVulnerabilities(ex.Message));
         }
     }
 
@@ -65,19 +65,18 @@ public static class DependencyHealthTools
     /// <param name="analyzer">依赖健康度分析器</param>
     /// <param name="projectPath">项目文件路径（.csproj）</param>
     /// <returns>依赖健康度报告（JSON 格式）</returns>
-    [McpServerTool, Description(
-        "扫描项目依赖健康度（过时包、弃用包、漏洞、许可证合规）")]
+    [McpServerTool, Description(ToolStrings.ScanDependenciesHealth)]
     public static async Task<string> ScanDependenciesHealth(
         IWorkspaceManager workspaceManager,
         DependencyHealthAnalyzer analyzer,
-        [Description("项目文件路径（.csproj）")] string projectPath)
+        [Description(ToolStrings.ProjectFilePathParam)] string projectPath)
     {
         try
         {
             var project = await workspaceManager.GetProjectAsync(projectPath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {projectPath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProject(projectPath));
             }
 
             var report = await analyzer.AnalyzeAsync(projectPath);
@@ -108,7 +107,7 @@ public static class DependencyHealthTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"扫描依赖健康度时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorScanningDependenciesHealth(ex.Message));
         }
     }
 
@@ -119,12 +118,11 @@ public static class DependencyHealthTools
     /// <param name="conflictDetector">依赖冲突检测器</param>
     /// <param name="solutionPath">解决方案路径（.sln 或 .slnx）</param>
     /// <returns>依赖冲突报告（JSON 格式）</returns>
-    [McpServerTool, Description(
-        "检测解决方案中多个项目对同一包使用不同版本的冲突")]
+    [McpServerTool, Description(ToolStrings.DetectDependencyConflicts)]
     public static async Task<string> DetectDependencyConflicts(
         IWorkspaceManager workspaceManager,
         DependencyConflictDetector conflictDetector,
-        [Description("解决方案路径（.sln 或 .slnx）")] string solutionPath)
+        [Description(ToolStrings.SolutionFileParam)] string solutionPath)
     {
         try
         {
@@ -150,14 +148,7 @@ public static class DependencyHealthTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"检测依赖冲突时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorDetectingDependencyConflicts(ex.Message));
         }
-    }
-
-    private static string CreateErrorResponse(string message)
-    {
-        return JsonSerializer.Serialize(
-            new { success = false, error = message },
-            JsonOptions.Default);
     }
 }

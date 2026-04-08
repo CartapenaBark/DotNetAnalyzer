@@ -29,7 +29,7 @@ public sealed class UnnecessaryCodeRemover : IRefactorer
     /// <summary>
     /// 获取重构器描述
     /// </summary>
-    public string Description => "移除不可达代码、未使用的using等";
+    public string Description => "Remove unreachable code, unused usings, etc.";
 
     /// <summary>
     /// 获取重构器分类
@@ -107,7 +107,7 @@ public sealed class UnnecessaryCodeRemover : IRefactorer
         var previewGenerator = new RefactoringPreviewGenerator();
         var preview = await previewGenerator.GeneratePreviewAsync(context, changes);
 
-        preview.Description = $"移除 {changes.Count} 处不必要代码";
+        preview.Description = $"Remove {changes.Count} unnecessary code occurrence(s)";
         preview.Metadata["scope"] = scope;
         preview.Metadata["unusedUsingsCount"] = unusedUsings.Count;
         preview.Metadata["unreachableCodeCount"] = unreachableCode.Count;

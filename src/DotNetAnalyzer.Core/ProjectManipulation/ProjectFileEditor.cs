@@ -104,7 +104,7 @@ public sealed class ProjectFileEditor
                 if (existing is not null)
                 {
                     throw new InvalidOperationException(
-                        $"项目引用已存在: {relativeRef}");
+                        $"Project reference already exists: {relativeRef}");
                 }
 
                 project.AddItem("ProjectReference", relativeRef);
@@ -144,7 +144,7 @@ public sealed class ProjectFileEditor
                 if (existing is null)
                 {
                     throw new InvalidOperationException(
-                        $"项目引用不存在: {relativeRef}");
+                        $"Project reference not found: {relativeRef}");
                 }
 
                 project.RemoveItem(existing);
@@ -188,7 +188,7 @@ public sealed class ProjectFileEditor
                 if (existing is not null)
                 {
                     throw new InvalidOperationException(
-                        $"包引用已存在: {packageId}");
+                        $"Package reference already exists: {packageId}");
                 }
 
                 project.AddItem(
@@ -237,7 +237,7 @@ public sealed class ProjectFileEditor
                 if (existing is null)
                 {
                     throw new InvalidOperationException(
-                        $"包引用不存在: {packageId}");
+                        $"Package reference not found: {packageId}");
                 }
 
                 existing.SetMetadataValue("Version", newVersion);
@@ -305,7 +305,7 @@ public sealed class ProjectFileEditor
             return new ProjectEditResult
             {
                 Success = false,
-                Message = "路径验证失败",
+                Message = "Path validation failed",
                 OperationType = operationType,
                 ProjectPath = projectPath,
                 DurationMs = sw.ElapsedMilliseconds,
@@ -318,11 +318,11 @@ public sealed class ProjectFileEditor
             return new ProjectEditResult
             {
                 Success = false,
-                Message = "操作已取消",
+                Message = "Operation cancelled",
                 OperationType = operationType,
                 ProjectPath = projectPath,
                 DurationMs = sw.ElapsedMilliseconds,
-                Error = "操作已取消"
+                Error = "Operation cancelled"
             };
         }
         catch (Exception ex)
@@ -333,7 +333,7 @@ public sealed class ProjectFileEditor
             return new ProjectEditResult
             {
                 Success = false,
-                Message = $"编辑失败: {ex.Message}",
+                Message = $"Edit failed: {ex.Message}",
                 OperationType = operationType,
                 ProjectPath = projectPath,
                 DurationMs = sw.ElapsedMilliseconds,
@@ -383,7 +383,7 @@ public sealed class ProjectFileEditor
             return new ProjectEditResult
             {
                 Success = true,
-                Message = $"{operationType} 操作成功完成",
+                Message = $"{operationType} completed successfully",
                 OperationType = operationType,
                 ProjectPath = validatedPath,
                 BackupPath = backupPath,
@@ -412,7 +412,7 @@ public sealed class ProjectFileEditor
             return new ProjectEditResult
             {
                 Success = false,
-                Message = $"编辑失败: {ex.Message}",
+                Message = $"Edit failed: {ex.Message}",
                 OperationType = operationType,
                 ProjectPath = validatedPath,
                 BackupPath = backupPath,
@@ -451,7 +451,7 @@ public sealed class ProjectFileEditor
     {
         var projectDir = Path.GetDirectoryName(projectPath)
             ?? throw new InvalidOperationException(
-                $"无法获取项目目录: {projectPath}");
+                $"Unable to get project directory: {projectPath}");
 
         // 如果已经是相对路径，直接返回
         if (!Path.IsPathRooted(referencePath))

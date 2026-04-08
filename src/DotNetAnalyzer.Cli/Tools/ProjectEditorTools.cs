@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Text.Json;
 using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.ProjectManipulation;
+using DotNetAnalyzer.Resources;
 using ModelContextProtocol.Server;
 
 namespace DotNetAnalyzer.Cli.Tools;
@@ -20,11 +21,11 @@ public static class ProjectEditorTools
     /// <param name="referencePath">要引用的项目文件路径</param>
     /// <returns>编辑操作结果（JSON 格式）</returns>
     [McpServerTool, Description(
-        "向项目文件添加 ProjectReference 引用")]
+        ToolStrings.AddProjectReference)]
     public static async Task<string> AddProjectReference(
         ProjectFileEditor editor,
-        [Description("目标项目文件路径（.csproj）")] string projectPath,
-        [Description("要引用的项目文件路径")] string referencePath)
+        [Description(ToolStrings.TargetProjectFilePathParam)] string projectPath,
+        [Description(ToolStrings.ReferencePathParam)] string referencePath)
     {
         try
         {
@@ -46,7 +47,7 @@ public static class ProjectEditorTools
         catch (Exception ex)
         {
             return BaseTool.CreateErrorResponse(
-                $"添加项目引用时出错: {ex.Message}");
+                ToolStrings.ErrorAddingProjectReference(ex.Message));
         }
     }
 
@@ -60,13 +61,13 @@ public static class ProjectEditorTools
     /// <param name="version">包版本号</param>
     /// <returns>编辑操作结果（JSON 格式）</returns>
     [McpServerTool, Description(
-        "向项目文件添加 NuGet 包引用（PackageReference）")]
+        ToolStrings.AddNuGetPackage)]
     public static async Task<string> AddNuGetPackage(
         ProjectFileEditor editor,
         NuGetPackageService packageService,
-        [Description("目标项目文件路径（.csproj）")] string projectPath,
-        [Description("NuGet 包 ID")] string packageId,
-        [Description("包版本号")] string version)
+        [Description(ToolStrings.TargetProjectFilePathParam)] string projectPath,
+        [Description(ToolStrings.PackageIdParam)] string packageId,
+        [Description(ToolStrings.PackageVersionParam)] string version)
     {
         try
         {
@@ -88,7 +89,7 @@ public static class ProjectEditorTools
         catch (Exception ex)
         {
             return BaseTool.CreateErrorResponse(
-                $"添加 NuGet 包时出错: {ex.Message}");
+                ToolStrings.ErrorAddingNuGetPackage(ex.Message));
         }
     }
 
@@ -101,12 +102,12 @@ public static class ProjectEditorTools
     /// <param name="value">属性值</param>
     /// <returns>编辑操作结果（JSON 格式）</returns>
     [McpServerTool, Description(
-        "修改项目文件中的 MSBuild 属性值，如果属性不存在则创建，已存在则更新")]
+        ToolStrings.UpdateProjectProperty)]
     public static async Task<string> UpdateProjectProperty(
         ProjectFileEditor editor,
-        [Description("目标项目文件路径（.csproj）")] string projectPath,
-        [Description("MSBuild 属性名")] string propertyName,
-        [Description("属性值")] string value)
+        [Description(ToolStrings.TargetProjectFilePathParam)] string projectPath,
+        [Description(ToolStrings.PropertyNameParam)] string propertyName,
+        [Description(ToolStrings.PropertyValueParam)] string value)
     {
         try
         {
@@ -128,7 +129,7 @@ public static class ProjectEditorTools
         catch (Exception ex)
         {
             return BaseTool.CreateErrorResponse(
-                $"修改项目属性时出错: {ex.Message}");
+                ToolStrings.ErrorUpdatingProjectProperty(ex.Message));
         }
     }
 }

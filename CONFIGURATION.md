@@ -1,3 +1,5 @@
+[English](docs/en/CONFIGURATION.md) | 中文版
+
 # DotNetAnalyzer 配置指南
 
 本文档介绍如何获取、安装和配置 DotNetAnalyzer MCP 服务器。
@@ -649,5 +651,5 @@ DotNetAnalyzer 支持以下 Visual Studio 解决方案格式：
 
 ---
 
-**版本**: v1.5.0
+**版本**: v1.6.0
 **最后更新**: 2026-03-29

@@ -29,7 +29,7 @@ public sealed class VariableIntroducer : IRefactorer
     /// <summary>
     /// 获取重构器描述
     /// </summary>
-    public string Description => "将表达式提取为局部变量";
+    public string Description => "Extract expression to local variable";
 
     /// <summary>
     /// 获取重构器分类
@@ -130,7 +130,7 @@ public sealed class VariableIntroducer : IRefactorer
         var previewGenerator = new RefactoringPreviewGenerator();
         var preview = await previewGenerator.GeneratePreviewAsync(context, changes);
 
-        preview.Description = $"引入变量 '{variableName}' (类型: {variableType})";
+        preview.Description = $"Introduce variable '{variableName}' (type: {variableType})";
         preview.Metadata["variableName"] = variableName;
         preview.Metadata["variableType"] = variableType;
         preview.Metadata["expression"] = expression.ToString();

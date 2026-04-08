@@ -115,7 +115,7 @@ public class DependencyGraphVisualizer
         if (graph.CircularDependencies.Count > 0)
         {
             builder.AppendLine();
-            builder.AppendLine("    %% 循环依赖:");
+            builder.AppendLine("    %% Circular dependencies:");
 
             foreach (var cycle in graph.CircularDependencies)
             {

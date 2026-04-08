@@ -5,6 +5,7 @@ using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Roslyn.CodeGeneration;
 using DotNetAnalyzer.Core.Roslyn.ImportManagement;
 using DotNetAnalyzer.Core.Roslyn.Formatting;
+using DotNetAnalyzer.Resources;
 using ModelContextProtocol.Server;
 
 namespace DotNetAnalyzer.Cli.Tools;
@@ -18,14 +19,14 @@ public static class CodeGenerationTools
     /// <summary>
     /// 生成接口实现
     /// </summary>
-    [McpServerTool, Description("为类生成接口实现")]
+    [McpServerTool, Description(ToolStrings.GenerateInterfaceImpl)]
     public static async Task<string> GenerateInterfaceImpl(
         IWorkspaceManager workspaceManager,
-        [Description("项目路径")] string projectPath,
-        [Description("文件路径")] string filePath,
-        [Description("类名")] string className,
-        [Description("接口名")] string interfaceName,
-        [Description("生成存根实现")] bool generateStub = true)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath,
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.ClassNameParam)] string className,
+        [Description(ToolStrings.InterfaceNameParam)] string interfaceName,
+        [Description(ToolStrings.GenerateStubParam)] bool generateStub = true)
     {
         try
         {
@@ -34,7 +35,7 @@ public static class CodeGenerationTools
 
             if (document == null)
             {
-                return CreateErrorResponse($"找不到文件: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FileNotFound(filePath));
             }
 
             var implementation = await InterfaceGenerator.GenerateInterfaceImplementationAsync(
@@ -56,18 +57,18 @@ public static class CodeGenerationTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"生成接口实现时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGeneratingInterfaceImpl(ex.Message));
         }
     }
 
     /// <summary>
     /// 生成构造函数
     /// </summary>
-    [McpServerTool, Description("为类生成构造函数")]
+    [McpServerTool, Description(ToolStrings.GenerateConstructor)]
     public static string GenerateConstructor(
-        [Description("类名")] string className,
-        [Description("字段列表（类型 名称）")] string[] fields,
-        [Description("基类构造函数调用（可选）")] string? baseCall = null)
+        [Description(ToolStrings.ClassNameParam)] string className,
+        [Description(ToolStrings.FieldsParam)] string[] fields,
+        [Description(ToolStrings.BaseCallParam)] string? baseCall = null)
     {
         try
         {
@@ -95,18 +96,18 @@ public static class CodeGenerationTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"生成构造函数时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGeneratingConstructor(ex.Message));
         }
     }
 
     /// <summary>
     /// 移除未使用的using
     /// </summary>
-    [McpServerTool, Description("移除未使用的using指令")]
+    [McpServerTool, Description(ToolStrings.RemoveUnusedUsings)]
     public static async Task<string> RemoveUnusedUsings(
         IWorkspaceManager workspaceManager,
-        [Description("项目路径")] string projectPath,
-        [Description("文件路径")] string filePath)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath,
+        [Description(ToolStrings.FilePathParam)] string filePath)
     {
         try
         {
@@ -115,7 +116,7 @@ public static class CodeGenerationTools
 
             if (document == null)
             {
-                return CreateErrorResponse($"找不到文件: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FileNotFound(filePath));
             }
 
             var result = await UnusedImportRemover.RemoveUnusedUsingsAsync(document);
@@ -131,17 +132,17 @@ public static class CodeGenerationTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"移除未使用using时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorRemovingUnusedUsings(ex.Message));
         }
     }
 
     /// <summary>
     /// 排序using指令
     /// </summary>
-    [McpServerTool, Description("排序using指令")]
+    [McpServerTool, Description(ToolStrings.SortUsings)]
     public static string SortUsings(
-        [Description("文件内容")] string fileContent,
-        [Description("排序方式（systemFirst/alphabetical/length）")] string order = "systemFirst")
+        [Description(ToolStrings.FileContentParam)] string fileContent,
+        [Description(ToolStrings.SortOrderParam)] string order = "systemFirst")
     {
         try
         {
@@ -166,19 +167,19 @@ public static class CodeGenerationTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"排序using时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorSortingUsings(ex.Message));
         }
     }
 
     /// <summary>
     /// 添加缺失的using
     /// </summary>
-    [McpServerTool, Description("添加缺失的using指令")]
+    [McpServerTool, Description(ToolStrings.AddMissingImports)]
     public static async Task<string> AddMissingImports(
         IWorkspaceManager workspaceManager,
-        [Description("项目路径")] string projectPath,
-        [Description("文件路径")] string filePath,
-        [Description("建议的导入列表（可选）")] string[]? suggestions = null)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath,
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.SuggestionsParam)] string[]? suggestions = null)
     {
         try
         {
@@ -187,7 +188,7 @@ public static class CodeGenerationTools
 
             if (document == null)
             {
-                return CreateErrorResponse($"找不到文件: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FileNotFound(filePath));
             }
 
             var result = await MissingImportAdder.AddMissingImportsAsync(document, suggestions?.ToList());
@@ -203,16 +204,8 @@ public static class CodeGenerationTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"添加缺失using时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorAddingMissingImports(ex.Message));
         }
     }
 
-    private static string CreateErrorResponse(string message)
-    {
-        return JsonSerializer.Serialize(new
-        {
-            success = false,
-            error = message
-        }, JsonOptions.Default);
-    }
 }

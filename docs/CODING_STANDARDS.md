@@ -1,3 +1,5 @@
+[English](en/CODING_STANDARDS.md) | 中文版
+
 # DotNetAnalyzer 编码规范
 
 本文档定义了 DotNetAnalyzer 项目必须遵守的编码原则和规范。所有贡献者在提交代码前必须阅读并遵守这些规范。

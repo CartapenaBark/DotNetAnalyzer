@@ -28,7 +28,7 @@ public sealed class SymbolRenamer : IRefactorer
     /// <summary>
     /// 获取重构器描述
     /// </summary>
-    public string Description => "重命名类型、方法、字段等符号，并更新所有引用";
+    public string Description => "Rename type, method, field, or other symbol and update all references";
 
     /// <summary>
     /// 获取重构器分类
@@ -154,7 +154,7 @@ public sealed class SymbolRenamer : IRefactorer
         var previewGenerator = new RefactoringPreviewGenerator();
         var preview = await previewGenerator.GeneratePreviewAsync(context, changes);
 
-        preview.Description = $"重命名符号 '{symbol.Name}' → '{newName}'";
+        preview.Description = $"Rename symbol '{symbol.Name}' → '{newName}'";
         preview.Metadata["oldName"] = symbol.Name;
         preview.Metadata["newName"] = newName;
         preview.Metadata["symbolKind"] = symbol.Kind.ToString();

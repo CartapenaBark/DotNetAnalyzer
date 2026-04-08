@@ -5,6 +5,7 @@ using DotNetAnalyzer.Core.DependencyHealth;
 using DotNetAnalyzer.Core.Security;
 using DotNetAnalyzer.Core.Security.Models;
 using DotNetAnalyzer.Core.Json;
+using DotNetAnalyzer.Resources;
 using ModelContextProtocol.Server;
 
 namespace DotNetAnalyzer.Cli.Tools;
@@ -23,13 +24,12 @@ public static class SecurityTools
     /// <param name="projectPath">项目文件路径（.csproj）</param>
     /// <param name="severity">最小严重程度（默认 Medium）</param>
     /// <returns>安全发现列表（JSON 格式）</returns>
-    [McpServerTool, Description(
-        "扫描项目的安全漏洞（硬编码凭据、SQL 注入、命令注入、不安全反序列化、路径遍历、XSS）")]
+    [McpServerTool, Description(ToolStrings.ScanSecurityVulnerabilities)]
     public static async Task<string> ScanSecurityVulnerabilities(
         IWorkspaceManager workspaceManager,
         SecurityAnalysisEngine engine,
-        [Description("项目文件路径（.csproj 或 .sln）")] string projectPath,
-        [Description("最小报告严重程度（Critical/High/Medium/Low/Information）")] string severity = "Medium")
+        [Description(ToolStrings.ProjectOrSolutionPathParam)] string projectPath,
+        [Description(ToolStrings.SecurityMinSeverityParam)] string severity = "Medium")
     {
         try
         {
@@ -41,7 +41,8 @@ public static class SecurityTools
             var project = await workspaceManager.GetProjectAsync(projectPath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {projectPath}");
+                return BaseTool.CreateErrorResponse(
+                    ToolStrings.FailedToLoadProject(projectPath));
             }
 
             var report = await engine.AnalyzeAsync(project, options);
@@ -63,7 +64,8 @@ public static class SecurityTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"扫描安全漏洞时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.ErrorScanningSecurityVulnerabilities(ex.Message));
         }
     }
 
@@ -74,19 +76,19 @@ public static class SecurityTools
     /// <param name="engine">安全分析引擎</param>
     /// <param name="projectPath">项目文件路径（.csproj）</param>
     /// <returns>SARIF v2.1.0 格式报告（JSON）</returns>
-    [McpServerTool, Description(
-        "生成安全漏洞 SARIF v2.1.0 格式报告")]
+    [McpServerTool, Description(ToolStrings.GenerateSecuritySarif)]
     public static async Task<string> GenerateSecuritySarif(
         IWorkspaceManager workspaceManager,
         SecurityAnalysisEngine engine,
-        [Description("项目文件路径（.csproj 或 .sln）")] string projectPath)
+        [Description(ToolStrings.ProjectOrSolutionPathParam)] string projectPath)
     {
         try
         {
             var project = await workspaceManager.GetProjectAsync(projectPath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {projectPath}");
+                return BaseTool.CreateErrorResponse(
+                    ToolStrings.FailedToLoadProject(projectPath));
             }
 
             var report = await engine.AnalyzeAsync(project);
@@ -97,7 +99,8 @@ public static class SecurityTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"生成安全 SARIF 报告时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.ErrorGeneratingSecuritySarif(ex.Message));
         }
     }
 
@@ -106,8 +109,7 @@ public static class SecurityTools
     /// </summary>
     /// <param name="engine">安全分析引擎</param>
     /// <returns>安全规则列表（JSON 格式）</returns>
-    [McpServerTool, Description(
-        "获取所有已注册的安全检测规则列表（SEC001-SEC006）")]
+    [McpServerTool, Description(ToolStrings.GetSecurityRules)]
     public static string GetSecurityRules(
         SecurityAnalysisEngine engine)
     {
@@ -138,13 +140,12 @@ public static class SecurityTools
     /// <param name="projectPath">项目文件路径（.csproj）</param>
     /// <param name="allowedLicenses">允许的许可证类型列表（逗号分隔），空表示全部允许</param>
     /// <returns>许可证合规报告（JSON 格式）</returns>
-    [McpServerTool, Description(
-        "检查项目依赖的许可证合规性")]
+    [McpServerTool, Description(ToolStrings.CheckLicenseCompliance)]
     public static async Task<string> CheckLicenseCompliance(
         IWorkspaceManager workspaceManager,
         DependencyHealthAnalyzer analyzer,
-        [Description("项目文件路径（.csproj）")] string projectPath,
-        [Description("允许的许可证列表（逗号分隔，空表示全部允许）")] string? allowedLicenses = null)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath,
+        [Description(ToolStrings.AllowedLicensesParam)] string? allowedLicenses = null)
     {
         try
         {
@@ -177,7 +178,8 @@ public static class SecurityTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"检查许可证合规性时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.ErrorCheckingLicenseCompliance(ex.Message));
         }
     }
 
@@ -192,12 +194,5 @@ public static class SecurityTools
             "information" => SecuritySeverity.Information,
             _ => SecuritySeverity.Medium
         };
-    }
-
-    private static string CreateErrorResponse(string message)
-    {
-        return JsonSerializer.Serialize(
-            new { success = false, error = message },
-            JsonOptions.Default);
     }
 }

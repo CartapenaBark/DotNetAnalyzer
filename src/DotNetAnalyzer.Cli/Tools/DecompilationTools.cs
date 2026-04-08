@@ -4,6 +4,7 @@ using System.Text.Json;
 using DotNetAnalyzer.Core.Decompilation;
 using DotNetAnalyzer.Core.Decompilation.Models;
 using DotNetAnalyzer.Core.Json;
+using DotNetAnalyzer.Resources;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp;
 using ICSharpCode.Decompiler.Metadata;
@@ -22,14 +23,11 @@ public static class DecompilationTools
     /// <summary>
     /// 反编译 .NET 程序集为 C# 源代码
     /// </summary>
-    [McpServerTool, Description(
-        "反编译 .NET 程序集（DLL/EXE）为可读的 C# 源代码。" +
-        "可选 typeName 参数限制只反编译特定类型。")]
+    [McpServerTool, Description(ToolStrings.DecompileAssembly)]
     public static async Task<string> DecompileAssembly(
         IDecompilationService decompilationService,
-        [Description("程序集文件路径（.dll 或 .exe）")] string assemblyPath,
-        [Description(
-            "可选的类型名称过滤，仅反编译匹配的类型（支持部分匹配）")]
+        [Description(ToolStrings.AssemblyPathParam)] string assemblyPath,
+        [Description(ToolStrings.OptionalTypeNameFilterParam)]
         string? typeName = null)
     {
         try
@@ -47,7 +45,7 @@ public static class DecompilationTools
             if (!result.Success)
             {
                 return BaseTool.CreateErrorResponse(result.Error
-                    ?? "反编译失败");
+                    ?? ToolStrings.DecompileFailed());
             }
 
             // 限制输出长度，避免过大响应
@@ -58,7 +56,7 @@ public static class DecompilationTools
             if (sourceCode.Length > maxLength)
             {
                 sourceCode = sourceCode[..maxLength]
-                    + "\n// ... [已截断，源代码过长] ...";
+                    + "\n// " + ToolStrings.SourceCodeTruncated();
                 truncated = true;
             }
 
@@ -78,22 +76,19 @@ public static class DecompilationTools
         catch (Exception ex)
         {
             return BaseTool.CreateErrorResponse(
-                $"反编译程序集时出错: {ex.Message}");
+                ToolStrings.ErrorDecompilingAssembly(ex.Message));
         }
     }
 
     /// <summary>
     /// 分析程序集的 IL 字节码性能特征
     /// </summary>
-    [McpServerTool, Description(
-        "分析 .NET 程序集的 IL 字节码，检测装箱/拆箱、虚方法调用、" +
-        "异常处理等性能特征。可选 typeName 限制分析特定类型。")]
+    [McpServerTool, Description(ToolStrings.AnalyzeIL)]
     public static async Task<string> AnalyzeIL(
         AssemblyCache assemblyCache,
         ILogger<ILAnalyzer> logger,
-        [Description("程序集文件路径（.dll 或 .exe）")] string assemblyPath,
-        [Description(
-            "可选的类型名称过滤，仅分析匹配的类型的方法")]
+        [Description(ToolStrings.AssemblyPathParam)] string assemblyPath,
+        [Description(ToolStrings.OptionalTypeNameFilterParam)]
         string? typeName = null)
     {
         try
@@ -198,19 +193,17 @@ public static class DecompilationTools
         catch (Exception ex)
         {
             return BaseTool.CreateErrorResponse(
-                $"分析 IL 时出错: {ex.Message}");
+                ToolStrings.ErrorAnalyzingIL(ex.Message));
         }
     }
 
     /// <summary>
     /// 读取程序集元数据
     /// </summary>
-    [McpServerTool, Description(
-        "读取 .NET 程序集的元数据信息，包括名称、版本、目标框架、" +
-        "程序集引用和类型统计等")]
+    [McpServerTool, Description(ToolStrings.GetAssemblyMetadata)]
     public static async Task<string> GetAssemblyMetadata(
         AssemblyMetadataReader metadataReader,
-        [Description("程序集文件路径（.dll 或 .exe）")] string assemblyPath)
+        [Description(ToolStrings.AssemblyPathParam)] string assemblyPath)
     {
         try
         {
@@ -226,7 +219,7 @@ public static class DecompilationTools
             if (!result.Success)
             {
                 return BaseTool.CreateErrorResponse(result.Error
-                    ?? "读取元数据失败");
+                    ?? ToolStrings.ReadMetadataFailed());
             }
 
             return JsonSerializer.Serialize(new
@@ -260,21 +253,18 @@ public static class DecompilationTools
         catch (Exception ex)
         {
             return BaseTool.CreateErrorResponse(
-                $"读取程序集元数据时出错: {ex.Message}");
+                ToolStrings.ErrorGettingAssemblyMetadata(ex.Message));
         }
     }
 
     /// <summary>
     /// 提取程序集的公共 API surface
     /// </summary>
-    [McpServerTool, Description(
-        "提取 .NET 程序集的 API surface，包括公共/内部类型及其成员。" +
-        "可选 accessibility 过滤（Public, Internal, Protected 等）")]
+    [McpServerTool, Description(ToolStrings.GetApiSurface)]
     public static async Task<string> GetApiSurface(
         AssemblyCache assemblyCache,
-        [Description("程序集文件路径（.dll 或 .exe）")] string assemblyPath,
-        [Description(
-            "可访问性过滤（Public, Internal, Protected, Private）")]
+        [Description(ToolStrings.AssemblyPathParam)] string assemblyPath,
+        [Description(ToolStrings.AccessibilityParam)]
         string? accessibility = null)
     {
         try
@@ -419,7 +409,7 @@ public static class DecompilationTools
         catch (Exception ex)
         {
             return BaseTool.CreateErrorResponse(
-                $"提取 API surface 时出错: {ex.Message}");
+                ToolStrings.ErrorGettingApiSurface(ex.Message));
         }
     }
 
@@ -433,7 +423,7 @@ public static class DecompilationTools
         if (string.IsNullOrEmpty(assemblyPath))
         {
             return BaseTool.CreateErrorResponse(
-                "程序集路径不能为空");
+                ToolStrings.AssemblyPathRequired());
         }
 
         var ext = Path.GetExtension(assemblyPath)
@@ -441,7 +431,7 @@ public static class DecompilationTools
         if (ext != ".dll" && ext != ".exe")
         {
             return BaseTool.CreateErrorResponse(
-                "程序集文件必须是 .dll 或 .exe 格式");
+                ToolStrings.AssemblyFileMustBeDllOrExe());
         }
 
         return BaseTool.ValidateFileExists(assemblyPath);

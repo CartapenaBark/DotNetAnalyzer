@@ -1,3 +1,5 @@
+[English](en/development-workflow.md) | 中文版
+
 # DotNetAnalyzer 开发工作流
 
 本文档定义仓库唯一推荐的本地验证流程。脚本、CI 工作流和贡献者说明都必须与这里保持一致。

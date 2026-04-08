@@ -8,6 +8,7 @@ using DotNetAnalyzer.Core.Analysis.CodeQuality;
 using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Models.CodeQuality;
 using DotNetAnalyzer.Core.Visualization;
+using DotNetAnalyzer.Resources;
 
 namespace DotNetAnalyzer.Cli.Tools;
 
@@ -29,13 +30,13 @@ public static class VisualizationTools
     /// <param name="format">输出格式（mermaid、json、dot）</param>
     /// <param name="maxNodes">最大节点数（超过则简化）</param>
     /// <returns>依赖关系图</returns>
-    [McpServerTool, Description("生成依赖关系图")]
+    [McpServerTool, Description(ToolStrings.GenerateDependencyGraph)]
     public static async Task<string> GenerateDependencyGraph(
         IWorkspaceManager workspaceManager,
         ILogger<DependencyGraphVisualizer> logger,
-        [Description("项目文件路径（.csproj）")] string projectPath,
-        [Description("输出格式（mermaid、json、dot）")] string format = "mermaid",
-        [Description("最大节点数（超过则简化）")] int maxNodes = 100)
+        [Description(ToolStrings.ProjectFilePathParam)] string projectPath,
+        [Description(ToolStrings.GraphFormatParam)] string format = "mermaid",
+        [Description(ToolStrings.MaxNodesParam)] int maxNodes = 100)
     {
         try
         {
@@ -71,10 +72,8 @@ public static class VisualizationTools
         }
         catch (Exception ex)
         {
-            return JsonSerializer.Serialize(new
-            {
-                error = $"生成依赖关系图失败: {ex.Message}"
-            }, JsonOptions.Default);
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.ErrorGeneratingDependencyGraph(ex.Message));
         }
     }
 
@@ -90,17 +89,17 @@ public static class VisualizationTools
     /// <param name="heatmapType">热力图类型（complexity、change-frequency）</param>
     /// <param name="format">输出格式（mermaid、json）</param>
     /// <returns>热力图</returns>
-    [McpServerTool, Description("生成架构热力图")]
+    [McpServerTool, Description(ToolStrings.GenerateHeatmap)]
     public static async Task<string> GenerateHeatmap(
         IWorkspaceManager workspaceManager,
         ILogger<HeatmapGenerator> logger,
         ILogger<CodeSmellAnalyzer> analyzerLogger,
         ILogger<Core.Analysis.GitHistoryProvider> gitLogger,
         IEnumerable<ICodeSmellDetector> detectors,
-        [Description("项目文件路径（.csproj）")] string projectPath,
-        [Description("热力图类型（complexity、change-frequency）")] string heatmapType = "complexity",
-        [Description("输出格式（mermaid、json）")] string format = "mermaid",
-        [Description("变更频率回溯天数（仅 change-frequency 类型有效）")] int periodDays = 30)
+        [Description(ToolStrings.ProjectFilePathParam)] string projectPath,
+        [Description(ToolStrings.HeatmapTypeParam)] string heatmapType = "complexity",
+        [Description(ToolStrings.FormatParam)] string format = "mermaid",
+        [Description(ToolStrings.PeriodDaysParam)] int periodDays = 30)
     {
         try
         {
@@ -111,7 +110,7 @@ public static class VisualizationTools
             {
                 level = "verified",
                 isStable = true,
-                summary = "复杂度热力图基于真实代码异味分析生成。",
+                summary = ToolStrings.HeatmapComplexitySummary(),
                 remediation = (string?)null
             };
 
@@ -126,7 +125,7 @@ public static class VisualizationTools
                 {
                     level = "verified",
                     isStable = true,
-                    summary = "变更频率热力图基于真实 Git 历史记录生成。",
+                    summary = ToolStrings.HeatmapChangeFrequencySummary(),
                     remediation = (string?)null
                 };
             }
@@ -158,10 +157,8 @@ public static class VisualizationTools
         }
         catch (Exception ex)
         {
-            return JsonSerializer.Serialize(new
-            {
-                error = $"生成热力图失败: {ex.Message}"
-            }, JsonOptions.Default);
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.ErrorGeneratingHeatmap(ex.Message));
         }
     }
 

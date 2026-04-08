@@ -8,6 +8,7 @@ using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Monitoring;
 using DotNetAnalyzer.Core.Caching;
 using DotNetAnalyzer.Core.Models.CodeQuality;
+using DotNetAnalyzer.Resources;
 
 namespace DotNetAnalyzer.Cli.Tools;
 
@@ -29,11 +30,11 @@ public static class MonitoringTools
     /// <param name="projectPath">项目文件路径或目录</param>
     /// <param name="filter">文件过滤器（如 *.cs）</param>
     /// <returns>监听器状态</returns>
-    [McpServerTool, Description("启动文件监听以实现增量分析")]
+    [McpServerTool, Description(ToolStrings.StartFileWatching)]
     public static string StartFileWatching(
         ILogger<FileSystemFileWatcher> logger,
-        [Description("项目文件路径或目录")] string projectPath,
-        [Description("文件过滤器（如 *.cs）")] string filter = "*.cs")
+        [Description(ToolStrings.ProjectOrDirectoryParam)] string projectPath,
+        [Description(ToolStrings.FileFilterParam)] string filter = "*.cs")
     {
         try
         {
@@ -42,7 +43,7 @@ public static class MonitoringTools
                 return JsonSerializer.Serialize(new
                 {
                     status = "already_watching",
-                    message = $"已在监听路径: {projectPath}"
+                    message = ToolStrings.AlreadyWatching(projectPath)
                 }, JsonOptions.Default);
             }
 
@@ -50,8 +51,8 @@ public static class MonitoringTools
 
             watcher.FileChanged += (sender, args) =>
             {
-                // 文件变更事件处理
-                Console.WriteLine($"[FileWatcher] 文件变更: {args.FullPath} ({args.ChangeType})");
+                // 文件变更事件处理 — 通过 logger 输出到 stderr，避免污染 MCP stdout
+                logger.LogInformation("[FileWatcher] File changed: {FilePath} ({ChangeType})", args.FullPath, args.ChangeType);
             };
 
             watcher.StartWatching(projectPath, filter);
@@ -62,15 +63,13 @@ public static class MonitoringTools
                 status = "started",
                 path = projectPath,
                 filter = filter,
-                message = $"开始监听路径: {projectPath}"
+                message = ToolStrings.StartedWatching(projectPath)
             }, JsonOptions.Default);
         }
         catch (Exception ex)
         {
-            return JsonSerializer.Serialize(new
-            {
-                error = $"启动文件监听失败: {ex.Message}"
-            }, JsonOptions.Default);
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.ErrorStartingFileWatching(ex.Message));
         }
     }
 
@@ -82,9 +81,9 @@ public static class MonitoringTools
     /// </remarks>
     /// <param name="projectPath">项目文件路径或目录</param>
     /// <returns>操作结果</returns>
-    [McpServerTool, Description("停止文件监听")]
+    [McpServerTool, Description(ToolStrings.StopFileWatching)]
     public static string StopFileWatching(
-        [Description("项目文件路径或目录")] string projectPath)
+        [Description(ToolStrings.ProjectOrDirectoryParam)] string projectPath)
     {
         try
         {
@@ -93,7 +92,7 @@ public static class MonitoringTools
                 return JsonSerializer.Serialize(new
                 {
                     status = "not_watching",
-                    message = $"未监听路径: {projectPath}"
+                    message = ToolStrings.NotWatching(projectPath)
                 }, JsonOptions.Default);
             }
 
@@ -105,15 +104,13 @@ public static class MonitoringTools
             {
                 status = "stopped",
                 path = projectPath,
-                message = $"已停止监听路径: {projectPath}"
+                message = ToolStrings.StoppedWatching(projectPath)
             }, JsonOptions.Default);
         }
         catch (Exception ex)
         {
-            return JsonSerializer.Serialize(new
-            {
-                error = $"停止文件监听失败: {ex.Message}"
-            }, JsonOptions.Default);
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.ErrorStoppingFileWatching(ex.Message));
         }
     }
 
@@ -128,13 +125,13 @@ public static class MonitoringTools
     /// <param name="changedFilePath">变更的文件路径</param>
     /// <param name="changeType">变更类型</param>
     /// <returns>影响分析结果</returns>
-    [McpServerTool, Description("分析代码变更的影响范围（启发式结果）")]
+    [McpServerTool, Description(ToolStrings.AnalyzeChangeImpact)]
     public static async Task<string> AnalyzeChangeImpact(
         IWorkspaceManager workspaceManager,
         ILogger<ChangeImpactAnalyzer> logger,
-        [Description("项目文件路径（.csproj）")] string projectPath,
-        [Description("变更的文件路径")] string changedFilePath,
-        [Description("变更类型（MethodSignature, TypeMemberChange, TypeDeletion等）")] string changeType = "Other")
+        [Description(ToolStrings.ProjectPathParam)] string projectPath,
+        [Description(ToolStrings.ChangedFilePathParam)] string changedFilePath,
+        [Description(ToolStrings.ChangeTypeParam)] string changeType = "Other")
     {
         try
         {
@@ -172,17 +169,15 @@ public static class MonitoringTools
                 {
                     level = "heuristic",
                     isStable = false,
-                    summary = "当前影响分析只覆盖直接公共符号引用，未包含完整的传递依赖和精确测试映射。",
-                    remediation = "后续需补齐依赖图和测试引用分析，才能升级为稳定结果。"
+                    summary = ToolStrings.ChangeImpactHeuristicSummary(),
+                    remediation = ToolStrings.ChangeImpactHeuristicRemediation()
                 }
             }, JsonOptions.Default);
         }
         catch (Exception ex)
         {
-            return JsonSerializer.Serialize(new
-            {
-                error = $"分析变更影响失败: {ex.Message}"
-            }, JsonOptions.Default);
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.ErrorAnalyzingChangeImpact(ex.Message));
         }
     }
 
@@ -194,7 +189,7 @@ public static class MonitoringTools
     /// </remarks>
     /// <param name="cache">缓存实例</param>
     /// <returns>缓存统计信息</returns>
-    [McpServerTool, Description("获取分析缓存统计信息")]
+    [McpServerTool, Description(ToolStrings.GetCacheStatistics)]
     public static async Task<string> GetCacheStatistics(
         IAnalysisResultCache cache)
     {
@@ -219,10 +214,8 @@ public static class MonitoringTools
         }
         catch (Exception ex)
         {
-            return JsonSerializer.Serialize(new
-            {
-                error = $"获取缓存统计失败: {ex.Message}"
-            }, JsonOptions.Default);
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.ErrorGettingCacheStatistics(ex.Message));
         }
     }
 
@@ -234,7 +227,7 @@ public static class MonitoringTools
     /// </remarks>
     /// <param name="cache">缓存实例</param>
     /// <returns>操作结果</returns>
-    [McpServerTool, Description("清除分析缓存")]
+    [McpServerTool, Description(ToolStrings.ClearCache)]
     public static async Task<string> ClearCache(IAnalysisResultCache cache)
     {
         try
@@ -244,15 +237,13 @@ public static class MonitoringTools
             return JsonSerializer.Serialize(new
             {
                 status = "cleared",
-                message = "缓存已清除"
+                message = ToolStrings.CacheCleared()
             }, JsonOptions.Default);
         }
         catch (Exception ex)
         {
-            return JsonSerializer.Serialize(new
-            {
-                error = $"清除缓存失败: {ex.Message}"
-            }, JsonOptions.Default);
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.ErrorClearingCache(ex.Message));
         }
     }
 

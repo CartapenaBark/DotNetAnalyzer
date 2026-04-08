@@ -1,3 +1,5 @@
+[English](en/VERSION_MANAGEMENT.md) | 中文版
+
 # 版本管理指南
 
 本文档说明 DotNetAnalyzer 的版本管理流程。

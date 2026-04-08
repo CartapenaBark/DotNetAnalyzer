@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Text.Json;
 using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Json;
+using DotNetAnalyzer.Resources;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using ModelContextProtocol.Server;
@@ -17,39 +18,39 @@ public static class CodeActionsTools
     /// <summary>
     /// 获取位置可用的代码操作
     /// </summary>
-    [McpServerTool, Description("获取指定位置可用的代码操作，包括重构、修复、生成等")]
+    [McpServerTool, Description(ToolStrings.GetCodeActions)]
     public static async Task<string> GetCodeActions(
         IWorkspaceManager workspaceManager,
-        [Description("文件路径")] string filePath,
-        [Description("行号（从0开始）")] int line,
-        [Description("列号（从0开始）")] int column,
-        [Description("操作类别过滤器（refactor,fix,generate,format）")] string[]? categories = null)
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.LineParam)] int line,
+        [Description(ToolStrings.ColumnParam)] int column,
+        [Description(ToolStrings.CategoriesParam)] string[]? categories = null)
     {
         try
         {
             // 验证参数
             if (string.IsNullOrEmpty(filePath))
             {
-                return CreateErrorResponse("文件路径不能为空");
+                return BaseTool.CreateErrorResponse(ToolStrings.FilePathRequired());
             }
 
             if (line < 0 || column < 0)
             {
-                return CreateErrorResponse("行号和列号必须大于或等于0");
+                return BaseTool.CreateErrorResponse(ToolStrings.LineColumnNonNegative());
             }
 
             // 获取项目
             var project = await workspaceManager.GetProjectAsync(filePath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProject(filePath));
             }
 
             // 查找文档
             var document = project.Documents.FirstOrDefault(d => d.FilePath == filePath);
             if (document == null)
             {
-                return CreateErrorResponse($"找不到文件: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FileNotFound(filePath));
             }
 
             // 获取语义模型
@@ -57,7 +58,7 @@ public static class CodeActionsTools
             var root = await document.GetSyntaxRootAsync();
             if (semanticModel == null || root == null)
             {
-                return CreateErrorResponse("无法获取语义模型或语法根");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToGetSemanticModelOrRoot());
             }
 
             // 获取位置
@@ -134,47 +135,47 @@ public static class CodeActionsTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"获取代码操作时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGettingCodeActions(ex.Message));
         }
     }
 
     /// <summary>
     /// 获取可用的重构操作
     /// </summary>
-    [McpServerTool, Description("获取指定位置可用的重构操作，包括预览和适用性检查")]
+    [McpServerTool, Description(ToolStrings.GetRefactorings)]
     public static async Task<string> GetRefactorings(
         IWorkspaceManager workspaceManager,
-        [Description("文件路径")] string filePath,
-        [Description("选择范围起始行")] int startLine,
-        [Description("选择范围起始列")] int startColumn,
-        [Description("选择范围结束行")] int endLine,
-        [Description("选择范围结束列")] int endColumn)
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.StartLineParam)] int startLine,
+        [Description(ToolStrings.StartColumnParam)] int startColumn,
+        [Description(ToolStrings.EndLineParam)] int endLine,
+        [Description(ToolStrings.EndColumnParam)] int endColumn)
     {
         try
         {
             // 验证参数
             if (string.IsNullOrEmpty(filePath))
             {
-                return CreateErrorResponse("文件路径不能为空");
+                return BaseTool.CreateErrorResponse(ToolStrings.FilePathRequired());
             }
 
             if (startLine < 0 || startColumn < 0 || endLine < 0 || endColumn < 0)
             {
-                return CreateErrorResponse("行列号必须大于或等于0");
+                return BaseTool.CreateErrorResponse(ToolStrings.LineColumnNonNegative());
             }
 
             // 获取项目
             var project = await workspaceManager.GetProjectAsync(filePath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProject(filePath));
             }
 
             // 查找文档
             var document = project.Documents.FirstOrDefault(d => d.FilePath == filePath);
             if (document == null)
             {
-                return CreateErrorResponse($"找不到文件: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FileNotFound(filePath));
             }
 
             // 获取语义模型
@@ -182,7 +183,7 @@ public static class CodeActionsTools
             var root = await document.GetSyntaxRootAsync();
             if (semanticModel == null || root == null)
             {
-                return CreateErrorResponse("无法获取语义模型或语法根");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToGetSemanticModelOrRoot());
             }
 
             // 计算文本范围
@@ -239,46 +240,46 @@ public static class CodeActionsTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"获取重构操作时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGettingRefactorings(ex.Message));
         }
     }
 
     /// <summary>
     /// 获取代码补全建议
     /// </summary>
-    [McpServerTool, Description("获取指定位置的代码补全建议")]
+    [McpServerTool, Description(ToolStrings.GetCompletionList)]
     public static async Task<string> GetCompletionList(
         IWorkspaceManager workspaceManager,
-        [Description("文件路径")] string filePath,
-        [Description("行号（从0开始）")] int line,
-        [Description("列号（从0开始）")] int column,
-        [Description("触发类型（invoked,triggerCharacter,triggerForIncompleteCompletions）")] string triggerKind = "invoked")
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.LineParam)] int line,
+        [Description(ToolStrings.ColumnParam)] int column,
+        [Description(ToolStrings.TriggerKindParam)] string triggerKind = "invoked")
     {
         try
         {
             // 验证参数
             if (string.IsNullOrEmpty(filePath))
             {
-                return CreateErrorResponse("文件路径不能为空");
+                return BaseTool.CreateErrorResponse(ToolStrings.FilePathRequired());
             }
 
             if (line < 0 || column < 0)
             {
-                return CreateErrorResponse("行号和列号必须大于或等于0");
+                return BaseTool.CreateErrorResponse(ToolStrings.LineColumnNonNegative());
             }
 
             // 获取项目
             var project = await workspaceManager.GetProjectAsync(filePath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProject(filePath));
             }
 
             // 查找文档
             var document = project.Documents.FirstOrDefault(d => d.FilePath == filePath);
             if (document == null)
             {
-                return CreateErrorResponse($"找不到文件: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FileNotFound(filePath));
             }
 
             // 获取语义模型
@@ -286,7 +287,7 @@ public static class CodeActionsTools
             var root = await document.GetSyntaxRootAsync();
             if (semanticModel == null || root == null)
             {
-                return CreateErrorResponse("无法获取语义模型或语法根");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToGetSemanticModelOrRoot());
             }
 
             // 获取位置
@@ -347,16 +348,8 @@ public static class CodeActionsTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"获取补全列表时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGettingCompletionList(ex.Message));
         }
     }
 
-    private static string CreateErrorResponse(string message)
-    {
-        return JsonSerializer.Serialize(new
-        {
-            success = false,
-            error = message
-        }, JsonOptions.Default);
-    }
 }

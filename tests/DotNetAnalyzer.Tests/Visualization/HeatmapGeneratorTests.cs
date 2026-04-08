@@ -26,7 +26,7 @@ public class HeatmapGeneratorTests
                 _gitProvider, repoRoot, 30);
 
         data.Should().NotBeNull();
-        data.Title.Should().Contain("变更频率热力图");
+        data.Title.Should().Contain("Change frequency heatmap");
         data.Type.Should().Be(HeatmapType.ChangeFrequency);
         data.Cells.Should().NotBeEmpty();
         data.MinValue.Should().BeGreaterThan(0);
@@ -47,7 +47,7 @@ public class HeatmapGeneratorTests
             cell.Label.Should().NotBeNullOrEmpty();
             cell.Value.Should().BeGreaterThan(0);
             cell.Color.Should().NotBeNullOrEmpty();
-            cell.Tooltip.Should().Contain("次变更");
+            cell.Tooltip.Should().Contain("changes");
             cell.Metadata.Should().ContainKey("filePath");
             cell.Metadata.Should().ContainKey("changeCount");
             cell.Metadata["changeCount"].Should().Be(cell.Value);

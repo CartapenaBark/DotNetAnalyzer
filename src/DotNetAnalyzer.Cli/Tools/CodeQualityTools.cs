@@ -8,6 +8,7 @@ using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Analysis.CodeQuality;
 using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Models.CodeQuality;
+using DotNetAnalyzer.Resources;
 
 namespace DotNetAnalyzer.Cli.Tools;
 
@@ -30,14 +31,14 @@ public static class CodeQualityTools
     /// <param name="minSeverity">最小严重程度（Minor、Major、Critical）</param>
     /// <param name="includeSuggestions">是否包含修复建议</param>
     /// <returns>检测到的代码异味列表（JSON 格式）</returns>
-    [McpServerTool, Description("检测项目中的代码异味")]
+    [McpServerTool, Description(ToolStrings.DetectCodeSmells)]
     public static async Task<string> DetectCodeSmells(
         IWorkspaceManager workspaceManager,
         CodeSmellAnalyzer analyzer,
-        [Description("项目文件路径（.csproj）")] string projectPath,
-        [Description("可选的代码异味类型过滤器（如 long-method, large-class）")] string? smellType = null,
-        [Description("最小严重程度（Minor、Major、Critical）")] string minSeverity = "Minor",
-        [Description("是否包含修复建议")] bool includeSuggestions = true)
+        [Description(ToolStrings.ProjectFilePathParam)] string projectPath,
+        [Description(ToolStrings.SmellTypeParam)] string? smellType = null,
+        [Description(ToolStrings.MinSeverityParam)] string minSeverity = "Minor",
+        [Description(ToolStrings.IncludeSuggestionsParam)] bool includeSuggestions = true)
     {
         try
         {
@@ -61,10 +62,8 @@ public static class CodeQualityTools
         }
         catch (Exception ex)
         {
-            return JsonSerializer.Serialize(new
-            {
-                error = $"检测代码异味失败: {ex.Message}"
-            }, JsonOptions.Default);
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.ErrorDetectingCodeSmells(ex.Message));
         }
     }
 
@@ -80,15 +79,15 @@ public static class CodeQualityTools
     /// <param name="includeTrend">是否包含趋势分析</param>
     /// <param name="format">报告格式（markdown、json）</param>
     /// <returns>技术债务报告</returns>
-    [McpServerTool, Description("量化项目的技术债务")]
+    [McpServerTool, Description(ToolStrings.QuantifyTechnicalDebt)]
     public static async Task<string> QuantifyTechnicalDebt(
         IWorkspaceManager workspaceManager,
         TechnicalDebtCalculator calculator,
         ILogger<CodeSmellAnalyzer> logger,
         IEnumerable<ICodeSmellDetector> detectors,
-        [Description("项目文件路径（.csproj）")] string projectPath,
-        [Description("是否包含趋势分析")] bool includeTrend = false,
-        [Description("报告格式（markdown、json）")] string format = "markdown")
+        [Description(ToolStrings.ProjectFilePathParam)] string projectPath,
+        [Description(ToolStrings.IncludeTrendParam)] bool includeTrend = false,
+        [Description(ToolStrings.ReportFormatParam)] string format = "markdown")
     {
         try
         {
@@ -109,10 +108,8 @@ public static class CodeQualityTools
         }
         catch (Exception ex)
         {
-            return JsonSerializer.Serialize(new
-            {
-                error = $"量化技术债务失败: {ex.Message}"
-            }, JsonOptions.Default);
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.ErrorQuantifyingTechnicalDebt(ex.Message));
         }
     }
 
@@ -126,13 +123,13 @@ public static class CodeQualityTools
     /// <param name="calculator">技术债务计算器</param>
     /// <param name="projectPath">项目文件路径（.csproj）</param>
     /// <returns>质量报告</returns>
-    [McpServerTool, Description("生成项目的综合质量报告")]
+    [McpServerTool, Description(ToolStrings.GenerateQualityReport)]
     public static async Task<string> GenerateQualityReport(
         IWorkspaceManager workspaceManager,
         TechnicalDebtCalculator calculator,
         ILogger<CodeSmellAnalyzer> logger,
         IEnumerable<ICodeSmellDetector> detectors,
-        [Description("项目文件路径（.csproj）")] string projectPath)
+        [Description(ToolStrings.ProjectFilePathParam)] string projectPath)
     {
         try
         {
@@ -154,10 +151,8 @@ public static class CodeQualityTools
         }
         catch (Exception ex)
         {
-            return JsonSerializer.Serialize(new
-            {
-                error = $"生成质量报告失败: {ex.Message}"
-            }, JsonOptions.Default);
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.ErrorGeneratingQualityReport(ex.Message));
         }
     }
 
@@ -228,32 +223,32 @@ public static class CodeQualityTools
     {
         var builder = new System.Text.StringBuilder();
 
-        builder.AppendLine("# 代码质量报告");
+        builder.AppendLine("# Code Quality Report");
         builder.AppendLine();
-        builder.AppendLine($"## 项目信息");
-        builder.AppendLine($"- **路径**: {project.FilePath}");
-        builder.AppendLine($"- **分析时间**: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
-        builder.AppendLine();
-
-        builder.AppendLine($"## 技术债务摘要");
-        builder.AppendLine($"- **代码行数**: {debt.LinesOfCode:N0}");
-        builder.AppendLine($"- **总问题数**: {debt.TotalIssues}");
-        builder.AppendLine($"- **债务比率**: {debt.DebtRatio:F2} 小时/千行");
-        builder.AppendLine($"- **债务等级**: {debt.GetDebtLevel()}");
-        builder.AppendLine($"- **估算修复时间**: {debt.TotalFixTimeHours:F1} 小时");
+        builder.AppendLine($"## Project Information");
+        builder.AppendLine($"- **Path**: {project.FilePath}");
+        builder.AppendLine($"- **Analysis Time**: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
         builder.AppendLine();
 
-        builder.AppendLine($"## 代码异味分布");
+        builder.AppendLine($"## Technical Debt Summary");
+        builder.AppendLine($"- **Lines of Code**: {debt.LinesOfCode:N0}");
+        builder.AppendLine($"- **Total Issues**: {debt.TotalIssues}");
+        builder.AppendLine($"- **Debt Ratio**: {debt.DebtRatio:F2} hours/kloc");
+        builder.AppendLine($"- **Debt Level**: {debt.GetDebtLevel()}");
+        builder.AppendLine($"- **Estimated Fix Time**: {debt.TotalFixTimeHours:F1} hours");
+        builder.AppendLine();
+
+        builder.AppendLine($"## Code Smell Distribution");
         var byType = smellCollection.ByType();
         foreach (var kvp in byType.OrderByDescending(x => x.Value.Count))
         {
-            builder.AppendLine($"- **{kvp.Key}**: {kvp.Value.Count} 个");
+            builder.AppendLine($"- **{kvp.Key}**: {kvp.Value.Count} instances");
         }
 
         builder.AppendLine();
         builder.AppendLine($"---");
         var version = typeof(CodeQualityTools).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Unknown";
-        builder.AppendLine($"*由 DotNetAnalyzer v{version}* 生成");
+        builder.AppendLine($"*Generated by DotNetAnalyzer v{version}*");
 
         return builder.ToString();
     }

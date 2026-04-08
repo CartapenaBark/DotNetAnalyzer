@@ -30,7 +30,7 @@ public sealed class MethodExtractor : IRefactorer
     /// <summary>
     /// 获取重构器描述
     /// </summary>
-    public string Description => "将选中的代码提取为新方法";
+    public string Description => "Extract selected code into a new method";
 
     /// <summary>
     /// 获取重构器分类
@@ -152,7 +152,7 @@ public sealed class MethodExtractor : IRefactorer
         var previewGenerator = new RefactoringPreviewGenerator();
         var preview = await previewGenerator.GeneratePreviewAsync(context, changes);
 
-        preview.Description = $"将选中代码提取为方法 '{methodName}'";
+        preview.Description = $"Extract selected code into method '{methodName}'";
         preview.Metadata["methodName"] = methodName;
         preview.Metadata["parameters"] = parameters.Select(p => p.Name).ToArray();
         preview.Metadata["returnType"] = returnType;

@@ -31,7 +31,7 @@ public sealed class ForReverser : IRefactorer
     /// <summary>
     /// 获取重构器描述
     /// </summary>
-    public string Description => "反转for循环的遍历方向";
+    public string Description => "Reverse for loop iteration direction";
 
     /// <summary>
     /// 获取重构器分类
@@ -84,7 +84,7 @@ public sealed class ForReverser : IRefactorer
 
         var previewGenerator = new RefactoringPreviewGenerator();
         var preview = await previewGenerator.GeneratePreviewAsync(context, changes);
-        preview.Description = "反转for循环的遍历方向";
+        preview.Description = "Reverse for loop iteration direction";
 
         return Result<RefactoringPreview>.Success(preview);
     }

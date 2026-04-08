@@ -523,7 +523,8 @@ public sealed class ViewModelMappingResult
 {
     /// <summary>发现的所有 View-ViewModel 映射关系。</summary>
     public required IReadOnlyList<ViewViewModelPair>
-        Mappings { get; init; } = [];
+        Mappings
+    { get; init; } = [];
 
     /// <summary>映射总数。</summary>
     public int TotalMappings => Mappings.Count;

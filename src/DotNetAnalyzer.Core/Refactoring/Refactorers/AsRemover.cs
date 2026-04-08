@@ -28,7 +28,7 @@ public sealed class AsRemover : IRefactorer
     /// <summary>
     /// 获取重构器描述
     /// </summary>
-    public string Description => "移除不必要的as类型转换";
+    public string Description => "Remove unnecessary as type cast";
 
     /// <summary>
     /// 获取重构器分类
@@ -181,7 +181,7 @@ public sealed class AsRemover : IRefactorer
         var previewGenerator = new RefactoringPreviewGenerator();
         var preview = await previewGenerator.GeneratePreviewAsync(context, changes);
 
-        preview.Description = $"安全移除as表达式，替换为: {replacementExpression}";
+        preview.Description = $"Safely remove as expression, replace with: {replacementExpression}";
         preview.Metadata["originalExpression"] = binaryExpression.ToString();
         preview.Metadata["replacementExpression"] = replacementExpression;
 

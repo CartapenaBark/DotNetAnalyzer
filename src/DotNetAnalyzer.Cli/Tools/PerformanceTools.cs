@@ -3,6 +3,7 @@ using System.Text.Json;
 using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Performance;
+using DotNetAnalyzer.Resources;
 using ModelContextProtocol.Server;
 
 namespace DotNetAnalyzer.Cli.Tools;
@@ -19,11 +20,10 @@ public static class PerformanceTools
     /// <param name="analyzer">性能分析器</param>
     /// <param name="solutionPath">解决方案路径（.sln 或 .slnx）</param>
     /// <returns>性能分析报告（JSON 格式）</returns>
-    [McpServerTool, Description(
-        "分析解决方案的性能指标（项目数、文档数、代码行数、缓存命中率、优化建议）")]
+    [McpServerTool, Description(ToolStrings.AnalyzeSolutionPerformance)]
     public static async Task<string> AnalyzeSolutionPerformance(
         PerformanceAnalyzer analyzer,
-        [Description("解决方案路径（.sln 或 .slnx）")] string solutionPath)
+        [Description(ToolStrings.SolutionPathParam)] string solutionPath)
     {
         try
         {
@@ -55,7 +55,7 @@ public static class PerformanceTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"分析解决方案性能时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorAnalyzingSolutionPerformance(ex.Message));
         }
     }
 
@@ -66,12 +66,11 @@ public static class PerformanceTools
     /// <param name="solutionPath">解决方案路径（可选）</param>
     /// <param name="strategy">优化策略（auto/aggressive）</param>
     /// <returns>缓存优化结果（JSON 格式）</returns>
-    [McpServerTool, Description(
-        "优化工作区缓存，释放不必要的缓存项")]
+    [McpServerTool, Description(ToolStrings.OptimizeWorkspaceCache)]
     public static async Task<string> OptimizeWorkspaceCache(
         PerformanceAnalyzer analyzer,
-        [Description("解决方案路径（可选）")] string? solutionPath = null,
-        [Description("优化策略: auto（自动）或 aggressive（激进清理）")] string strategy = "auto")
+        [Description(ToolStrings.OptionalSolutionPathParam)] string? solutionPath = null,
+        [Description(ToolStrings.StrategyParam)] string strategy = "auto")
     {
         try
         {
@@ -94,7 +93,7 @@ public static class PerformanceTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"优化工作区缓存时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorOptimizingWorkspaceCache(ex.Message));
         }
     }
 
@@ -103,8 +102,7 @@ public static class PerformanceTools
     /// </summary>
     /// <param name="analyzer">性能分析器</param>
     /// <returns>工作区统计信息（JSON 格式）</returns>
-    [McpServerTool, Description(
-        "获取工作区运行时统计信息（缓存容量、使用量、命中率等）")]
+    [McpServerTool, Description(ToolStrings.GetWorkspaceStats)]
     public static async Task<string> GetWorkspaceStats(
         PerformanceAnalyzer analyzer)
     {
@@ -129,14 +127,7 @@ public static class PerformanceTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"获取工作区统计信息时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGettingWorkspaceStats(ex.Message));
         }
-    }
-
-    private static string CreateErrorResponse(string message)
-    {
-        return JsonSerializer.Serialize(
-            new { success = false, error = message },
-            JsonOptions.Default);
     }
 }

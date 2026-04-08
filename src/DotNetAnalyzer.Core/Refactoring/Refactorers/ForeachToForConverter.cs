@@ -28,7 +28,7 @@ public sealed class ForeachToForConverter : IRefactorer
     /// <summary>
     /// 获取重构器描述
     /// </summary>
-    public string Description => "将foreach循环转换为for循环";
+    public string Description => "Convert foreach loop to for loop";
 
     /// <summary>
     /// 获取重构器分类
@@ -81,7 +81,7 @@ public sealed class ForeachToForConverter : IRefactorer
 
         var previewGenerator = new RefactoringPreviewGenerator();
         var preview = await previewGenerator.GeneratePreviewAsync(context, changes);
-        preview.Description = "将foreach循环转换为for循环";
+        preview.Description = "Convert foreach loop to for loop";
 
         return Result<RefactoringPreview>.Success(preview);
     }

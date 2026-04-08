@@ -4,6 +4,7 @@ using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Refactoring.Core;
 using DotNetAnalyzer.Core.Refactoring.Models;
+using DotNetAnalyzer.Resources;
 using ModelContextProtocol.Server;
 
 namespace DotNetAnalyzer.Cli.Tools;
@@ -17,17 +18,17 @@ public static class RefactoringTools
     /// <summary>
     /// 提取方法
     /// </summary>
-    [McpServerTool, Description("将选中的代码提取为新方法")]
+    [McpServerTool, Description(ToolStrings.ExtractMethod)]
     public static async Task<string> ExtractMethod(
         IWorkspaceManager workspaceManager,
-        [Description("项目路径")] string projectPath,
-        [Description("文件路径")] string filePath,
-        [Description("开始行号（从0开始）")] int startLine,
-        [Description("开始列号（从0开始）")] int startColumn,
-        [Description("结束行号（从0开始）")] int endLine,
-        [Description("结束列号（从0开始）")] int endColumn,
-        [Description("新方法名称")] string methodName,
-        [Description("是否应用变更（默认为false，只生成预览）")] bool applyChanges = false)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath,
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.StartLineParam)] int startLine,
+        [Description(ToolStrings.StartColumnParam)] int startColumn,
+        [Description(ToolStrings.EndLineParam)] int endLine,
+        [Description(ToolStrings.EndColumnParam)] int endColumn,
+        [Description(ToolStrings.MethodNameParam)] string methodName,
+        [Description(ToolStrings.ApplyChangesParam)] bool applyChanges = false)
     {
         try
         {
@@ -51,24 +52,24 @@ public static class RefactoringTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"提取方法时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorExtractingMethod(ex.Message));
         }
     }
 
     /// <summary>
     /// 重命名符号
     /// </summary>
-    [McpServerTool, Description("重命名符号（类型、方法、字段等），并更新所有引用")]
+    [McpServerTool, Description(ToolStrings.RenameSymbol)]
     public static async Task<string> RenameSymbol(
         IWorkspaceManager workspaceManager,
-        [Description("项目路径")] string projectPath,
-        [Description("文件路径")] string filePath,
-        [Description("符号所在行号（从0开始）")] int line,
-        [Description("符号所在列号（从0开始）")] int column,
-        [Description("新名称")] string newName,
-        [Description("是否在注释中重命名")] bool renameInComments = false,
-        [Description("是否在字符串中重命名")] bool renameInStrings = false,
-        [Description("是否应用变更（默认为false，只生成预览）")] bool applyChanges = false)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath,
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.LineParam)] int line,
+        [Description(ToolStrings.ColumnParam)] int column,
+        [Description(ToolStrings.NewNameParam)] string newName,
+        [Description(ToolStrings.RenameInCommentsParam)] bool renameInComments = false,
+        [Description(ToolStrings.RenameInStringsParam)] bool renameInStrings = false,
+        [Description(ToolStrings.ApplyChangesParam)] bool applyChanges = false)
     {
         try
         {
@@ -93,22 +94,22 @@ public static class RefactoringTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"重命名符号时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorRenamingSymbol(ex.Message));
         }
     }
 
     /// <summary>
     /// 引入变量
     /// </summary>
-    [McpServerTool, Description("将表达式提取为局部变量")]
+    [McpServerTool, Description(ToolStrings.IntroduceVariable)]
     public static async Task<string> IntroduceVariable(
         IWorkspaceManager workspaceManager,
-        [Description("项目路径")] string projectPath,
-        [Description("文件路径")] string filePath,
-        [Description("表达式所在行号（从0开始）")] int line,
-        [Description("表达式所在列号（从0开始）")] int column,
-        [Description("变量名称（可选，不提供则自动建议）")] string? variableName = null,
-        [Description("是否应用变更（默认为false，只生成预览）")] bool applyChanges = false)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath,
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.LineParam)] int line,
+        [Description(ToolStrings.ColumnParam)] int column,
+        [Description(ToolStrings.VariableNameParam)] string? variableName = null,
+        [Description(ToolStrings.ApplyChangesParam)] bool applyChanges = false)
     {
         try
         {
@@ -135,14 +136,14 @@ public static class RefactoringTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"引入变量时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorIntroducingVariable(ex.Message));
         }
     }
 
     /// <summary>
     /// 列出所有可用的重构器
     /// </summary>
-    [McpServerTool, Description("列出所有可用的重构器")]
+    [McpServerTool, Description(ToolStrings.ListRefactorers)]
     public static string ListRefactorers(
         IWorkspaceManager workspaceManager)
     {
@@ -172,7 +173,7 @@ public static class RefactoringTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"列出重构器时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorListingRefactorers(ex.Message));
         }
     }
 
@@ -198,7 +199,7 @@ public static class RefactoringTools
             {
                 success = true,
                 isPreview = result.IsPreview,
-                message = "重构完成"
+                message = ToolStrings.RefactoringCompleted()
             }, JsonOptions.Default);
         }
 
@@ -231,15 +232,4 @@ public static class RefactoringTools
         }, JsonOptions.Default);
     }
 
-    /// <summary>
-    /// 创建错误响应
-    /// </summary>
-    private static string CreateErrorResponse(string message)
-    {
-        return JsonSerializer.Serialize(new
-        {
-            success = false,
-            error = message
-        }, JsonOptions.Default);
-    }
 }

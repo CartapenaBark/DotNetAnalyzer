@@ -29,7 +29,7 @@ public sealed class TemporaryInliner : IRefactorer
     /// <summary>
     /// 获取重构器描述
     /// </summary>
-    public string Description => "内联临时变量到表达式";
+    public string Description => "Inline temporary variable into expression";
 
     /// <summary>
     /// 获取重构器分类
@@ -179,7 +179,7 @@ public sealed class TemporaryInliner : IRefactorer
         var previewGenerator = new RefactoringPreviewGenerator();
         var preview = await previewGenerator.GeneratePreviewAsync(context, changes);
 
-        preview.Description = $"内联变量 '{variableSymbol.Name}'，替换 {localUsages.Count} 处使用";
+        preview.Description = $"Inline variable '{variableSymbol.Name}', replacing {localUsages.Count} usage(s)";
         preview.Metadata["variableName"] = variableSymbol.Name;
         preview.Metadata["initialValue"] = initialValue;
         preview.Metadata["usageCount"] = localUsages.Count;

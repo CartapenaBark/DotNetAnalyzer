@@ -1,56 +1,56 @@
-name: 问题咨询
-description: 询问关于 DotNetAnalyzer 的问题
+name: Question
+description: Ask a question about DotNetAnalyzer
 title: "[Question]: "
 labels: ["question"]
 body:
   - type: markdown
     attributes:
       value: |
-        有问题想问？请在提交 issue 前查看以下资源：
+        Have a question? Please check the following resources before submitting an issue:
 
-        - 📖 [README.md](../../README.md) - 项目概览和快速开始
-        - 📚 [API 指南](../../docs/api-guide.md) - 详细的 API 文档
-        - 💡 [使用示例](../../docs/examples.md) - 实用示例
-        - ❓ [FAQ](../../docs/FAQ.md) - 常见问题解答
+        - 📖 [README.md](../../README.md) - Project overview and quick start
+        - 📚 [API Guide](../../docs/api-guide.md) - Detailed API documentation
+        - 💡 [Usage Examples](../../docs/examples.md) - Practical examples
+        - ❓ [FAQ](../../docs/FAQ.md) - Frequently asked questions
 
-        如果您找到了答案，请关闭此 issue。
+        If you found the answer, please close this issue.
 
   - type: textarea
     id: question
     attributes:
-      label: 您的问题
-      description: 清晰地描述您的问题
-      placeholder: 我想知道如何...
+      label: Your Question
+      description: Clearly describe your question
+      placeholder: I would like to know how to...
     validations:
       required: true
 
   - type: textarea
     id: context
     attributes:
-      label: 背景/上下文
-      description: 提供相关的背景信息，帮助我们理解您的场景
-      placeholder: 我正在尝试...
+      label: Background / Context
+      description: Provide relevant background information to help us understand your scenario
+      placeholder: I am trying to...
     validations:
       required: true
 
   - type: textarea
     id: research
     attributes:
-      label: 已尝试的方法
-      description: 您已经尝试过哪些方法或查看过哪些文档？
-      placeholder: 我尝试了...，查看了...
+      label: Methods Already Tried
+      description: What methods have you already tried or which documents have you consulted?
+      placeholder: I tried..., I looked at...
     validations:
       required: true
 
   - type: textarea
     id: environment
     attributes:
-      label: 环境信息
-      description: 相关的运行环境
+      label: Environment Information
+      description: Relevant runtime environment
       placeholder: |
-        - OS: [例如 Windows 11]
-        - .NET Version: [例如 8.0.301]
-        - DotNetAnalyzer Version: [例如 v0.8.0]
+        - OS: [e.g. Windows 11]
+        - .NET Version: [e.g. 8.0.301]
+        - DotNetAnalyzer Version: [e.g. v0.8.0]
       render: shell
     validations:
       required: false
@@ -58,9 +58,9 @@ body:
   - type: checkboxes
     id: confirmation
     attributes:
-      label: 确认
+      label: Confirmation
       options:
-        - label: 我已搜索现有的 issues 和讨论，没有找到相同问题
+        - label: I have searched existing issues and discussions and did not find a duplicate
           required: true
-        - label: 我已阅读相关文档
+        - label: I have read the relevant documentation
           required: true

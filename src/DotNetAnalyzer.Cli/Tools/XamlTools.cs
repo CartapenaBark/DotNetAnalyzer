@@ -3,6 +3,7 @@ using System.Text.Json;
 using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Xaml;
+using DotNetAnalyzer.Resources;
 using ModelContextProtocol.Server;
 
 namespace DotNetAnalyzer.Cli.Tools;
@@ -19,11 +20,10 @@ public static class XamlTools
     /// <param name="parser">XAML 解析器</param>
     /// <param name="xamlFilePath">XAML 文件路径</param>
     /// <returns>XAML 文档结构信息（JSON 格式）</returns>
-    [McpServerTool, Description(
-        "解析 XAML 文件为结构化模型，提取元素树、命名空间、Binding 表达式和资源引用")]
+    [McpServerTool, Description(ToolStrings.AnalyzeXaml)]
     public static async Task<string> AnalyzeXaml(
         XamlParser parser,
-        [Description("XAML 文件的绝对路径")] string xamlFilePath)
+        [Description(ToolStrings.XamlFilePathParam)] string xamlFilePath)
     {
         try
         {
@@ -52,7 +52,7 @@ public static class XamlTools
         catch (Exception ex)
         {
             return BaseTool.CreateErrorResponse(
-                $"解析 XAML 文件时出错: {ex.Message}");
+                ToolStrings.ErrorAnalyzingXaml(ex.Message));
         }
     }
 
@@ -65,14 +65,13 @@ public static class XamlTools
     /// <param name="xamlFilePath">XAML 文件路径</param>
     /// <param name="projectPath">项目文件路径（.csproj）</param>
     /// <returns>Binding 验证结果（JSON 格式）</returns>
-    [McpServerTool, Description(
-        "验证 XAML 文件中的 Binding 表达式，检查路径是否对应 ViewModel 上的有效属性")]
+    [McpServerTool, Description(ToolStrings.ValidateBindings)]
     public static async Task<string> ValidateBindings(
         IWorkspaceManager workspaceManager,
         XamlParser parser,
         XamlBindingValidator validator,
-        [Description("XAML 文件的绝对路径")] string xamlFilePath,
-        [Description("项目文件路径（.csproj）")] string projectPath)
+        [Description(ToolStrings.XamlFilePathParam)] string xamlFilePath,
+        [Description(ToolStrings.ProjectFilePathParam)] string projectPath)
     {
         try
         {
@@ -81,7 +80,7 @@ public static class XamlTools
             if (project == null)
             {
                 return BaseTool.CreateErrorResponse(
-                    $"无法加载项目: {projectPath}");
+                    ToolStrings.FailedToLoadProject(projectPath));
             }
 
             var xamlInfo = await parser.ParseAsync(xamlFilePath)
@@ -121,7 +120,7 @@ public static class XamlTools
         catch (Exception ex)
         {
             return BaseTool.CreateErrorResponse(
-                $"验证 XAML Binding 时出错: {ex.Message}");
+                ToolStrings.ErrorValidatingBindings(ex.Message));
         }
     }
 
@@ -132,12 +131,11 @@ public static class XamlTools
     /// <param name="analyzer">XAML 资源分析器</param>
     /// <param name="projectPath">项目文件路径（.csproj）</param>
     /// <returns>资源分析结果（JSON 格式）</returns>
-    [McpServerTool, Description(
-        "分析项目中的 XAML ResourceDictionary，追踪资源定义、引用和合并关系，检测缺失资源和重复键")]
+    [McpServerTool, Description(ToolStrings.AnalyzeXamlResources)]
     public static async Task<string> AnalyzeXamlResources(
         IWorkspaceManager workspaceManager,
         XamlResourceAnalyzer analyzer,
-        [Description("项目文件路径（.csproj）")] string projectPath)
+        [Description(ToolStrings.ProjectFilePathParam)] string projectPath)
     {
         try
         {
@@ -146,7 +144,7 @@ public static class XamlTools
             if (project == null)
             {
                 return BaseTool.CreateErrorResponse(
-                    $"无法加载项目: {projectPath}");
+                    ToolStrings.FailedToLoadProject(projectPath));
             }
 
             var result = await analyzer.AnalyzeAsync(project)
@@ -181,7 +179,7 @@ public static class XamlTools
         catch (Exception ex)
         {
             return BaseTool.CreateErrorResponse(
-                $"分析 XAML 资源时出错: {ex.Message}");
+                ToolStrings.ErrorAnalyzingXamlResources(ex.Message));
         }
     }
 
@@ -192,12 +190,11 @@ public static class XamlTools
     /// <param name="mapper">View-ViewModel 映射器</param>
     /// <param name="projectPath">项目文件路径（.csproj）</param>
     /// <returns>View-ViewModel 映射结果（JSON 格式）</returns>
-    [McpServerTool, Description(
-        "扫描项目中所有 XAML 文件和 C# 文件，建立 View-ViewModel 映射关系")]
+    [McpServerTool, Description(ToolStrings.MapViewViewModel)]
     public static async Task<string> MapViewViewModel(
         IWorkspaceManager workspaceManager,
         ViewModelMapper mapper,
-        [Description("项目文件路径（.csproj）")] string projectPath)
+        [Description(ToolStrings.ProjectFilePathParam)] string projectPath)
     {
         try
         {
@@ -206,7 +203,7 @@ public static class XamlTools
             if (project == null)
             {
                 return BaseTool.CreateErrorResponse(
-                    $"无法加载项目: {projectPath}");
+                    ToolStrings.FailedToLoadProject(projectPath));
             }
 
             var result = await mapper.MapAsync(project)
@@ -229,7 +226,7 @@ public static class XamlTools
         catch (Exception ex)
         {
             return BaseTool.CreateErrorResponse(
-                $"映射 View-ViewModel 时出错: {ex.Message}");
+                ToolStrings.ErrorMappingViewViewModel(ex.Message));
         }
     }
 }

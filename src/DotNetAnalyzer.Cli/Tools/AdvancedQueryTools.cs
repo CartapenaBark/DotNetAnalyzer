@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Text.Json;
 using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Json;
+using DotNetAnalyzer.Resources;
 using Microsoft.CodeAnalysis;
 using ModelContextProtocol.Server;
 
@@ -16,40 +17,40 @@ public static class AdvancedQueryTools
     /// <summary>
     /// 解析位置的符号（支持模糊查询）
     /// </summary>
-    [McpServerTool, Description("解析指定位置的符号，支持别名解析和重写解析")]
+    [McpServerTool, Description(ToolStrings.ResolveSymbol)]
     public static async Task<string> ResolveSymbol(
         IWorkspaceManager workspaceManager,
-        [Description("文件路径")] string filePath,
-        [Description("行号（从0开始）")] int line,
-        [Description("列号（从0开始）")] int column,
-        [Description("是否解析重写")] bool resolveOverrides = true,
-        [Description("是否解析别名")] bool resolveAliases = true)
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.LineParam)] int line,
+        [Description(ToolStrings.ColumnParam)] int column,
+        [Description(ToolStrings.ResolveOverridesParam)] bool resolveOverrides = true,
+        [Description(ToolStrings.ResolveAliasesParam)] bool resolveAliases = true)
     {
         try
         {
             // 验证参数
             if (string.IsNullOrEmpty(filePath))
             {
-                return CreateErrorResponse("文件路径不能为空");
+                return BaseTool.CreateErrorResponse(ToolStrings.FilePathRequired());
             }
 
             if (line < 0 || column < 0)
             {
-                return CreateErrorResponse("行号和列号必须大于或等于0");
+                return BaseTool.CreateErrorResponse(ToolStrings.LineColumnNonNegative());
             }
 
             // 获取项目
             var project = await workspaceManager.GetProjectAsync(filePath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProject(filePath));
             }
 
             // 查找文档
             var document = project.Documents.FirstOrDefault(d => d.FilePath == filePath);
             if (document == null)
             {
-                return CreateErrorResponse($"找不到文件: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FileNotInProject(filePath));
             }
 
             // 获取语义模型
@@ -57,7 +58,7 @@ public static class AdvancedQueryTools
             var root = await document.GetSyntaxRootAsync();
             if (semanticModel == null || root == null)
             {
-                return CreateErrorResponse("无法获取语义模型或语法根");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToGetSemanticModelOrRoot());
             }
 
             // 获取指定位置的符号
@@ -69,7 +70,7 @@ public static class AdvancedQueryTools
 
             if (symbol == null)
             {
-                return CreateErrorResponse("无法解析该位置的符号");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToResolveSymbol());
             }
 
             // 构建符号信息
@@ -110,47 +111,47 @@ public static class AdvancedQueryTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"解析符号时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorResolvingSymbol(ex.Message));
         }
     }
 
     /// <summary>
     /// 一次性获取定义和所有引用
     /// </summary>
-    [McpServerTool, Description("一次性获取符号的定义和所有引用，包括层次结构")]
+    [McpServerTool, Description(ToolStrings.GetDefinitionAndReferences)]
     public static async Task<string> GetDefinitionAndReferences(
         IWorkspaceManager workspaceManager,
-        [Description("文件路径")] string filePath,
-        [Description("行号（从0开始）")] int line,
-        [Description("列号（从0开始）")] int column,
-        [Description("是否包含引用")] bool includeReferences = true,
-        [Description("是否包含层次结构")] bool includeHierarchy = false)
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.LineParam)] int line,
+        [Description(ToolStrings.ColumnParam)] int column,
+        [Description(ToolStrings.IncludeReferencesParam)] bool includeReferences = true,
+        [Description(ToolStrings.IncludeHierarchyParam)] bool includeHierarchy = false)
     {
         try
         {
             // 验证参数
             if (string.IsNullOrEmpty(filePath))
             {
-                return CreateErrorResponse("文件路径不能为空");
+                return BaseTool.CreateErrorResponse(ToolStrings.FilePathRequired());
             }
 
             if (line < 0 || column < 0)
             {
-                return CreateErrorResponse("行号和列号必须大于或等于0");
+                return BaseTool.CreateErrorResponse(ToolStrings.LineColumnNonNegative());
             }
 
             // 获取项目
             var project = await workspaceManager.GetProjectAsync(filePath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProject(filePath));
             }
 
             // 查找文档
             var document = project.Documents.FirstOrDefault(d => d.FilePath == filePath);
             if (document == null)
             {
-                return CreateErrorResponse($"找不到文件: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FileNotInProject(filePath));
             }
 
             // 获取语义模型
@@ -158,7 +159,7 @@ public static class AdvancedQueryTools
             var root = await document.GetSyntaxRootAsync();
             if (semanticModel == null || root == null)
             {
-                return CreateErrorResponse("无法获取语义模型或语法根");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToGetSemanticModelOrRoot());
             }
 
             // 获取符号
@@ -169,7 +170,7 @@ public static class AdvancedQueryTools
 
             if (symbol == null)
             {
-                return CreateErrorResponse("无法解析该位置的符号");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToResolveSymbol());
             }
 
             // 获取定义位置
@@ -258,32 +259,32 @@ public static class AdvancedQueryTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"获取定义和引用时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGettingDefinitionAndReferences(ex.Message));
         }
     }
 
     /// <summary>
     /// 获取项目的所有文档
     /// </summary>
-    [McpServerTool, Description("获取项目中所有的文档文件，包括行数、错误状态等信息")]
+    [McpServerTool, Description(ToolStrings.GetDocumentList)]
     public static async Task<string> GetDocumentList(
         IWorkspaceManager workspaceManager,
-        [Description("项目路径")] string projectPath,
-        [Description("文件过滤器（如 *.cs）")] string? filter = null)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath,
+        [Description(ToolStrings.DocumentFilterParam)] string? filter = null)
     {
         try
         {
             // 验证参数
             if (string.IsNullOrEmpty(projectPath))
             {
-                return CreateErrorResponse("项目路径不能为空");
+                return BaseTool.CreateErrorResponse(ToolStrings.ProjectPathRequired());
             }
 
             // 获取项目
             var project = await workspaceManager.GetProjectAsync(projectPath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {projectPath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProject(projectPath));
             }
 
             // 获取文档列表
@@ -335,16 +336,7 @@ public static class AdvancedQueryTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"获取文档列表时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGettingDocumentList(ex.Message));
         }
-    }
-
-    private static string CreateErrorResponse(string message)
-    {
-        return JsonSerializer.Serialize(new
-        {
-            success = false,
-            error = message
-        }, JsonOptions.Default);
     }
 }

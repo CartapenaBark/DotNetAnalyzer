@@ -29,7 +29,7 @@ public sealed class FieldEncapsulator : IRefactorer
     /// <summary>
     /// 获取重构器描述
     /// </summary>
-    public string Description => "将公共字段封装为属性";
+    public string Description => "Encapsulate public field as property";
 
     /// <summary>
     /// 获取重构器分类
@@ -199,7 +199,7 @@ public sealed class FieldEncapsulator : IRefactorer
         var previewGenerator = new RefactoringPreviewGenerator();
         var preview = await previewGenerator.GeneratePreviewAsync(context, changes);
 
-        preview.Description = $"将字段 '{variableDeclarator.Identifier.ValueText}' 封装为属性 '{propertyName}'";
+        preview.Description = $"Encapsulate field '{variableDeclarator.Identifier.ValueText}' as property '{propertyName}'";
         preview.Metadata["fieldName"] = variableDeclarator.Identifier.ValueText;
         preview.Metadata["propertyName"] = propertyName;
         preview.Metadata["fieldType"] = fieldType;

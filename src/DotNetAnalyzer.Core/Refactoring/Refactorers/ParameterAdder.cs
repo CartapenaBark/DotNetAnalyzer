@@ -29,7 +29,7 @@ public sealed class ParameterAdder : IRefactorer
     /// <summary>
     /// 获取重构器描述
     /// </summary>
-    public string Description => "为方法添加新参数";
+    public string Description => "Add new parameter to method";
 
     /// <summary>
     /// 获取重构器分类
@@ -190,7 +190,7 @@ public sealed class ParameterAdder : IRefactorer
         var previewGenerator = new RefactoringPreviewGenerator();
         var preview = await previewGenerator.GeneratePreviewAsync(context, changes);
 
-        preview.Description = $"为方法 '{methodSymbol.Name}' 添加参数 {paramType} {paramName}，更新 {references.Count} 个调用点";
+        preview.Description = $"Add parameter {paramType} {paramName} to method '{methodSymbol.Name}', updating {references.Count} call site(s)";
         preview.Metadata["methodName"] = methodSymbol.Name;
         preview.Metadata["parameterType"] = paramType;
         preview.Metadata["parameterName"] = paramName;

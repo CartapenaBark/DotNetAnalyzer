@@ -5,6 +5,7 @@ using DotNetAnalyzer.Core.Analysis;
 using DotNetAnalyzer.Core.Generation;
 using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Roslyn;
+using DotNetAnalyzer.Resources;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -21,38 +22,38 @@ public static class AnalysisTools
     /// <summary>
     /// 分析代码的语法和语义结构
     /// </summary>
-    [McpServerTool, Description("分析代码的语法和语义结构，包括语法树、类型信息、命名空间、类、方法等")]
+    [McpServerTool, Description(ToolStrings.AnalyzeCode)]
     public static async Task<string> AnalyzeCode(
         IWorkspaceManager workspaceManager,
-        [Description("项目路径")] string projectPath,
-        [Description("文件路径")] string filePath)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath,
+        [Description(ToolStrings.FilePathParam)] string filePath)
     {
         try
         {
             if (!File.Exists(filePath))
             {
-                return CreateErrorResponse($"文件不存在: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FileNotFound(filePath));
             }
 
             // 加载项目
             var project = await workspaceManager.GetProjectAsync(projectPath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {projectPath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProject(projectPath));
             }
 
             // 查找文档
             var document = project.Documents.FirstOrDefault(d => d.FilePath == filePath);
             if (document == null)
             {
-                return CreateErrorResponse($"文件不在项目中: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FileNotInProject(filePath));
             }
 
             // 获取语法树
             var tree = await document.GetSyntaxTreeAsync();
             if (tree == null)
             {
-                return CreateErrorResponse($"无法获取语法树: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToGetSyntaxTree(filePath));
             }
 
             var root = await tree.GetRootAsync();
@@ -61,7 +62,7 @@ public static class AnalysisTools
             var semanticModel = await document.GetSemanticModelAsync();
             if (semanticModel == null)
             {
-                return CreateErrorResponse($"无法获取语义模型: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToGetSemanticModel(filePath));
             }
 
             // 使用新的分析器获取详细信息
@@ -134,7 +135,7 @@ public static class AnalysisTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"分析代码时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorAnalyzingCode(ex.Message));
         }
     }
 
@@ -248,23 +249,23 @@ public static class AnalysisTools
     /// <summary>
     /// 获取测试覆盖率
     /// </summary>
-    [McpServerTool, Description("获取项目的测试覆盖率信息，优先使用 coverage.cobertura.xml 真实数据，回退到启发式估算")]
+    [McpServerTool, Description(ToolStrings.GetTestCoverage)]
     public static async Task<string> GetTestCoverage(
         IWorkspaceManager workspaceManager,
         TestCoverageAnalyzer coverageAnalyzer,
-        [Description("项目路径")] string projectPath)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath)
     {
         try
         {
             if (string.IsNullOrEmpty(projectPath))
             {
-                return CreateErrorResponse("项目路径不能为空");
+                return BaseTool.CreateErrorResponse(ToolStrings.ProjectPathRequired());
             }
 
             var project = await workspaceManager.GetProjectAsync(projectPath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {projectPath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProject(projectPath));
             }
 
             var result = await coverageAnalyzer.AnalyzeAsync(project);
@@ -294,39 +295,39 @@ public static class AnalysisTools
                     level = result.Credibility,
                     isStable = isVerified,
                     summary = isVerified
-                        ? "覆盖率数据来自 coverage.cobertura.xml，结果可视为稳定行为。"
-                        : "当前覆盖率结果基于测试文件命名和启发式估算，不等同于真实覆盖率采集结果。",
+                        ? ToolStrings.CoverageVerifiedSummary()
+                        : ToolStrings.CoverageHeuristicSummary(),
                     remediation = isVerified
                         ? null
-                        : "运行 dotnet test --collect:\"XPlat Code Coverage\" 生成覆盖文件以获取真实数据。"
+                        : ToolStrings.CoverageHeuristicRemediation()
                 }
             }, JsonOptions.Default);
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"获取测试覆盖率时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGettingTestCoverage(ex.Message));
         }
     }
 
     /// <summary>
     /// 查找死代码
     /// </summary>
-    [McpServerTool, Description("查找未使用的代码")]
+    [McpServerTool, Description(ToolStrings.FindDeadCode)]
     public static async Task<string> FindDeadCode(
         IWorkspaceManager workspaceManager,
-        [Description("项目路径")] string projectPath)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath)
     {
         try
         {
             if (string.IsNullOrEmpty(projectPath))
             {
-                return CreateErrorResponse("项目路径不能为空");
+                return BaseTool.CreateErrorResponse(ToolStrings.ProjectPathRequired());
             }
 
             var project = await workspaceManager.GetProjectAsync(projectPath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {projectPath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProject(projectPath));
             }
 
             var result = await DeadCodeAnalyzer.FindUnusedAsync(project);
@@ -357,29 +358,29 @@ public static class AnalysisTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"查找死代码时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorFindingDeadCode(ex.Message));
         }
     }
 
     /// <summary>
     /// 分析性能瓶颈
     /// </summary>
-    [McpServerTool, Description("分析性能瓶颈")]
+    [McpServerTool, Description(ToolStrings.AnalyzePerformance)]
     public static async Task<string> AnalyzePerformance(
         IWorkspaceManager workspaceManager,
-        [Description("项目路径")] string projectPath)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath)
     {
         try
         {
             if (string.IsNullOrEmpty(projectPath))
             {
-                return CreateErrorResponse("项目路径不能为空");
+                return BaseTool.CreateErrorResponse(ToolStrings.ProjectPathRequired());
             }
 
             var project = await workspaceManager.GetProjectAsync(projectPath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {projectPath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProject(projectPath));
             }
 
             var bottlenecks = await PerformanceAnalyzer.FindBottlenecksAsync(project);
@@ -405,30 +406,30 @@ public static class AnalysisTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"分析性能时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorAnalyzingPerformance(ex.Message));
         }
     }
 
     /// <summary>
     /// 生成项目文档
     /// </summary>
-    [McpServerTool, Description("从 XML 文档注释生成项目文档")]
+    [McpServerTool, Description(ToolStrings.GenerateDocumentation)]
     public static async Task<string> GenerateDocumentation(
         IWorkspaceManager workspaceManager,
-        [Description("项目路径")] string projectPath,
-        [Description("输出格式 (markdown, html, json)")] string format = "markdown")
+        [Description(ToolStrings.ProjectPathParam)] string projectPath,
+        [Description(ToolStrings.FormatParam)] string format = "markdown")
     {
         try
         {
             if (string.IsNullOrEmpty(projectPath))
             {
-                return CreateErrorResponse("项目路径不能为空");
+                return BaseTool.CreateErrorResponse(ToolStrings.ProjectPathRequired());
             }
 
             var project = await workspaceManager.GetProjectAsync(projectPath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {projectPath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProject(projectPath));
             }
 
             var result = await DocumentationGenerator.GenerateAsync(project, format ?? "markdown");
@@ -451,17 +452,8 @@ public static class AnalysisTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"生成文档时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGeneratingDocumentation(ex.Message));
         }
-    }
-
-    private static string CreateErrorResponse(string message)
-    {
-        return JsonSerializer.Serialize(new
-        {
-            success = false,
-            error = message
-        }, JsonOptions.Default);
     }
 
     #endregion

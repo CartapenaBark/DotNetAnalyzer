@@ -1,3 +1,5 @@
+[English](en/ARCHITECTURE.md) | 中文版
+
 # DotNetAnalyzer 架构文档
 
 本文档详细说明 DotNetAnalyzer 的系统架构、核心组件和项目结构。

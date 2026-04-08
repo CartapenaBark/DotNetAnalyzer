@@ -1,3 +1,5 @@
+[English](en/examples.md) | 中文版
+
 # DotNetAnalyzer 使用示例
 
 本文档提供 DotNetAnalyzer 的实际使用示例，展示如何通过 Claude Code 与 MCP 工具交互。

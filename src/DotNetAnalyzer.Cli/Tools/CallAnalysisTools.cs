@@ -3,6 +3,7 @@ using System.Text.Json;
 using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Models.CallAnalysis;
+using DotNetAnalyzer.Resources;
 using Microsoft.CodeAnalysis;
 using ModelContextProtocol.Server;
 
@@ -17,39 +18,39 @@ public static class CallAnalysisTools
     /// <summary>
     /// 获取调用指定方法的所有位置
     /// </summary>
-    [McpServerTool, Description("获取调用指定方法的所有位置，包括调用者、调用类型和调用上下文")]
+    [McpServerTool, Description(ToolStrings.GetCallerInfo)]
     public static async Task<string> GetCallerInfo(
         IWorkspaceManager workspaceManager,
-        [Description("文件路径")] string filePath,
-        [Description("行号（从0开始）")] int line,
-        [Description("列号（从0开始）")] int column,
-        [Description("是否包含间接调用")] bool includeIndirect = false)
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.LineParam)] int line,
+        [Description(ToolStrings.ColumnParam)] int column,
+        [Description(ToolStrings.IncludeIndirectParam)] bool includeIndirect = false)
     {
         try
         {
             // 验证参数
             if (string.IsNullOrEmpty(filePath))
             {
-                return CreateErrorResponse("文件路径不能为空");
+                return BaseTool.CreateErrorResponse(ToolStrings.FilePathRequired());
             }
 
             if (line < 0 || column < 0)
             {
-                return CreateErrorResponse("行号和列号必须大于或等于0");
+                return BaseTool.CreateErrorResponse(ToolStrings.LineColumnNonNegative());
             }
 
             // 获取项目
             var project = await workspaceManager.GetProjectAsync(filePath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProject(filePath));
             }
 
             // 查找文档
             var document = project.Documents.FirstOrDefault(d => d.FilePath == filePath);
             if (document == null)
             {
-                return CreateErrorResponse($"找不到文件: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FileNotInProject(filePath));
             }
 
             // 调用 Core 库的实现
@@ -64,51 +65,51 @@ public static class CallAnalysisTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"获取调用者信息时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGettingCallerInfo(ex.Message));
         }
     }
 
     /// <summary>
     /// 获取方法内调用的所有其他方法
     /// </summary>
-    [McpServerTool, Description("获取方法内调用的所有其他方法，支持跨文档解析、接口/虚方法分派和循环检测")]
+    [McpServerTool, Description(ToolStrings.GetCalleeInfo)]
     public static async Task<string> GetCalleeInfo(
         IWorkspaceManager workspaceManager,
-        [Description("文件路径")] string filePath,
-        [Description("行号（从0开始）")] int line,
-        [Description("列号（从0开始）")] int column,
-        [Description("最大递归深度（默认10，0=仅直接调用）")] int depth = 10)
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.LineParam)] int line,
+        [Description(ToolStrings.ColumnParam)] int column,
+        [Description(ToolStrings.DepthParam)] int depth = 10)
     {
         try
         {
             // 验证参数
             if (string.IsNullOrEmpty(filePath))
             {
-                return CreateErrorResponse("文件路径不能为空");
+                return BaseTool.CreateErrorResponse(ToolStrings.FilePathRequired());
             }
 
             if (line < 0 || column < 0)
             {
-                return CreateErrorResponse("行号和列号必须大于或等于0");
+                return BaseTool.CreateErrorResponse(ToolStrings.LineColumnNonNegative());
             }
 
             if (depth < 0)
             {
-                return CreateErrorResponse("递归深度必须大于或等于0");
+                return BaseTool.CreateErrorResponse(ToolStrings.DepthNonNegative());
             }
 
             // 获取项目
             var project = await workspaceManager.GetProjectAsync(filePath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProject(filePath));
             }
 
             // 查找文档
             var document = project.Documents.FirstOrDefault(d => d.FilePath == filePath);
             if (document == null)
             {
-                return CreateErrorResponse($"找不到文件: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FileNotInProject(filePath));
             }
 
             // 调用 Core 库的实现
@@ -123,58 +124,58 @@ public static class CallAnalysisTools
                 {
                     level = "verified",
                     isStable = true,
-                    summary = "基于真实语义模型的跨文档被调用者分析，支持接口/虚方法分派。"
+                    summary = ToolStrings.CalleeVerifiedSummary()
                 }
             }, JsonOptions.Default);
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"获取被调用者信息时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGettingCalleeInfo(ex.Message));
         }
     }
 
     /// <summary>
     /// 生成完整的调用图
     /// </summary>
-    [McpServerTool, Description("生成完整的调用图，包括节点、边和度量指标，支持多种可视化格式 (dot, svg, json, mermaid)")]
+    [McpServerTool, Description(ToolStrings.GetCallGraph)]
     public static async Task<string> GetCallGraph(
         IWorkspaceManager workspaceManager,
-        [Description("文件路径")] string filePath,
-        [Description("行号（从0开始）")] int line,
-        [Description("列号（从0开始）")] int column,
-        [Description("最大深度")] int maxDepth = 10,
-        [Description("可视化格式 (dot, svg, json, mermaid)")] string format = "dot")
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.LineParam)] int line,
+        [Description(ToolStrings.ColumnParam)] int column,
+        [Description(ToolStrings.DepthParam)] int maxDepth = 10,
+        [Description(ToolStrings.VisualizationFormatParam)] string format = "dot")
     {
         try
         {
             // 验证参数
             if (string.IsNullOrEmpty(filePath))
             {
-                return CreateErrorResponse("文件路径不能为空");
+                return BaseTool.CreateErrorResponse(ToolStrings.FilePathRequired());
             }
 
             if (line < 0 || column < 0)
             {
-                return CreateErrorResponse("行号和列号必须大于或等于0");
+                return BaseTool.CreateErrorResponse(ToolStrings.LineColumnNonNegative());
             }
 
             if (maxDepth < 1)
             {
-                return CreateErrorResponse("最大深度必须大于或等于1");
+                return BaseTool.CreateErrorResponse(ToolStrings.MaxDepthMinimum());
             }
 
             // 获取项目
             var project = await workspaceManager.GetProjectAsync(filePath);
             if (project == null)
             {
-                return CreateErrorResponse($"无法加载项目: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProject(filePath));
             }
 
             // 查找文档
             var document = project.Documents.FirstOrDefault(d => d.FilePath == filePath);
             if (document == null)
             {
-                return CreateErrorResponse($"找不到文件: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FileNotInProject(filePath));
             }
 
             // 调用 Core 库的实现
@@ -190,16 +191,7 @@ public static class CallAnalysisTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"生成调用图时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGeneratingCallGraph(ex.Message));
         }
-    }
-
-    private static string CreateErrorResponse(string message)
-    {
-        return JsonSerializer.Serialize(new
-        {
-            success = false,
-            error = message
-        }, JsonOptions.Default);
     }
 }

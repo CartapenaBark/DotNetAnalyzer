@@ -30,7 +30,7 @@ public sealed class IfToSwitchConverter : IRefactorer
     /// <summary>
     /// 获取重构器描述
     /// </summary>
-    public string Description => "将if-else链转换为switch语句";
+    public string Description => "Convert if-else chain to switch statement";
 
     /// <summary>
     /// 获取重构器分类
@@ -104,7 +104,7 @@ public sealed class IfToSwitchConverter : IRefactorer
 
         var previewGenerator = new RefactoringPreviewGenerator();
         var preview = await previewGenerator.GeneratePreviewAsync(context, changes);
-        preview.Description = "将if-else链转换为switch语句";
+        preview.Description = "Convert if-else chain to switch statement";
 
         return Result<RefactoringPreview>.Success(preview);
     }

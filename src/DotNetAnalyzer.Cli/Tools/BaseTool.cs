@@ -1,5 +1,6 @@
 using System.Text.Json;
 using DotNetAnalyzer.Core.Json;
+using DotNetAnalyzer.Resources;
 
 namespace DotNetAnalyzer.Cli.Tools;
 
@@ -69,7 +70,7 @@ public static class BaseTool
     {
         if (!File.Exists(filePath))
         {
-            return CreateErrorResponse(errorMessage ?? $"文件不存在: {filePath}");
+            return CreateErrorResponse(errorMessage ?? ToolStrings.FileNotFound(filePath));
         }
         return null;
     }
@@ -83,7 +84,7 @@ public static class BaseTool
     {
         if (!Path.Exists(path))
         {
-            return CreateErrorResponse($"路径不存在: {path}");
+            return CreateErrorResponse(ToolStrings.PathNotFound(path));
         }
         return null;
     }
@@ -100,7 +101,7 @@ public static class BaseTool
     {
         if (value < min || value > max)
         {
-            return CreateErrorResponse($"{parameterName}必须在 {min} 到 {max} 之间");
+            return CreateErrorResponse(ToolStrings.ParameterRangeInvalid(parameterName, min.ToString(), max.ToString()));
         }
         return null;
     }
@@ -115,7 +116,7 @@ public static class BaseTool
     {
         if (value < 0)
         {
-            return CreateErrorResponse($"{parameterName}必须大于或等于0");
+            return CreateErrorResponse(ToolStrings.ParameterNonNegative(parameterName));
         }
         return null;
     }
@@ -130,7 +131,7 @@ public static class BaseTool
     {
         if (string.IsNullOrEmpty(value))
         {
-            return CreateErrorResponse($"{parameterName}不能为空");
+            return CreateErrorResponse(ToolStrings.ParameterRequired(parameterName));
         }
         return null;
     }

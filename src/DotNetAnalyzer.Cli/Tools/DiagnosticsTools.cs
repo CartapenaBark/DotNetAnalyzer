@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Roslyn;
+using DotNetAnalyzer.Resources;
 using ModelContextProtocol.Server;
 
 namespace DotNetAnalyzer.Cli.Tools;
@@ -21,17 +22,17 @@ public static class DiagnosticsTools
     /// <param name="projectPath">项目或解决方案路径</param>
     /// <param name="filePath">可选：特定文件的诊断</param>
     /// <returns>诊断信息的 JSON 字符串</returns>
-    [McpServerTool, Description("获取 C# 代码的编译器诊断信息（错误、警告、信息）")]
+    [McpServerTool, Description(ToolStrings.GetDiagnostics)]
     public static async Task<string> GetDiagnostics(
         IWorkspaceManager workspaceManager,
-        [Description("项目或解决方案路径")] string projectPath,
-        [Description("可选：特定文件的诊断")] string? filePath = null)
+        [Description(ToolStrings.ProjectOrSolutionPathParam)] string projectPath,
+        [Description(ToolStrings.OptionalFilePathParam)] string? filePath = null)
     {
         try
         {
             if (string.IsNullOrEmpty(projectPath))
             {
-                return JsonSerializer.Serialize(new { success = false, error = "projectPath is required" }, JsonOptions.Default);
+                return BaseTool.CreateErrorResponse(ToolStrings.ProjectPathRequired());
             }
 
             // 判断是解决方案还是项目
@@ -46,7 +47,7 @@ public static class DiagnosticsTools
         }
         catch (Exception ex)
         {
-            return JsonSerializer.Serialize(new { success = false, error = ex.Message }, JsonOptions.Default);
+            return BaseTool.CreateErrorResponse(ex.Message);
         }
     }
 
@@ -84,7 +85,7 @@ public static class DiagnosticsTools
 
         if (compilation == null)
         {
-            return JsonSerializer.Serialize(new { success = false, error = "Failed to get compilation" }, JsonOptions.Default);
+            return BaseTool.CreateErrorResponse("Failed to get compilation");
         }
 
         var diagnostics = compilation.GetDiagnostics();

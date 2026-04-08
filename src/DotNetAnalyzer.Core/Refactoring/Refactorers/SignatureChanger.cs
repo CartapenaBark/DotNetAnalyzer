@@ -29,7 +29,7 @@ public sealed class SignatureChanger : IRefactorer
     /// <summary>
     /// 获取重构器描述
     /// </summary>
-    public string Description => "修改方法参数和返回类型";
+    public string Description => "Modify method parameters and return type";
 
     /// <summary>
     /// 获取重构器分类
@@ -155,7 +155,7 @@ public sealed class SignatureChanger : IRefactorer
         var previewGenerator = new RefactoringPreviewGenerator();
         var preview = await previewGenerator.GeneratePreviewAsync(context, changes);
 
-        preview.Description = $"修改方法 '{methodSymbol.Name}' 的签名，更新 {references.Count} 个调用点";
+        preview.Description = $"Modify signature of method '{methodSymbol.Name}', updating {references.Count} call site(s)";
         preview.Metadata["methodName"] = methodSymbol.Name;
         preview.Metadata["oldParameters"] = methodSymbol.Parameters.Select(p => p.Name).ToArray();
         preview.Metadata["newParameters"] = newParameters;

@@ -406,11 +406,13 @@ public sealed class XamlBindingValidationResult
 {
     /// <summary>验证通过的绑定列表。</summary>
     public required IReadOnlyList<XamlBindingValidationItem>
-        ValidBindings { get; init; } = [];
+        ValidBindings
+    { get; init; } = [];
 
     /// <summary>验证失败的绑定列表。</summary>
     public required IReadOnlyList<XamlBindingValidationItem>
-        InvalidBindings { get; init; } = [];
+        InvalidBindings
+    { get; init; } = [];
 
     /// <summary>总绑定数。</summary>
     public int TotalBindings =>

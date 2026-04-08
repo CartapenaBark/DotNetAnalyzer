@@ -5,6 +5,7 @@ using DotNetAnalyzer.Core.Architecture;
 using DotNetAnalyzer.Core.Architecture.Models;
 using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Reporting;
+using DotNetAnalyzer.Resources;
 using ModelContextProtocol.Server;
 
 namespace DotNetAnalyzer.Cli.Tools;
@@ -26,12 +27,11 @@ public static class ArchitectureTools
     /// <param name="engine">架构规则引擎</param>
     /// <param name="projectPath">项目文件路径（.csproj）</param>
     /// <returns>架构规则检查报告（JSON 格式）</returns>
-    [McpServerTool, Description(
-        "检查项目的架构规则合规性，从项目目录的 dotnet-analyzer.rules.json 读取规则配置")]
+    [McpServerTool, Description(ToolStrings.CheckArchitectureRules)]
     public static async Task<string> CheckArchitectureRules(
         IWorkspaceManager workspaceManager,
         ArchitectureRuleEngine engine,
-        [Description("项目文件路径（.csproj）")] string projectPath)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath)
     {
         try
         {
@@ -39,8 +39,8 @@ public static class ArchitectureTools
                 .GetProjectAsync(projectPath);
             if (project == null)
             {
-                return CreateErrorResponse(
-                    $"无法加载项目: {projectPath}");
+                return BaseTool.CreateErrorResponse(
+                    ToolStrings.FailedToLoadProject(projectPath));
             }
 
             var report = await engine.CheckAsync(project);
@@ -55,8 +55,8 @@ public static class ArchitectureTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse(
-                $"检查架构规则时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.ErrorCheckingArchitectureRules(ex.Message));
         }
     }
 
@@ -72,15 +72,12 @@ public static class ArchitectureTools
     /// <param name="projectPath">项目文件路径（.csproj）</param>
     /// <param name="rulesFilePath">可选的自定义规则文件路径</param>
     /// <returns>架构规则评估报告（JSON 格式）</returns>
-    [McpServerTool, Description(
-        "使用自定义规则文件评估项目架构合规性，支持指定外部规则文件路径")]
+    [McpServerTool, Description(ToolStrings.EvaluateArchitecture)]
     public static async Task<string> EvaluateArchitecture(
         IWorkspaceManager workspaceManager,
         ArchitectureRuleEngine engine,
-        [Description("项目文件路径（.csproj）")] string projectPath,
-        [Description(
-            "可选的自定义规则文件路径，默认使用项目目录下的 dotnet-analyzer.rules.json")]
-        string? rulesFilePath = null)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath,
+        [Description(ToolStrings.RulesFilePathParam)] string? rulesFilePath = null)
     {
         try
         {
@@ -88,8 +85,8 @@ public static class ArchitectureTools
                 .GetProjectAsync(projectPath);
             if (project == null)
             {
-                return CreateErrorResponse(
-                    $"无法加载项目: {projectPath}");
+                return BaseTool.CreateErrorResponse(
+                    ToolStrings.FailedToLoadProject(projectPath));
             }
 
             ArchitectureReport report;
@@ -115,13 +112,13 @@ public static class ArchitectureTools
         }
         catch (FileNotFoundException ex)
         {
-            return CreateErrorResponse(
-                $"规则配置文件未找到: {ex.Message}");
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.RuleConfigFileNotFound(ex.Message));
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse(
-                $"评估架构时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.ErrorEvaluatingArchitecture(ex.Message));
         }
     }
 
@@ -137,13 +134,12 @@ public static class ArchitectureTools
     /// <param name="projectPath">项目文件路径（.csproj）</param>
     /// <param name="rulesFilePath">可选的自定义规则文件路径</param>
     /// <returns>SARIF v2.1.0 格式的 JSON 字符串</returns>
-    [McpServerTool, Description(
-        "生成架构检查的 SARIF v2.1.0 报告，用于与 GitHub Code Scanning 等平台集成")]
+    [McpServerTool, Description(ToolStrings.GenerateArchitectureSarif)]
     public static async Task<string> GenerateArchitectureSarif(
         IWorkspaceManager workspaceManager,
         ArchitectureRuleEngine engine,
-        [Description("项目文件路径（.csproj）")] string projectPath,
-        [Description("可选的自定义规则文件路径")] string? rulesFilePath = null)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath,
+        [Description(ToolStrings.OptionalRulesFilePathParam)] string? rulesFilePath = null)
     {
         try
         {
@@ -151,8 +147,8 @@ public static class ArchitectureTools
                 .GetProjectAsync(projectPath);
             if (project == null)
             {
-                return CreateErrorResponse(
-                    $"无法加载项目: {projectPath}");
+                return BaseTool.CreateErrorResponse(
+                    ToolStrings.FailedToLoadProject(projectPath));
             }
 
             ArchitectureReport report;
@@ -174,17 +170,8 @@ public static class ArchitectureTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse(
-                $"生成 SARIF 报告时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(
+                ToolStrings.ErrorGeneratingArchitectureSarif(ex.Message));
         }
-    }
-
-    private static string CreateErrorResponse(string message)
-    {
-        return JsonSerializer.Serialize(new
-        {
-            success = false,
-            error = message
-        }, JsonOptions.Default);
     }
 }

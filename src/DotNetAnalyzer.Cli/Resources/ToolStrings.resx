@@ -1,0 +1,1213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- ============================================================ -->
+  <!-- Tool Descriptions (attr) -->
+  <!-- ============================================================ -->
+
+  <!-- AnalysisTools -->
+  <data name="AnalyzeCode_Description" xml:space="preserve">
+    <value>Analyze syntax and semantic structure of code, including syntax tree, type info, namespaces, classes, and methods</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetTestCoverage_Description" xml:space="preserve">
+    <value>Get project test coverage info; uses coverage.cobertura.xml real data when available, falls back to heuristic estimation</value>
+    <comment>attr</comment>
+  </data>
+  <data name="FindDeadCode_Description" xml:space="preserve">
+    <value>Find unused code</value>
+    <comment>attr</comment>
+  </data>
+  <data name="AnalyzePerformance_Description" xml:space="preserve">
+    <value>Analyze performance bottlenecks</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GenerateDocumentation_Description" xml:space="preserve">
+    <value>Generate project documentation from XML doc comments</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- ProjectTools -->
+  <data name="ListProjects_Description" xml:space="preserve">
+    <value>List all projects in the solution, including dependency analysis</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetProjectInfo_Description" xml:space="preserve">
+    <value>Get detailed project information</value>
+    <comment>attr</comment>
+  </data>
+  <data name="AnalyzeDependencies_Description" xml:space="preserve">
+    <value>Analyze project dependencies, including project references, package dependencies, transitive dependencies, and circular dependency detection</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetSolutionInfo_Description" xml:space="preserve">
+    <value>Get detailed solution information, including build order and startup projects</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- DiagnosticsTools -->
+  <data name="GetDiagnostics_Description" xml:space="preserve">
+    <value>Get C# compiler diagnostics (errors, warnings, info)</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- SymbolTools -->
+  <data name="FindReferences_Description" xml:space="preserve">
+    <value>Find all reference locations of a symbol, including cross-file references</value>
+    <comment>attr</comment>
+  </data>
+  <data name="FindDeclarations_Description" xml:space="preserve">
+    <value>Find declaration locations of a symbol, including base class members and interface members</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetSymbolInfo_Description" xml:space="preserve">
+    <value>Get detailed symbol information, including type, modifiers, and parameters</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- NavigationTools -->
+  <data name="GoToDefinition_Description" xml:space="preserve">
+    <value>Navigate to the definition of the symbol at the specified position</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetTypeHierarchy_Description" xml:space="preserve">
+    <value>Get the type inheritance hierarchy, including base types, derived types, and implemented interfaces</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetMemberHierarchy_Description" xml:space="preserve">
+    <value>Get the member override and implementation hierarchy</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetSemanticModel_Description" xml:space="preserve">
+    <value>Get semantic model information at the specified position, including symbol, type, and constant values</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetSyntaxTree_Description" xml:space="preserve">
+    <value>Get the syntax tree structure of a file</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetCodeMetrics_Description" xml:space="preserve">
+    <value>Get code metrics including cyclomatic complexity, maintainability index, etc.</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- RefactoringTools -->
+  <data name="ExtractMethod_Description" xml:space="preserve">
+    <value>Extract selected code into a new method</value>
+    <comment>attr</comment>
+  </data>
+  <data name="RenameSymbol_Description" xml:space="preserve">
+    <value>Rename a symbol (type, method, field, etc.) and update all references</value>
+    <comment>attr</comment>
+  </data>
+  <data name="IntroduceVariable_Description" xml:space="preserve">
+    <value>Extract an expression into a local variable</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ListRefactorers_Description" xml:space="preserve">
+    <value>List all available refactorers</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- CodeGenerationTools -->
+  <data name="GenerateInterfaceImpl_Description" xml:space="preserve">
+    <value>Generate interface implementation for a class</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GenerateConstructor_Description" xml:space="preserve">
+    <value>Generate constructor for a class</value>
+    <comment>attr</comment>
+  </data>
+  <data name="RemoveUnusedUsings_Description" xml:space="preserve">
+    <value>Remove unused using directives</value>
+    <comment>attr</comment>
+  </data>
+  <data name="SortUsings_Description" xml:space="preserve">
+    <value>Sort using directives</value>
+    <comment>attr</comment>
+  </data>
+  <data name="AddMissingImports_Description" xml:space="preserve">
+    <value>Add missing using directives</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- CallAnalysisTools -->
+  <data name="GetCallerInfo_Description" xml:space="preserve">
+    <value>Get all locations that call the specified method, including callers, call types, and call context</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetCalleeInfo_Description" xml:space="preserve">
+    <value>Get all methods called within a method, supporting cross-document resolution, interface/virtual dispatch, and cycle detection</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetCallGraph_Description" xml:space="preserve">
+    <value>Generate a complete call graph with nodes, edges, and metrics; supports multiple visualization formats (dot, svg, json, mermaid)</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- ComparisonTools -->
+  <data name="CompareSyntaxTrees_Description" xml:space="preserve">
+    <value>Compare syntax tree differences between two files, returning a structured diff list and statistics</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetCodeDiff_Description" xml:space="preserve">
+    <value>Generate code diff between two files in unified diff format with statistics</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ApplyCodeChange_Description" xml:space="preserve">
+    <value>Apply code changes to a file, optionally format the result, and return modified content with diagnostics</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- CodeActionsTools -->
+  <data name="GetCodeActions_Description" xml:space="preserve">
+    <value>Get available code actions at the specified position, including refactorings, fixes, and generations</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetRefactorings_Description" xml:space="preserve">
+    <value>Get available refactorings at the specified position, including preview and applicability checks</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetCompletionList_Description" xml:space="preserve">
+    <value>Get code completion suggestions at the specified position</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- AdvancedQueryTools -->
+  <data name="ResolveSymbol_Description" xml:space="preserve">
+    <value>Resolve the symbol at the specified position, supporting alias resolution and override resolution</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetDefinitionAndReferences_Description" xml:space="preserve">
+    <value>Get the symbol definition and all references in one call, including hierarchy</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetDocumentList_Description" xml:space="preserve">
+    <value>Get all document files in a project, including line counts and error status</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- CodeQualityTools -->
+  <data name="DetectCodeSmells_Description" xml:space="preserve">
+    <value>Detect code smells in the project</value>
+    <comment>attr</comment>
+  </data>
+  <data name="QuantifyTechnicalDebt_Description" xml:space="preserve">
+    <value>Quantify the project's technical debt</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GenerateQualityReport_Description" xml:space="preserve">
+    <value>Generate a comprehensive quality report for the project</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- MonitoringTools -->
+  <data name="StartFileWatching_Description" xml:space="preserve">
+    <value>Start file watching for incremental analysis</value>
+    <comment>attr</comment>
+  </data>
+  <data name="StopFileWatching_Description" xml:space="preserve">
+    <value>Stop file watching</value>
+    <comment>attr</comment>
+  </data>
+  <data name="AnalyzeChangeImpact_Description" xml:space="preserve">
+    <value>Analyze the impact scope of code changes (heuristic results)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetCacheStatistics_Description" xml:space="preserve">
+    <value>Get analysis cache statistics</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ClearCache_Description" xml:space="preserve">
+    <value>Clear analysis cache</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- VisualizationTools -->
+  <data name="GenerateDependencyGraph_Description" xml:space="preserve">
+    <value>Generate a dependency graph</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GenerateHeatmap_Description" xml:space="preserve">
+    <value>Generate an architecture heatmap</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- ArchitectureTools -->
+  <data name="CheckArchitectureRules_Description" xml:space="preserve">
+    <value>Check project architecture rule compliance, reading rule configuration from dotnet-analyzer.rules.json in the project directory</value>
+    <comment>attr</comment>
+  </data>
+  <data name="EvaluateArchitecture_Description" xml:space="preserve">
+    <value>Evaluate project architecture compliance using a custom rule file; supports specifying an external rule file path</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GenerateArchitectureSarif_Description" xml:space="preserve">
+    <value>Generate architecture check SARIF v2.1.0 report for integration with GitHub Code Scanning and other platforms</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- DecompilationTools -->
+  <data name="DecompileAssembly_Description" xml:space="preserve">
+    <value>Decompile a .NET assembly (DLL/EXE) into readable C# source code. Optional typeName parameter limits decompilation to a specific type.</value>
+    <comment>attr</comment>
+  </data>
+  <data name="AnalyzeIL_Description" xml:space="preserve">
+    <value>Analyze IL bytecode of a .NET assembly, detecting boxing/unboxing, virtual calls, exception handling, and other performance characteristics. Optional typeName limits analysis to a specific type.</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetAssemblyMetadata_Description" xml:space="preserve">
+    <value>Read .NET assembly metadata, including name, version, target framework, assembly references, and type statistics</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetApiSurface_Description" xml:space="preserve">
+    <value>Extract the API surface of a .NET assembly, including public/internal types and their members. Optional accessibility filter (Public, Internal, Protected, Private).</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- SecurityTools -->
+  <data name="ScanSecurityVulnerabilities_Description" xml:space="preserve">
+    <value>Scan project for security vulnerabilities (hardcoded credentials, SQL injection, command injection, unsafe deserialization, path traversal, XSS)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GenerateSecuritySarif_Description" xml:space="preserve">
+    <value>Generate security vulnerability SARIF v2.1.0 format report</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetSecurityRules_Description" xml:space="preserve">
+    <value>Get all registered security detection rules (SEC001-SEC006)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="CheckLicenseCompliance_Description" xml:space="preserve">
+    <value>Check license compliance of project dependencies</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- DependencyHealthTools -->
+  <data name="ScanNuGetVulnerabilities_Description" xml:space="preserve">
+    <value>Scan project NuGet dependencies for known vulnerabilities</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ScanDependenciesHealth_Description" xml:space="preserve">
+    <value>Scan project dependency health (outdated packages, deprecated packages, vulnerabilities, license compliance)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="DetectDependencyConflicts_Description" xml:space="preserve">
+    <value>Detect version conflicts where multiple projects in the solution use different versions of the same package</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- PerformanceTools -->
+  <data name="AnalyzeSolutionPerformance_Description" xml:space="preserve">
+    <value>Analyze solution performance metrics (project count, document count, lines of code, cache hit rate, optimization recommendations)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="OptimizeWorkspaceCache_Description" xml:space="preserve">
+    <value>Optimize workspace cache, releasing unnecessary cached entries</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GetWorkspaceStats_Description" xml:space="preserve">
+    <value>Get workspace runtime statistics (cache capacity, usage, hit rate, etc.)</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- XamlTools -->
+  <data name="AnalyzeXaml_Description" xml:space="preserve">
+    <value>Parse XAML file into a structured model, extracting element tree, namespaces, Binding expressions, and resource references</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ValidateBindings_Description" xml:space="preserve">
+    <value>Validate Binding expressions in a XAML file, checking whether paths correspond to valid properties on the ViewModel</value>
+    <comment>attr</comment>
+  </data>
+  <data name="AnalyzeXamlResources_Description" xml:space="preserve">
+    <value>Analyze XAML ResourceDictionary in the project, tracking resource definitions, references, and merge relationships; detect missing resources and duplicate keys</value>
+    <comment>attr</comment>
+  </data>
+  <data name="MapViewViewModel_Description" xml:space="preserve">
+    <value>Scan all XAML and C# files in the project to establish View-ViewModel mapping relationships</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- DesktopTools -->
+  <data name="DetectMvvmViolations_Description" xml:space="preserve">
+    <value>Detect MVVM pattern violations in the project (code-behind business logic, ViewModel referencing UI namespaces, Command not implementing ICommand)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="DetectAsyncAntipatterns_Description" xml:space="preserve">
+    <value>Detect async anti-patterns in the project (async void, .Result/.Wait() deadlock risk, fire-and-forget unawaited Task)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="AnalyzeDiRegistration_Description" xml:space="preserve">
+    <value>Analyze project DI registration completeness, scanning AddSingleton/AddScoped/AddTransient registrations and checking for missing dependencies</value>
+    <comment>attr</comment>
+  </data>
+  <data name="FindMissingDiRegistrations_Description" xml:space="preserve">
+    <value>Find constructor dependencies missing DI registration in the project, helping discover service registration omissions</value>
+    <comment>attr</comment>
+  </data>
+  <data name="DetectMemoryLeaks_Description" xml:space="preserve">
+    <value>Detect memory leak patterns in the project (unsubscribed events, undisposed IDisposable, static events holding instance references)</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- ProjectEditorTools -->
+  <data name="AddProjectReference_Description" xml:space="preserve">
+    <value>Add a ProjectReference to the project file</value>
+    <comment>attr</comment>
+  </data>
+  <data name="AddNuGetPackage_Description" xml:space="preserve">
+    <value>Add a NuGet package reference (PackageReference) to the project file</value>
+    <comment>attr</comment>
+  </data>
+  <data name="UpdateProjectProperty_Description" xml:space="preserve">
+    <value>Update an MSBuild property value in the project file; creates the property if it does not exist, updates it if it does</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- ============================================================ -->
+  <!-- Parameter Descriptions (attr) — Deduplicated -->
+  <!-- ============================================================ -->
+
+  <data name="ProjectPathParam" xml:space="preserve">
+    <value>Project path</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ProjectFilePathParam" xml:space="preserve">
+    <value>Project file path (.csproj)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ProjectOrSolutionPathParam" xml:space="preserve">
+    <value>Project or solution path</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ProjectOrSolutionFileParam" xml:space="preserve">
+    <value>Project file path (.csproj or .sln)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="SolutionPathParam" xml:space="preserve">
+    <value>Solution path</value>
+    <comment>attr</comment>
+  </data>
+  <data name="SolutionFileParam" xml:space="preserve">
+    <value>Solution path (.sln or .slnx)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="TargetProjectFilePathParam" xml:space="preserve">
+    <value>Target project file path (.csproj)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="FilePathParam" xml:space="preserve">
+    <value>File path</value>
+    <comment>attr</comment>
+  </data>
+  <data name="OptionalFilePathParam" xml:space="preserve">
+    <value>Optional: specific file diagnostics</value>
+    <comment>attr</comment>
+  </data>
+  <data name="XamlFilePathParam" xml:space="preserve">
+    <value>Absolute path of the XAML file</value>
+    <comment>attr</comment>
+  </data>
+  <data name="AssemblyPathParam" xml:space="preserve">
+    <value>Assembly file path (.dll or .exe)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="LineParam" xml:space="preserve">
+    <value>Line number (0-based)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ColumnParam" xml:space="preserve">
+    <value>Column number (0-based)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="StartLineParam" xml:space="preserve">
+    <value>Start line number (0-based)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="StartColumnParam" xml:space="preserve">
+    <value>Start column number (0-based)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="EndLineParam" xml:space="preserve">
+    <value>End line number (0-based)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="EndColumnParam" xml:space="preserve">
+    <value>End column number (0-based)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ReferencePathParam" xml:space="preserve">
+    <value>Referenced project file path</value>
+    <comment>attr</comment>
+  </data>
+  <data name="TypeNameParam" xml:space="preserve">
+    <value>Type name</value>
+    <comment>attr</comment>
+  </data>
+  <data name="MemberNameParam" xml:space="preserve">
+    <value>Member name</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ContainingTypeParam" xml:space="preserve">
+    <value>Containing type name</value>
+    <comment>attr</comment>
+  </data>
+  <data name="MethodNameParam" xml:space="preserve">
+    <value>New method name</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ClassNameParam" xml:space="preserve">
+    <value>Class name</value>
+    <comment>attr</comment>
+  </data>
+  <data name="InterfaceNameParam" xml:space="preserve">
+    <value>Interface name</value>
+    <comment>attr</comment>
+  </data>
+  <data name="NewNameParam" xml:space="preserve">
+    <value>New name</value>
+    <comment>attr</comment>
+  </data>
+  <data name="VariableNameParam" xml:space="preserve">
+    <value>Variable name (optional, auto-suggest if not provided)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="FormatParam" xml:space="preserve">
+    <value>Output format (markdown, html, json)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="SmellTypeParam" xml:space="preserve">
+    <value>Optional code smell type filter (e.g., long-method, large-class)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="MinSeverityParam" xml:space="preserve">
+    <value>Minimum severity (Minor, Major, Critical)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="SecurityMinSeverityParam" xml:space="preserve">
+    <value>Minimum report severity (Critical/High/Medium/Low/Information)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="IncludeSuggestionsParam" xml:space="preserve">
+    <value>Whether to include fix suggestions</value>
+    <comment>attr</comment>
+  </data>
+  <data name="IncludeTrendParam" xml:space="preserve">
+    <value>Whether to include trend analysis</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ChangedFilePathParam" xml:space="preserve">
+    <value>Changed file path</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ChangeTypeParam" xml:space="preserve">
+    <value>Change type (MethodSignature, TypeMemberChange, TypeDeletion, etc.)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ProjectOrDirectoryParam" xml:space="preserve">
+    <value>Project file path or directory</value>
+    <comment>attr</comment>
+  </data>
+  <data name="FileFilterParam" xml:space="preserve">
+    <value>File filter (e.g., *.cs)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GraphFormatParam" xml:space="preserve">
+    <value>Output format (mermaid, json, dot)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="MaxNodesParam" xml:space="preserve">
+    <value>Maximum node count (simplifies if exceeded)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="HeatmapTypeParam" xml:space="preserve">
+    <value>Heatmap type (complexity, change-frequency)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="PeriodDaysParam" xml:space="preserve">
+    <value>Change frequency lookback days (only effective for change-frequency type)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="RulesFilePathParam" xml:space="preserve">
+    <value>Optional custom rule file path; defaults to dotnet-analyzer.rules.json in the project directory</value>
+    <comment>attr</comment>
+  </data>
+  <data name="OptionalRulesFilePathParam" xml:space="preserve">
+    <value>Optional custom rule file path</value>
+    <comment>attr</comment>
+  </data>
+  <data name="OptionalTypeNameFilterParam" xml:space="preserve">
+    <value>Optional type name filter, only decompile matching types (supports partial matching)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="AccessibilityParam" xml:space="preserve">
+    <value>Accessibility filter (Public, Internal, Protected, Private)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="AllowedLicensesParam" xml:space="preserve">
+    <value>Allowed license list (comma-separated, empty means all allowed)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="OptionalSolutionPathParam" xml:space="preserve">
+    <value>Solution path (optional)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="StrategyParam" xml:space="preserve">
+    <value>Optimization strategy: auto (automatic) or aggressive (aggressive cleanup)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="FileContentParam" xml:space="preserve">
+    <value>File content</value>
+    <comment>attr</comment>
+  </data>
+  <data name="SortOrderParam" xml:space="preserve">
+    <value>Sort order (systemFirst/alphabetical/length)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="SuggestionsParam" xml:space="preserve">
+    <value>Suggested import list (optional)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="FieldsParam" xml:space="preserve">
+    <value>Field list (type name)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="BaseCallParam" xml:space="preserve">
+    <value>Base constructor call (optional)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="MaxDepthParam" xml:space="preserve">
+    <value>Maximum depth</value>
+    <comment>attr</comment>
+  </data>
+  <data name="IncludeIndirectParam" xml:space="preserve">
+    <value>Whether to include indirect calls</value>
+    <comment>attr</comment>
+  </data>
+  <data name="DepthParam" xml:space="preserve">
+    <value>Maximum recursion depth (default 10, 0 = direct calls only)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="VisualizationFormatParam" xml:space="preserve">
+    <value>Visualization format (dot, svg, json, mermaid)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="IgnoreWhitespaceParam" xml:space="preserve">
+    <value>Whether to ignore whitespace</value>
+    <comment>attr</comment>
+  </data>
+  <data name="IgnoreCommentsParam" xml:space="preserve">
+    <value>Whether to ignore comments</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ContextLinesParam" xml:space="preserve">
+    <value>Context lines</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ChangesJsonParam" xml:space="preserve">
+    <value>Change list (JSON format)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="FormatCodeParam" xml:space="preserve">
+    <value>Whether to format the modified code</value>
+    <comment>attr</comment>
+  </data>
+  <data name="CategoriesParam" xml:space="preserve">
+    <value>Action category filter (refactor, fix, generate, format)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="TriggerKindParam" xml:space="preserve">
+    <value>Trigger type (invoked, triggerCharacter, triggerForIncompleteCompletions)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ResolveOverridesParam" xml:space="preserve">
+    <value>Whether to resolve overrides</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ResolveAliasesParam" xml:space="preserve">
+    <value>Whether to resolve aliases</value>
+    <comment>attr</comment>
+  </data>
+  <data name="IncludeReferencesParam" xml:space="preserve">
+    <value>Whether to include references</value>
+    <comment>attr</comment>
+  </data>
+  <data name="IncludeHierarchyParam" xml:space="preserve">
+    <value>Whether to include hierarchy</value>
+    <comment>attr</comment>
+  </data>
+  <data name="DocumentFilterParam" xml:space="preserve">
+    <value>File filter (e.g., *.cs)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ApplyChangesParam" xml:space="preserve">
+    <value>Whether to apply changes (default false, preview only)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="RenameInCommentsParam" xml:space="preserve">
+    <value>Whether to rename in comments</value>
+    <comment>attr</comment>
+  </data>
+  <data name="RenameInStringsParam" xml:space="preserve">
+    <value>Whether to rename in strings</value>
+    <comment>attr</comment>
+  </data>
+  <data name="GenerateStubParam" xml:space="preserve">
+    <value>Generate stub implementation</value>
+    <comment>attr</comment>
+  </data>
+  <data name="ReportFormatParam" xml:space="preserve">
+    <value>Report format (markdown, json)</value>
+    <comment>attr</comment>
+  </data>
+  <data name="PackageIdParam" xml:space="preserve">
+    <value>NuGet package ID</value>
+    <comment>attr</comment>
+  </data>
+  <data name="PackageVersionParam" xml:space="preserve">
+    <value>Package version</value>
+    <comment>attr</comment>
+  </data>
+  <data name="PropertyNameParam" xml:space="preserve">
+    <value>MSBuild property name</value>
+    <comment>attr</comment>
+  </data>
+  <data name="PropertyValueParam" xml:space="preserve">
+    <value>Property value</value>
+    <comment>attr</comment>
+  </data>
+  <data name="OptionalRangeParam" xml:space="preserve">
+    <value>Optional range constraint</value>
+    <comment>attr</comment>
+  </data>
+  <data name="IncludeTriviaParam" xml:space="preserve">
+    <value>Whether to include trivia</value>
+    <comment>attr</comment>
+  </data>
+
+  <!-- ============================================================ -->
+  <!-- Runtime Error/Status Messages (runtime / core) — Deduplicated -->
+  <!-- ============================================================ -->
+
+  <!-- File/Project errors -->
+  <data name="FileNotFound" xml:space="preserve">
+    <value>File not found: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="PathNotFound" xml:space="preserve">
+    <value>Path not found: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ParameterRangeInvalid" xml:space="preserve">
+    <value>{0} must be between {1} and {2}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ParameterNonNegative" xml:space="preserve">
+    <value>{0} must be greater than or equal to 0</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ParameterRequired" xml:space="preserve">
+    <value>{0} cannot be empty</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="FileNotInProject" xml:space="preserve">
+    <value>File not in project: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="FailedToLoadProject" xml:space="preserve">
+    <value>Failed to load project: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="FailedToLoadProjectOrSolution" xml:space="preserve">
+    <value>Failed to load project or solution: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="FailedToGetSyntaxTree" xml:space="preserve">
+    <value>Failed to get syntax tree: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="FailedToGetSyntaxTreeGeneric" xml:space="preserve">
+    <value>Failed to get syntax tree</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="FailedToGetSemanticModel" xml:space="preserve">
+    <value>Failed to get semantic model: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="FailedToGetSemanticModelOrRoot" xml:space="preserve">
+    <value>Failed to get semantic model or syntax root</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="SymbolNotFoundAtPosition" xml:space="preserve">
+    <value>Symbol not found at specified position: {0}:{1}:{2}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="FailedToResolveSymbol" xml:space="preserve">
+    <value>Failed to resolve symbol at the specified position</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ProjectPathRequired" xml:space="preserve">
+    <value>Project path cannot be empty</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="FilePathRequired" xml:space="preserve">
+    <value>File path cannot be empty</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="LineColumnNonNegative" xml:space="preserve">
+    <value>Line and column numbers must be greater than or equal to 0</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="DepthNonNegative" xml:space="preserve">
+    <value>Recursion depth must be greater than or equal to 0</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="MaxDepthMinimum" xml:space="preserve">
+    <value>Maximum depth must be greater than or equal to 1</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ContextLinesNonNegative" xml:space="preserve">
+    <value>Context lines must be greater than or equal to 0</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ChangesJsonRequired" xml:space="preserve">
+    <value>Change list cannot be empty</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="AssemblyPathRequired" xml:space="preserve">
+    <value>Assembly path cannot be empty</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="AssemblyFileMustBeDllOrExe" xml:space="preserve">
+    <value>Assembly file must be in .dll or .exe format</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="RuleConfigFileNotFound" xml:space="preserve">
+    <value>Rule configuration file not found: {0}</value>
+    <comment>runtime</comment>
+  </data>
+
+  <!-- Tool-specific error prefixes -->
+  <data name="ErrorAnalyzingCode" xml:space="preserve">
+    <value>Error analyzing code: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingTestCoverage" xml:space="preserve">
+    <value>Error getting test coverage: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorFindingDeadCode" xml:space="preserve">
+    <value>Error finding dead code: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorAnalyzingPerformance" xml:space="preserve">
+    <value>Error analyzing performance: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGeneratingDocumentation" xml:space="preserve">
+    <value>Error generating documentation: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorFindingReferences" xml:space="preserve">
+    <value>Error finding references: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorFindingDeclarations" xml:space="preserve">
+    <value>Error finding declarations: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingSymbolInfo" xml:space="preserve">
+    <value>Error getting symbol info: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGoingToDefinition" xml:space="preserve">
+    <value>Error navigating to definition: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingTypeHierarchy" xml:space="preserve">
+    <value>Error getting type hierarchy: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingMemberHierarchy" xml:space="preserve">
+    <value>Error getting member hierarchy: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingSemanticModel" xml:space="preserve">
+    <value>Error getting semantic model info: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingSyntaxTree" xml:space="preserve">
+    <value>Error getting syntax tree structure: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingCodeMetrics" xml:space="preserve">
+    <value>Error getting code metrics: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorExtractingMethod" xml:space="preserve">
+    <value>Error extracting method: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorRenamingSymbol" xml:space="preserve">
+    <value>Error renaming symbol: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorIntroducingVariable" xml:space="preserve">
+    <value>Error introducing variable: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorListingRefactorers" xml:space="preserve">
+    <value>Error listing refactorers: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGeneratingInterfaceImpl" xml:space="preserve">
+    <value>Error generating interface implementation: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGeneratingConstructor" xml:space="preserve">
+    <value>Error generating constructor: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorRemovingUnusedUsings" xml:space="preserve">
+    <value>Error removing unused usings: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorSortingUsings" xml:space="preserve">
+    <value>Error sorting usings: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorAddingMissingImports" xml:space="preserve">
+    <value>Error adding missing usings: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingCallerInfo" xml:space="preserve">
+    <value>Error getting caller info: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingCalleeInfo" xml:space="preserve">
+    <value>Error getting callee info: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGeneratingCallGraph" xml:space="preserve">
+    <value>Error generating call graph: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorComparingSyntaxTrees" xml:space="preserve">
+    <value>Error comparing syntax trees: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingCodeDiff" xml:space="preserve">
+    <value>Error getting code diff: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorApplyingCodeChange" xml:space="preserve">
+    <value>Error applying code change: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingCodeActions" xml:space="preserve">
+    <value>Error getting code actions: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingRefactorings" xml:space="preserve">
+    <value>Error getting refactorings: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingCompletionList" xml:space="preserve">
+    <value>Error getting completion list: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorResolvingSymbol" xml:space="preserve">
+    <value>Error resolving symbol: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingDefinitionAndReferences" xml:space="preserve">
+    <value>Error getting definition and references: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingDocumentList" xml:space="preserve">
+    <value>Error getting document list: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorDetectingCodeSmells" xml:space="preserve">
+    <value>Code smell detection failed: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorQuantifyingTechnicalDebt" xml:space="preserve">
+    <value>Technical debt quantification failed: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGeneratingQualityReport" xml:space="preserve">
+    <value>Quality report generation failed: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorStartingFileWatching" xml:space="preserve">
+    <value>Failed to start file watching: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorStoppingFileWatching" xml:space="preserve">
+    <value>Failed to stop file watching: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorAnalyzingChangeImpact" xml:space="preserve">
+    <value>Change impact analysis failed: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingCacheStatistics" xml:space="preserve">
+    <value>Failed to get cache statistics: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorClearingCache" xml:space="preserve">
+    <value>Failed to clear cache: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGeneratingDependencyGraph" xml:space="preserve">
+    <value>Failed to generate dependency graph: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGeneratingHeatmap" xml:space="preserve">
+    <value>Failed to generate heatmap: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorCheckingArchitectureRules" xml:space="preserve">
+    <value>Error checking architecture rules: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorEvaluatingArchitecture" xml:space="preserve">
+    <value>Error evaluating architecture: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGeneratingArchitectureSarif" xml:space="preserve">
+    <value>Error generating SARIF report: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorDecompilingAssembly" xml:space="preserve">
+    <value>Error decompiling assembly: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="DecompileFailed" xml:space="preserve">
+    <value>Decompilation failed</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorAnalyzingIL" xml:space="preserve">
+    <value>Error analyzing IL: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingAssemblyMetadata" xml:space="preserve">
+    <value>Error reading assembly metadata: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ReadMetadataFailed" xml:space="preserve">
+    <value>Failed to read metadata</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingApiSurface" xml:space="preserve">
+    <value>Error extracting API surface: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorScanningSecurityVulnerabilities" xml:space="preserve">
+    <value>Error scanning security vulnerabilities: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGeneratingSecuritySarif" xml:space="preserve">
+    <value>Error generating security SARIF report: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorCheckingLicenseCompliance" xml:space="preserve">
+    <value>Error checking license compliance: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorScanningNuGetVulnerabilities" xml:space="preserve">
+    <value>Error scanning NuGet vulnerabilities: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorScanningDependenciesHealth" xml:space="preserve">
+    <value>Error scanning dependency health: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorDetectingDependencyConflicts" xml:space="preserve">
+    <value>Error detecting dependency conflicts: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorAnalyzingSolutionPerformance" xml:space="preserve">
+    <value>Error analyzing solution performance: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorOptimizingWorkspaceCache" xml:space="preserve">
+    <value>Error optimizing workspace cache: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorGettingWorkspaceStats" xml:space="preserve">
+    <value>Error getting workspace statistics: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorAnalyzingXaml" xml:space="preserve">
+    <value>Error parsing XAML file: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorValidatingBindings" xml:space="preserve">
+    <value>Error validating XAML bindings: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorAnalyzingXamlResources" xml:space="preserve">
+    <value>Error analyzing XAML resources: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorMappingViewViewModel" xml:space="preserve">
+    <value>Error mapping View-ViewModel: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorDetectingMvvmViolations" xml:space="preserve">
+    <value>Error detecting MVVM violations: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorDetectingAsyncAntipatterns" xml:space="preserve">
+    <value>Error detecting async anti-patterns: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorAnalyzingDiRegistration" xml:space="preserve">
+    <value>Error analyzing DI registration: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorFindingMissingDiRegistrations" xml:space="preserve">
+    <value>Error finding missing DI registrations: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorDetectingMemoryLeaks" xml:space="preserve">
+    <value>Error detecting memory leaks: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorAddingProjectReference" xml:space="preserve">
+    <value>Error adding project reference: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorAddingNuGetPackage" xml:space="preserve">
+    <value>Error adding NuGet package: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="ErrorUpdatingProjectProperty" xml:space="preserve">
+    <value>Error updating project property: {0}</value>
+    <comment>runtime</comment>
+  </data>
+
+  <!-- Status messages (runtime) -->
+  <data name="AlreadyWatching" xml:space="preserve">
+    <value>Already watching path: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="StartedWatching" xml:space="preserve">
+    <value>Started watching path: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="NotWatching" xml:space="preserve">
+    <value>Not watching path: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="StoppedWatching" xml:space="preserve">
+    <value>Stopped watching path: {0}</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="CacheCleared" xml:space="preserve">
+    <value>Cache cleared</value>
+    <comment>runtime</comment>
+  </data>
+  <data name="RefactoringCompleted" xml:space="preserve">
+    <value>Refactoring completed</value>
+    <comment>runtime</comment>
+  </data>
+
+  <!-- Core-layer strings (core) -->
+  <data name="CoverageVerifiedSummary" xml:space="preserve">
+    <value>Coverage data from coverage.cobertura.xml; results can be treated as stable behavior.</value>
+    <comment>core</comment>
+  </data>
+  <data name="CoverageHeuristicSummary" xml:space="preserve">
+    <value>Current coverage results are based on test file naming and heuristic estimation; they do not equate to real coverage collection results.</value>
+    <comment>core</comment>
+  </data>
+  <data name="CoverageHeuristicRemediation" xml:space="preserve">
+    <value>Run 'dotnet test --collect:"XPlat Code Coverage"' to generate a coverage file and obtain real data.</value>
+    <comment>core</comment>
+  </data>
+  <data name="CalleeVerifiedSummary" xml:space="preserve">
+    <value>Cross-document callee analysis based on real semantic model, supporting interface/virtual dispatch.</value>
+    <comment>core</comment>
+  </data>
+  <data name="ChangeImpactHeuristicSummary" xml:space="preserve">
+    <value>Current impact analysis only covers direct public symbol references; it does not include full transitive dependencies and precise test mapping.</value>
+    <comment>core</comment>
+  </data>
+  <data name="ChangeImpactHeuristicRemediation" xml:space="preserve">
+    <value>Dependency graph and test reference analysis need to be added to upgrade to stable results.</value>
+    <comment>core</comment>
+  </data>
+  <data name="HeatmapComplexitySummary" xml:space="preserve">
+    <value>Complexity heatmap generated based on real code smell analysis.</value>
+    <comment>core</comment>
+  </data>
+  <data name="HeatmapChangeFrequencySummary" xml:space="preserve">
+    <value>Change frequency heatmap generated based on real Git history records.</value>
+    <comment>core</comment>
+  </data>
+  <data name="SourceCodeTruncated" xml:space="preserve">
+    <value>... [truncated, source code too long] ...</value>
+    <comment>core</comment>
+  </data>
+</root>

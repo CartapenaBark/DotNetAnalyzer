@@ -5,6 +5,7 @@ using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Metrics;
 using DotNetAnalyzer.Core.Models;
 using DotNetAnalyzer.Core.Navigation;
+using DotNetAnalyzer.Resources;
 using ModelContextProtocol.Server;
 
 namespace DotNetAnalyzer.Cli.Tools;
@@ -18,12 +19,12 @@ public static class NavigationTools
     /// <summary>
     /// 跳转到符号定义
     /// </summary>
-    [McpServerTool, Description("跳转到指定位置符号的定义位置")]
+    [McpServerTool, Description(ToolStrings.GoToDefinition)]
     public static async Task<string> GoToDefinition(
         IWorkspaceManager workspaceManager,
-        [Description("文件路径")] string filePath,
-        [Description("行号（从0开始）")] int line,
-        [Description("列号（从0开始）")] int column)
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.LineParam)] int line,
+        [Description(ToolStrings.ColumnParam)] int column)
     {
         try
         {
@@ -34,18 +35,18 @@ public static class NavigationTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"跳转到定义时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGoingToDefinition(ex.Message));
         }
     }
 
     /// <summary>
     /// 获取类型层次结构
     /// </summary>
-    [McpServerTool, Description("获取类型的继承层次结构，包括基类型、派生类型和实现的接口")]
+    [McpServerTool, Description(ToolStrings.GetTypeHierarchy)]
     public static async Task<string> GetTypeHierarchy(
         IWorkspaceManager workspaceManager,
-        [Description("项目路径")] string projectPath,
-        [Description("类型名称")] string typeName)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath,
+        [Description(ToolStrings.TypeNameParam)] string typeName)
     {
         try
         {
@@ -60,19 +61,19 @@ public static class NavigationTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"获取类型层次结构时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGettingTypeHierarchy(ex.Message));
         }
     }
 
     /// <summary>
     /// 获取成员层次结构
     /// </summary>
-    [McpServerTool, Description("获取成员的重写和实现层次结构")]
+    [McpServerTool, Description(ToolStrings.GetMemberHierarchy)]
     public static async Task<string> GetMemberHierarchy(
         IWorkspaceManager workspaceManager,
-        [Description("成员名称")] string memberName,
-        [Description("所属类型名称")] string containingType,
-        [Description("项目路径")] string projectPath)
+        [Description(ToolStrings.MemberNameParam)] string memberName,
+        [Description(ToolStrings.ContainingTypeParam)] string containingType,
+        [Description(ToolStrings.ProjectPathParam)] string projectPath)
     {
         try
         {
@@ -87,19 +88,19 @@ public static class NavigationTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"获取成员层次结构时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGettingMemberHierarchy(ex.Message));
         }
     }
 
     /// <summary>
     /// 获取语义模型信息
     /// </summary>
-    [McpServerTool, Description("获取指定位置的语义模型信息，包括符号、类型、常量值等")]
+    [McpServerTool, Description(ToolStrings.GetSemanticModel)]
     public static async Task<string> GetSemanticModel(
         IWorkspaceManager workspaceManager,
-        [Description("文件路径")] string filePath,
-        [Description("行号（从0开始）")] int line,
-        [Description("列号（从0开始）")] int column)
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.LineParam)] int line,
+        [Description(ToolStrings.ColumnParam)] int column)
     {
         try
         {
@@ -114,20 +115,20 @@ public static class NavigationTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"获取语义模型信息时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGettingSemanticModel(ex.Message));
         }
     }
 
     /// <summary>
     /// 获取语法树结构
     /// </summary>
-    [McpServerTool, Description("获取文件的语法树结构")]
+    [McpServerTool, Description(ToolStrings.GetSyntaxTree)]
     public static async Task<string> GetSyntaxTree(
         IWorkspaceManager workspaceManager,
-        [Description("文件路径")] string filePath,
-        [Description("可选的范围限制")] string? range = null,
-        [Description("最大深度")] int maxDepth = 100,
-        [Description("是否包含 trivia")] bool includeTrivia = false)
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.OptionalRangeParam)] string? range = null,
+        [Description(ToolStrings.MaxDepthParam)] int maxDepth = 100,
+        [Description(ToolStrings.IncludeTriviaParam)] bool includeTrivia = false)
     {
         try
         {
@@ -155,18 +156,18 @@ public static class NavigationTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"获取语法树结构时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGettingSyntaxTree(ex.Message));
         }
     }
 
     /// <summary>
     /// 获取代码度量
     /// </summary>
-    [McpServerTool, Description("获取代码度量信息，包括圈复杂度、维护性指数等")]
+    [McpServerTool, Description(ToolStrings.GetCodeMetrics)]
     public static async Task<string> GetCodeMetrics(
         IWorkspaceManager workspaceManager,
-        [Description("项目路径")] string projectPath,
-        [Description("文件路径")] string filePath)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath,
+        [Description(ToolStrings.FilePathParam)] string filePath)
     {
         try
         {
@@ -181,16 +182,8 @@ public static class NavigationTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"获取代码度量时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGettingCodeMetrics(ex.Message));
         }
     }
 
-    private static string CreateErrorResponse(string message)
-    {
-        return JsonSerializer.Serialize(new
-        {
-            success = false,
-            error = message
-        }, JsonOptions.Default);
-    }
 }

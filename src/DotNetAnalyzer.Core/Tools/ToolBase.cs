@@ -2,7 +2,6 @@ using System.ComponentModel;
 using System.Text.Json;
 using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Json;
-using DotNetAnalyzer.Core.Localization;
 using Microsoft.CodeAnalysis;
 
 namespace DotNetAnalyzer.Core.Tools;
@@ -17,19 +16,13 @@ public abstract class ToolBase
     /// </summary>
     /// <param name="ex">异常对象</param>
     /// <param name="operation">操作名称</param>
-    /// <param name="culture">文化信息（可选）</param>
     /// <returns>JSON 错误响应</returns>
-    protected static string HandleError(Exception ex, string operation, System.Globalization.CultureInfo? culture = null)
+    protected static string HandleError(Exception ex, string operation)
     {
-        var errorMessage = ErrorMessages.GetErrorMessage(
-            operation,
-            ex.Message,
-            culture ?? System.Globalization.CultureInfo.CurrentCulture);
-
         return JsonSerializer.Serialize(new
         {
             success = false,
-            error = errorMessage
+            error = $"Error in {operation}: {ex.Message}"
         }, JsonOptions.Default);
     }
 

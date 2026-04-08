@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Roslyn;
+using DotNetAnalyzer.Resources;
 using ModelContextProtocol.Server;
 
 namespace DotNetAnalyzer.Cli.Tools;
@@ -20,10 +21,10 @@ public static class ProjectTools
     /// <param name="workspaceManager">Roslyn 工作区管理器</param>
     /// <param name="solutionPath">解决方案路径</param>
     /// <returns>项目列表的 JSON 字符串</returns>
-    [McpServerTool, Description("列出解决方案中的所有项目，包括依赖关系分析")]
+    [McpServerTool, Description(ToolStrings.ListProjects)]
     public static async Task<string> ListProjects(
         IWorkspaceManager workspaceManager,
-        [Description("解决方案路径")] string solutionPath)
+        [Description(ToolStrings.SolutionPathParam)] string solutionPath)
     {
         try
         {
@@ -93,10 +94,10 @@ public static class ProjectTools
     /// <param name="workspaceManager">Roslyn 工作区管理器</param>
     /// <param name="projectPath">项目路径</param>
     /// <returns>项目详细信息的 JSON 字符串</returns>
-    [McpServerTool, Description("获取项目的详细信息")]
+    [McpServerTool, Description(ToolStrings.GetProjectInfo)]
     public static async Task<string> GetProjectInfo(
         IWorkspaceManager workspaceManager,
-        [Description("项目路径")] string projectPath)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath)
     {
         try
         {
@@ -165,10 +166,10 @@ public static class ProjectTools
     /// <param name="workspaceManager">Roslyn 工作区管理器</param>
     /// <param name="projectPath">项目路径</param>
     /// <returns>依赖关系分析结果 JSON 字符串</returns>
-    [McpServerTool, Description("分析项目的依赖关系，包括项目引用、包依赖、传递依赖和循环依赖检测")]
+    [McpServerTool, Description(ToolStrings.AnalyzeDependencies)]
     public static async Task<string> AnalyzeDependencies(
         IWorkspaceManager workspaceManager,
-        [Description("项目路径")] string projectPath)
+        [Description(ToolStrings.ProjectPathParam)] string projectPath)
     {
         try
         {
@@ -200,10 +201,10 @@ public static class ProjectTools
     /// <param name="workspaceManager">Roslyn 工作区管理器</param>
     /// <param name="solutionPath">解决方案路径</param>
     /// <returns>解决方案详细信息的 JSON 字符串</returns>
-    [McpServerTool, Description("获取解决方案的详细信息，包括构建顺序和启动项目")]
+    [McpServerTool, Description(ToolStrings.GetSolutionInfo)]
     public static async Task<string> GetSolutionInfo(
         IWorkspaceManager workspaceManager,
-        [Description("解决方案路径")] string solutionPath)
+        [Description(ToolStrings.SolutionPathParam)] string solutionPath)
     {
         try
         {

@@ -133,7 +133,7 @@ public class ProjectFileEditorTests : IDisposable
             var result = await _editor.AddPackageReference(
                 csproj, "Newtonsoft.Json", "13.0.3");
             result.Success.Should().BeFalse();
-            result.Error.Should().Contain("已存在");
+            result.Error.Should().Contain("already exists");
         }
         else
         {

@@ -28,7 +28,7 @@ public sealed class InterfaceExtractor : IRefactorer
     /// <summary>
     /// 获取重构器描述
     /// </summary>
-    public string Description => "从类中提取接口定义";
+    public string Description => "Extract interface definition from class";
 
     /// <summary>
     /// 获取重构器分类
@@ -177,7 +177,7 @@ public sealed class InterfaceExtractor : IRefactorer
         var previewGenerator = new RefactoringPreviewGenerator();
         var preview = await previewGenerator.GeneratePreviewAsync(context, changes);
 
-        preview.Description = $"从类 '{typeSymbol.Name}' 提取接口 '{interfaceName}'，包含 {membersToExtract.Count} 个成员";
+        preview.Description = $"Extract interface '{interfaceName}' from class '{typeSymbol.Name}' with {membersToExtract.Count} member(s)";
         preview.Metadata["className"] = typeSymbol.Name;
         preview.Metadata["interfaceName"] = interfaceName;
         preview.Metadata["memberCount"] = membersToExtract.Count;

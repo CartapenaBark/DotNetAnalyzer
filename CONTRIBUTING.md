@@ -1,3 +1,5 @@
+[English](CONTRIBUTING.en.md) | 中文版
+
 # 贡献指南
 
 感谢您对 DotNetAnalyzer 的关注！我们欢迎各种形式的贡献。

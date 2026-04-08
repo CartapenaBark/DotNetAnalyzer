@@ -1,111 +1,111 @@
-## 描述
+## Description
 
-<!-- 简要描述此 PR 的变更内容 -->
+<!-- Briefly describe the changes in this PR -->
 
-此 PR 实现了以下变更：
+This PR implements the following changes:
 
-- [ ] 新功能
-- [ ] Bug 修复
-- [ ] 代码重构
-- [ ] 性能改进
-- [ ] 文档更新
-- [ ] 测试添加/更新
-- [ ] 其他（请说明）
+- [ ] New feature
+- [ ] Bug fix
+- [ ] Code refactoring
+- [ ] Performance improvement
+- [ ] Documentation update
+- [ ] Test addition/update
+- [ ] Other (please specify)
 
-## 关联 Issue
+## Related Issues
 
-<!-- 关联相关 issue，使用 `Closes #xxx` 或 `Fixes #xxx` 自动关闭 issue -->
+<!-- Link related issues. Use `Closes #xxx` or `Fixes #xxx` to automatically close the issue -->
 
 Closes #xxx
 Related to #xxx
 
-## 变更类型
+## Change Type
 
-<!-- 选择适用的变更类型 -->
+<!-- Select the applicable change type -->
 
-- [ ] **破坏性变更** - 此 PR 会影响现有功能或 API（请在下面说明）
-- [ ] **新功能** - 添加了新的 MCP 工具或功能
-- [ ] **Bug 修复** - 修复了报告的问题
-- [ ] **改进** - 改进了现有功能
-- [ ] **文档** - 更新或改进了文档
-- [ ] **测试** - 添加或改进了测试
-- [ ] **重构** - 代码重构，没有功能变更
-- [ ] **其他** - 其他类型变更
+- [ ] **Breaking change** - This PR affects existing functionality or API (please explain below)
+- [ ] **New feature** - Added a new MCP tool or capability
+- [ ] **Bug fix** - Fixed a reported issue
+- [ ] **Improvement** - Improved existing functionality
+- [ ] **Documentation** - Updated or improved documentation
+- [ ] **Tests** - Added or improved tests
+- [ ] **Refactoring** - Code refactoring with no functional changes
+- [ ] **Other** - Other type of change
 
-## 变更内容
+## Changes
 
-<!-- 详细说明您做了什么 -->
+<!-- Describe in detail what you did -->
 
-### 新增功能
-<!-- 如果有新功能，描述如何使用 -->
+### New Features
+<!-- If there are new features, describe how to use them -->
 
-### Bug 修复
-<!-- 如果修复了 bug，描述 bug 原因和修复方式 -->
+### Bug Fixes
+<!-- If you fixed a bug, describe the root cause and how it was fixed -->
 
-### 代码重构
-<!-- 如果重构了代码，解释重构原因 -->
+### Code Refactoring
+<!-- If you refactored code, explain the reason -->
 
-### 文档更新
-<!-- 如果更新了文档，列出更新的文件 -->
+### Documentation Updates
+<!-- If you updated documentation, list the files updated -->
 
-## 测试
+## Testing
 
-<!-- 描述您如何测试这些变更 -->
+<!-- Describe how you tested these changes -->
 
-- [ ] 单元测试通过（`dotnet test`）
-- [ ] 手动测试通过
-- [ ] 添加了新的测试用例
+- [ ] Unit tests pass (`dotnet test`)
+- [ ] Manual testing pass
+- [ ] Added new test cases
 
-### 测试场景
-<!-- 描述测试的场景 -->
+### Test Scenarios
+<!-- Describe the test scenarios -->
 
 1.
 2.
 3.
 
-## 截图/示例
+## Screenshots / Examples
 
-<!-- 如果适用，添加截图或示例代码 -->
+<!-- If applicable, add screenshots or example code -->
 
-## 检查清单
+## Checklist
 
-<!-- 在完成相关任务后勾选 -->
+<!-- Check off items as they are completed -->
 
-- [ ] 代码遵循项目的 [编码标准](../docs/CODING_STANDARDS.md)
-- [ ] 我已执行 `dotnet format` 或使用编辑器格式化代码
-- [ ] 添加了 XML 文档注释（public API）
-- [ ] 更新了相关文档（README、CHANGELOG、API 指南等）
-- [ ] 添加了测试用例
-- [ ] 所有测试通过
-- [ ] 没有引入新的编译警告
-- [ ] 我已阅读 [CONTRIBUTING.md](../CONTRIBUTING.md)
-- [ ] 此 PR 对应一个 issue（或文档更新）
+- [ ] Code follows the project's [Coding Standards](../docs/CODING_STANDARDS.md)
+- [ ] I have run `dotnet format` or formatted the code using an editor
+- [ ] Added XML documentation comments (public API)
+- [ ] Updated relevant documentation (README, CHANGELOG, API guide, etc.)
+- [ ] Added test cases
+- [ ] All tests pass
+- [ ] No new compilation warnings were introduced
+- [ ] I have read [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [ ] This PR corresponds to an issue (or is a documentation update)
 
-## 破坏性变更
+## Breaking Changes
 
-<!-- 如果有破坏性变更，请详细说明 -->
+<!-- If there are breaking changes, please describe them in detail -->
 
-**不适用** 或 **以下变更会影响现有功能：**
+**Not applicable** or **The following changes affect existing functionality:**
 
-- 变更描述
-- 迁移指南
+- Change description
+- Migration guide
 
-## 其他信息
+## Additional Information
 
-<!-- 任何其他有助于审查此 PR 的信息 -->
+<!-- Any other information that would help reviewers evaluate this PR -->
 
 ---
 
-## 审查者指南
+## Reviewer Guide
 
-### 关注点
-<!-- 列出审查者应该特别关注的部分 -->
+### Focus Areas
+<!-- List areas that reviewers should pay special attention to -->
 
 1.
 2.
 3.
 
-### 测试建议
-<!-- 建议审查者如何测试这些变更 -->
+### Testing Suggestions
+<!-- Suggest how reviewers should test these changes -->
 
-<!-- 感谢您的贡献！🎉 -->
+<!-- Thank you for your contribution! 🎉 -->

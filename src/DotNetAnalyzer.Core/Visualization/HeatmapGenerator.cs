@@ -53,7 +53,7 @@ public class HeatmapGenerator
             repositoryPath, periodDays, cancellationToken);
 
         var data = GenerateChangeFrequencyHeatmap(changeHistory);
-        data.Title = $"变更频率热力图（最近 {periodDays} 天）";
+        data.Title = $"Change frequency heatmap (last {periodDays} days)";
 
         return data;
     }
@@ -67,7 +67,7 @@ public class HeatmapGenerator
     {
         var data = new HeatmapData
         {
-            Title = "代码复杂度热力图",
+            Title = "Code complexity heatmap",
             Type = HeatmapType.Complexity
         };
 
@@ -97,7 +97,7 @@ public class HeatmapGenerator
             {
                 Label = fileName,
                 Value = complexityScore,
-                Tooltip = $"{fileName}: {smells.Count} 个代码异味",
+                Tooltip = $"{fileName}: {smells.Count} code smells",
                 Metadata = new Dictionary<string, object>
                 {
                     ["filePath"] = kvp.Key,
@@ -124,7 +124,7 @@ public class HeatmapGenerator
     {
         var data = new HeatmapData
         {
-            Title = "变更频率热力图",
+            Title = "Change frequency heatmap",
             Type = HeatmapType.ChangeFrequency
         };
 
@@ -141,7 +141,7 @@ public class HeatmapGenerator
             {
                 Label = fileName,
                 Value = changeCount,
-                Tooltip = $"{fileName}: {changeCount} 次变更",
+                Tooltip = $"{fileName}: {changeCount} changes",
                 Metadata = new Dictionary<string, object>
                 {
                     ["filePath"] = group.Key,

@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Roslyn;
+using DotNetAnalyzer.Resources;
 using ModelContextProtocol.Server;
 
 namespace DotNetAnalyzer.Cli.Tools;
@@ -17,13 +18,13 @@ public static partial class SymbolTools
     /// <summary>
     /// 查找符号的所有引用
     /// </summary>
-    [McpServerTool, Description("查找符号的所有引用位置，包括跨文件引用")]
+    [McpServerTool, Description(ToolStrings.FindReferences)]
     public static async Task<string> FindReferences(
         IWorkspaceManager workspaceManager,
-        [Description("项目或解决方案路径")] string projectPath,
-        [Description("文件路径")] string filePath,
-        [Description("行号（从0开始）")] int line,
-        [Description("列号（从0开始）")] int column)
+        [Description(ToolStrings.ProjectOrSolutionPathParam)] string projectPath,
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.LineParam)] int line,
+        [Description(ToolStrings.ColumnParam)] int column)
     {
         try
         {
@@ -31,21 +32,21 @@ public static partial class SymbolTools
             var solution = await LoadSolutionAsync(workspaceManager, projectPath);
             if (solution == null)
             {
-                return CreateErrorResponse($"无法加载项目或解决方案: {projectPath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProjectOrSolution(projectPath));
             }
 
             // 查找文档
             var document = FindDocument(solution, filePath);
             if (document == null)
             {
-                return CreateErrorResponse($"找不到文件: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FileNotFound(filePath));
             }
 
             // 获取语法树和语义模型
             var tree = await document.GetSyntaxTreeAsync();
             if (tree == null)
             {
-                return CreateErrorResponse($"无法获取语法树: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToGetSyntaxTree(filePath));
             }
 
             var root = await tree.GetRootAsync();
@@ -56,7 +57,7 @@ public static partial class SymbolTools
             var semanticModel = await document.GetSemanticModelAsync();
             if (semanticModel == null)
             {
-                return CreateErrorResponse($"无法获取语义模型: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToGetSemanticModel(filePath));
             }
 
             // 查找符号
@@ -72,7 +73,7 @@ public static partial class SymbolTools
 
             if (symbol == null)
             {
-                return CreateErrorResponse($"在指定位置找不到符号: {filePath}:{line}:{column}");
+                return BaseTool.CreateErrorResponse(ToolStrings.SymbolNotFoundAtPosition(filePath, line.ToString(), column.ToString()));
             }
 
             // 查找引用
@@ -136,20 +137,20 @@ public static partial class SymbolTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"查找引用时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorFindingReferences(ex.Message));
         }
     }
 
     /// <summary>
     /// 查找符号的声明位置，包括基类成员和接口成员的声明
     /// </summary>
-    [McpServerTool, Description("查找符号的声明位置，包括基类成员和接口成员")]
+    [McpServerTool, Description(ToolStrings.FindDeclarations)]
     public static async Task<string> FindDeclarations(
         IWorkspaceManager workspaceManager,
-        [Description("项目或解决方案路径")] string projectPath,
-        [Description("文件路径")] string filePath,
-        [Description("行号（从0开始）")] int line,
-        [Description("列号（从0开始）")] int column)
+        [Description(ToolStrings.ProjectOrSolutionPathParam)] string projectPath,
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.LineParam)] int line,
+        [Description(ToolStrings.ColumnParam)] int column)
     {
         try
         {
@@ -157,21 +158,21 @@ public static partial class SymbolTools
             var solution = await LoadSolutionAsync(workspaceManager, projectPath);
             if (solution == null)
             {
-                return CreateErrorResponse($"无法加载项目或解决方案: {projectPath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProjectOrSolution(projectPath));
             }
 
             // 查找文档
             var document = FindDocument(solution, filePath);
             if (document == null)
             {
-                return CreateErrorResponse($"找不到文件: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FileNotFound(filePath));
             }
 
             // 获取语法树和语义模型
             var tree = await document.GetSyntaxTreeAsync();
             if (tree == null)
             {
-                return CreateErrorResponse($"无法获取语法树: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToGetSyntaxTree(filePath));
             }
 
             var root = await tree.GetRootAsync();
@@ -182,7 +183,7 @@ public static partial class SymbolTools
             var semanticModel = await document.GetSemanticModelAsync();
             if (semanticModel == null)
             {
-                return CreateErrorResponse($"无法获取语义模型: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToGetSemanticModel(filePath));
             }
 
             // 查找符号
@@ -198,7 +199,7 @@ public static partial class SymbolTools
 
             if (symbol == null)
             {
-                return CreateErrorResponse($"在指定位置找不到符号: {filePath}:{line}:{column}");
+                return BaseTool.CreateErrorResponse(ToolStrings.SymbolNotFoundAtPosition(filePath, line.ToString(), column.ToString()));
             }
 
             // 获取原始定义
@@ -273,7 +274,7 @@ public static partial class SymbolTools
             {
                 declarations.Add(new
                 {
-                    note = "这是一个扩展方法",
+                    note = "This is an extension method",
                     extendedType = extMethod.Parameters.FirstOrDefault()?.Type?.Name
                 });
             }
@@ -301,20 +302,20 @@ public static partial class SymbolTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"查找声明时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorFindingDeclarations(ex.Message));
         }
     }
 
     /// <summary>
     /// 获取符号的详细信息
     /// </summary>
-    [McpServerTool, Description("获取符号的详细信息，包括类型、修饰符、参数等")]
+    [McpServerTool, Description(ToolStrings.GetSymbolInfo)]
     public static async Task<string> GetSymbolInfo(
         IWorkspaceManager workspaceManager,
-        [Description("项目或解决方案路径")] string projectPath,
-        [Description("文件路径")] string filePath,
-        [Description("行号（从0开始）")] int line,
-        [Description("列号（从0开始）")] int column)
+        [Description(ToolStrings.ProjectOrSolutionPathParam)] string projectPath,
+        [Description(ToolStrings.FilePathParam)] string filePath,
+        [Description(ToolStrings.LineParam)] int line,
+        [Description(ToolStrings.ColumnParam)] int column)
     {
         try
         {
@@ -322,21 +323,21 @@ public static partial class SymbolTools
             var solution = await LoadSolutionAsync(workspaceManager, projectPath);
             if (solution == null)
             {
-                return CreateErrorResponse($"无法加载项目或解决方案: {projectPath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToLoadProjectOrSolution(projectPath));
             }
 
             // 查找文档
             var document = FindDocument(solution, filePath);
             if (document == null)
             {
-                return CreateErrorResponse($"找不到文件: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FileNotFound(filePath));
             }
 
             // 获取语法树和语义模型
             var tree = await document.GetSyntaxTreeAsync();
             if (tree == null)
             {
-                return CreateErrorResponse($"无法获取语法树: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToGetSyntaxTree(filePath));
             }
 
             var root = await tree.GetRootAsync();
@@ -347,7 +348,7 @@ public static partial class SymbolTools
             var semanticModel = await document.GetSemanticModelAsync();
             if (semanticModel == null)
             {
-                return CreateErrorResponse($"无法获取语义模型: {filePath}");
+                return BaseTool.CreateErrorResponse(ToolStrings.FailedToGetSemanticModel(filePath));
             }
 
             // 查找符号
@@ -363,7 +364,7 @@ public static partial class SymbolTools
 
             if (symbol == null)
             {
-                return CreateErrorResponse($"在指定位置找不到符号: {filePath}:{line}:{column}");
+                return BaseTool.CreateErrorResponse(ToolStrings.SymbolNotFoundAtPosition(filePath, line.ToString(), column.ToString()));
             }
 
             // 提取符号信息
@@ -463,7 +464,7 @@ public static partial class SymbolTools
         }
         catch (Exception ex)
         {
-            return CreateErrorResponse($"获取符号信息时出错: {ex.Message}");
+            return BaseTool.CreateErrorResponse(ToolStrings.ErrorGettingSymbolInfo(ex.Message));
         }
     }
 
@@ -488,15 +489,6 @@ public static partial class SymbolTools
     {
         var documentIds = solution.GetDocumentIdsWithFilePath(filePath);
         return documentIds.IsEmpty ? null : solution.GetDocument(documentIds[0]);
-    }
-
-    private static string CreateErrorResponse(string message)
-    {
-        return JsonSerializer.Serialize(new
-        {
-            success = false,
-            error = message
-        }, JsonOptions.Default);
     }
 
     private static async Task<string> ExtractContextAsync(Document? document, int lineNumber)

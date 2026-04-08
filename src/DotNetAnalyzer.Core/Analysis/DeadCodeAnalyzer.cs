@@ -47,7 +47,7 @@ public class DeadCodeAnalyzer
                             Line = typeDecl.GetLocation().GetLineSpan().StartLinePosition.Line,
                             Column = typeDecl.GetLocation().GetLineSpan().StartLinePosition.Character
                         },
-                        Suggestion = $"类型 '{symbol.Name}' 未被使用，可以考虑删除"
+                        Suggestion = $"Type '{symbol.Name}' is unused and can be removed"
                     });
                 }
             }
@@ -75,7 +75,7 @@ public class DeadCodeAnalyzer
                             Line = methodDecl.GetLocation().GetLineSpan().StartLinePosition.Line,
                             Column = methodDecl.GetLocation().GetLineSpan().StartLinePosition.Character
                         },
-                        Suggestion = $"方法 '{symbol.Name}' 未被调用，可以考虑删除"
+                        Suggestion = $"Method '{symbol.Name}' is never called and can be removed"
                     });
                 }
             }

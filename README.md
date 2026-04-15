@@ -235,6 +235,15 @@ dotnet-analyzer mcp serve --solution MyProject.slnx
 
 配置完成后，你可以在 Claude Code 中自然地使用这些功能：
 
+**Plugin 命令（用户主动调用）**:
+```
+/netan:analyze                    # 分析当前解决方案
+/netan:security ./src/MyApp.csproj  # 扫描指定项目的安全漏洞
+/netan:report                     # 生成综合质量报告
+```
+
+**Skill 技能（AI 根据上下文自动触发 — 直接用自然语言即可）**:
+
 ```
 你: "分析这个项目的所有诊断信息"
 Claude: [调用 get_diagnostics] ...

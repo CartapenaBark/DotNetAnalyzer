@@ -235,6 +235,15 @@ dotnet-analyzer mcp serve --solution MyProject.slnx
 
 Once configured, you can naturally use these features in Claude Code:
 
+**Plugin Commands (user-invoked)**:
+```
+/netan:analyze                    # Analyze current solution
+/netan:security ./src/MyApp.csproj  # Scan security for a specific project
+/netan:report                     # Generate comprehensive quality report
+```
+
+**Skills (AI auto-triggers based on context — just ask naturally)**:
+
 ```
 You: "Analyze all diagnostics in this project"
 Claude: [calls get_diagnostics] ...

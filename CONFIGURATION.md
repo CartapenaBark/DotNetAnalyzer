@@ -322,7 +322,7 @@ export DOTNET_ANALYZER_WORKSPACE_DIR=/tmp/dotnet-analyzer
 通过安装 DotNetAnalyzer Plugin，MCP 服务器会自动注册，无需手动配置 `.mcp.json`。
 
 1. 安装全局工具: `dotnet tool install --global DotNetAnalyzer`
-2. 添加 Marketplace: `/plugin marketplace add CartapenaBark/dotnet-analyzer-plugin`
+2. 添加 Marketplace: `/plugin marketplace add CartapenaBark/DotNetAnalyzer`
 
 Plugin 的 MCP 声明优先级低于用户项目配置。如果项目中已有 `.mcp.json` 声明了同名 MCP 服务器，用户配置优先。
 

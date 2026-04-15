@@ -1,0 +1,26 @@
+{
+  "name": "netan",
+  "version": "1.7.0",
+  "description": "DotNetAnalyzer — 93 MCP tools for .NET code analysis, refactoring, security scanning, and architecture checking via Roslyn",
+  "author": {
+    "name": "CartapenaBark"
+  },
+  "homepage": "https://github.com/CartapenaBark/DotNetAnalyzer",
+  "repository": "https://github.com/CartapenaBark/DotNetAnalyzer",
+  "license": "MIT",
+  "keywords": [
+    "dotnet",
+    "roslyn",
+    "code-analysis",
+    "mcp",
+    "csharp",
+    "security",
+    "refactoring",
+    "code-quality",
+    "architecture",
+    "xaml",
+    "mvvm",
+    "decompilation"
+  ],
+  "mcpServers": "./.mcp.json"
+}

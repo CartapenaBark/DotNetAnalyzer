@@ -137,7 +137,7 @@ DotNetAnalyzer 已发布为 Claude Code 插件，安装后自动注册 93 个 MC
 dotnet tool install --global DotNetAnalyzer
 
 # 2. 在 Claude Code 中添加 Marketplace
-/plugin marketplace add CartapenaBark/dotnet-analyzer-plugin
+/plugin marketplace add CartapenaBark/DotNetAnalyzer
 ```
 
 安装后，Claude Code 自动发现 .NET 项目并触发对应分析。

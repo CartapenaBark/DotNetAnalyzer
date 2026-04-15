@@ -1,0 +1,17 @@
+{
+  "name": "dotnet-analyzer",
+  "owner": {
+    "name": "CartapenaBark"
+  },
+  "plugins": [
+    {
+      "name": "dotnet-analyzer",
+      "description": "DotNetAnalyzer — 93 MCP tools for .NET code analysis, refactoring, security scanning, and architecture checking via Roslyn",
+      "source": {
+        "source": "github",
+        "repo": "CartapenaBark/DotNetAnalyzer"
+      },
+      "homepage": "https://github.com/CartapenaBark/DotNetAnalyzer"
+    }
+  ]
+}

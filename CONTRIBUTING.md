@@ -61,7 +61,7 @@
 **环境**:
 - Windows 11
 - .NET 8.0.10
-- DotNetAnalyzer v1.1.2
+- DotNetAnalyzer v1.7.0
 
 **复现步骤**:
 1. 创建新的控制台应用
@@ -134,7 +134,7 @@ dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release --no-bui
 
 ```bash
 # 从本地 NuGet 源安装
-dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 1.1.2
+dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 1.7.0
 ```
 
 ### 项目结构
@@ -192,7 +192,7 @@ DotNetAnalyzer/
 
    # 安装测试版本
    dotnet tool uninstall -g DotNetAnalyzer
-   dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 1.1.2
+   dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 1.7.0
 
    # 在测试项目上测试
    cd /path/to/test/project
@@ -533,5 +533,5 @@ feat(symbols): add find_references implementation
 
 **感谢您对 DotNetAnalyzer 的贡献！**
 
-**版本**: v1.1.2
-**最后更新**: 2026-03-27
+**版本**: v1.7.0
+**最后更新**: 2026-04-16

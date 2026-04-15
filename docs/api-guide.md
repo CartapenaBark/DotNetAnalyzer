@@ -2454,7 +2454,7 @@ Claude: [调用 find_references]
 
 ## API 版本历史
 
-### v1.4.0 (当前版本)
+### v1.7.0 (当前版本)
 
 - ✅ 当前公开工具总数: 92 个
 - ✅ 新增 XAML 分析工具（XAML 解析、绑定验证、资源分析、View-ViewModel 映射）

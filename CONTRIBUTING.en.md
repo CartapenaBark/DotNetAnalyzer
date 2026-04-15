@@ -61,7 +61,7 @@ When creating an Issue, please provide:
 **Environment**:
 - Windows 11
 - .NET 8.0.10
-- DotNetAnalyzer v1.1.2
+- DotNetAnalyzer v1.7.0
 
 **Steps to reproduce**:
 1. Create a new console application
@@ -134,7 +134,7 @@ dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release --no-bui
 
 ```bash
 # Install from local NuGet source
-dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 1.1.2
+dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 1.7.0
 ```
 
 ### Project Structure
@@ -192,7 +192,7 @@ DotNetAnalyzer/
 
    # Install the test version
    dotnet tool uninstall -g DotNetAnalyzer
-   dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 1.1.2
+   dotnet tool install --global --add-source ./Bin/nupkg DotNetAnalyzer --version 1.7.0
 
    # Test on a test project
    cd /path/to/test/project
@@ -533,5 +533,5 @@ All contributors will be added to the [CONTRIBUTORS.md](CONTRIBUTORS.md) file.
 
 **Thank you for contributing to DotNetAnalyzer!**
 
-**Version**: v1.1.2
-**Last Updated**: 2026-03-27
+**Version**: v1.7.0
+**Last Updated**: 2026-04-16

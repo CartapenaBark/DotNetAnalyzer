@@ -3,7 +3,7 @@
 > A powerful MCP (Model Context Protocol) server tool that brings Roslyn's code analysis capabilities to Claude Code
 
 [![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet)
-[![NuGet](https://img.shields.io/badge/nuget-1.6.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
+[![NuGet](https://img.shields.io/badge/nuget-1.7.0-blue.svg)](https://www.nuget.org/packages/DotNetAnalyzer)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![中文](https://img.shields.io/badge/lang-中文-red.svg)](README.md)
 
@@ -30,7 +30,7 @@ Claude Code is a powerful AI programming assistant, but its understanding of .NE
 
 ## 🎯 Core Features
 
-**Current version (v1.6.0)** provides **92 MCP tools** covering code analysis, refactoring, code quality, architecture rule checking, decompilation, security vulnerability detection, dependency health analysis, performance optimization, XAML analysis, desktop pattern detection, and project file operations; all analysis capabilities have reached verified level.
+**Current version (v1.7.0)** provides **93 MCP tools** covering code analysis, refactoring, code quality, architecture rule checking, decompilation, security vulnerability detection, dependency health analysis, performance optimization, XAML analysis, desktop pattern detection, and project file operations; all analysis capabilities have reached verified level.
 
 ### Feature Overview
 
@@ -75,7 +75,7 @@ DotNetAnalyzer uses a layered architecture design, connecting Claude Code and th
 **Core Components**:
 - `WorkspaceManager` - LRU-cached projects with concurrent load control
 - `CompilationCache` - Compilation result caching with automatic invalidation
-- `ToolRegistry` - Registration and invocation of 92 MCP tools
+- `ToolRegistry` - Registration and invocation of 93 MCP tools
 - `RefactoringEngine` - Refactoring operation execution engine
 - `PathValidator` - Path security validation
 - `ArchitectureRuleEngine` - Architecture rule checking engine
@@ -110,7 +110,7 @@ dotnet-tool list --global
 
 **NuGet Package Information**:
 - 📦 Package Name: `DotNetAnalyzer`
-- 🏷️ Version: `1.6.0`
+- 🏷️ Version: `1.7.0`
 - 🔗 Link: [https://www.nuget.org/packages/DotNetAnalyzer](https://www.nuget.org/packages/DotNetAnalyzer)
 - .NET 8.0 or higher
 
@@ -125,7 +125,7 @@ cd DotNetAnalyzer
 bash scripts/validate-ci-cd.sh
 
 # Install from local NuGet package
-dotnet tool install --global DotNetAnalyzer --add-source ./Bin/nupkg --version 1.6.0
+dotnet tool install --global DotNetAnalyzer --add-source ./Bin/nupkg --version 1.7.0
 ```
 
 ### Update
@@ -301,7 +301,7 @@ The project uses GitHub Actions for automated build and release:
 
 ## 🗺️ Development Roadmap
 
-Currently exposes **92 MCP tools**, with all analysis capabilities having reached verified level.
+Currently exposes **93 MCP tools**, with all analysis capabilities having reached verified level.
 
 | Capability Domain | Status | Tool Count |
 |-------|------|--------|
@@ -357,7 +357,7 @@ You can install and test locally during development:
 ```bash
 # Run local validation and generate packages
 bash scripts/validate-ci-cd.sh
-dotnet tool install --global DotNetAnalyzer --add-source ./Bin/nupkg --version 1.6.0
+dotnet tool install --global DotNetAnalyzer --add-source ./Bin/nupkg --version 1.7.0
 
 # Test the tool
 dotnet-analyzer --version
@@ -435,6 +435,7 @@ This project is licensed under the [MIT](LICENSE) license.
 
 For the complete update history, see [CHANGELOG.md](CHANGELOG.md)
 
+- **v1.7.0** (2026-04-16) - Analysis precision, config infrastructure, DI enhancement, 93 tools
 - **v1.4.0** (2026-03-29) - XAML analysis, desktop pattern detection, project file operations, 92 tools
 - **v1.3.0** (2026-03-29) - Security vulnerability detection, dependency health analysis, performance optimization, 80 tools
 - **v1.2.0** (2026-03-28) - Architecture rule checking engine, ILSpy decompilation integration, SARIF reports, 70 tools

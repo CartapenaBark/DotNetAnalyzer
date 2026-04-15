@@ -149,7 +149,7 @@ Claude: [Calls get_diagnostics] ...
 
 ## MCP Tool Overview
 
-DotNetAnalyzer v1.6.0 provides **92 MCP tools** covering code analysis, navigation, refactoring, quality analysis, architecture rule checking, decompilation, security detection, dependency health analysis, performance optimization, XAML analysis, desktop pattern detection, project file operations, and visualization capabilities.
+DotNetAnalyzer v1.7.0 provides **93 MCP tools** covering code analysis, navigation, refactoring, quality analysis, architecture rule checking, decompilation, security detection, dependency health analysis, performance optimization, XAML analysis, desktop pattern detection, project file operations, configuration, and visualization capabilities.
 
 > The capability descriptions in this document are based on the tool list obtained from `eng/product-metadata.json` and source code scanning; for heuristic or experimental results, please refer to the [Analysis Capability Credibility Matrix](../analysis-credibility.md) as well.
 
@@ -2452,7 +2452,26 @@ If a tool call fails:
 
 ## API Version History
 
-### v1.4.0 (Current Version)
+### v1.7.0 (Current Version)
+
+- ✅ Current total public tools: 93
+- ✅ Added per-project configuration system (`AnalyzerOptions`) with `get_analyzer_config` MCP tool
+- ✅ ViewModelMapper rewritten with SyntaxWalker for precise DataContext tracking
+- ✅ MVVM detector enhanced with high/low confidence keyword classification
+- ✅ Memory leak detector expanded: IAsyncDisposable (MEM004), Timer/DispatcherTimer (MEM005)
+- ✅ DI analyzer enhanced: lambda factories, open generics, Captive Dependency (DI004), Circular Dependency (DI005)
+- ✅ All analysis capabilities converged to verified level
+- ✅ CredibilityAnnotation model added to all desktop tool responses
+
+### v1.5.0
+
+- ✅ Build zero warnings zero errors
+- ✅ Eliminated `.Result` synchronous blocking, converted to `async/await` pattern
+- ✅ `HttpClient` changed to `IHttpClientFactory` pattern
+- ✅ Path validation hardening
+- ✅ Desktop module logging switched to `LoggerMessage.Define` source generator
+
+### v1.4.0
 
 - ✅ Current total public tools: 92
 - ✅ Added XAML analysis tools (XAML parsing, binding validation, resource analysis, View-ViewModel mapping)
@@ -2515,5 +2534,5 @@ If a tool call fails:
 
 ---
 
-**Version**: v1.6.0
+**Version**: v1.7.0
 **Last Updated**: 2026-03-28

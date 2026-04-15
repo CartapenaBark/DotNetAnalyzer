@@ -651,5 +651,5 @@ DotNetAnalyzer supports the following Visual Studio solution formats:
 
 ---
 
-**Version**: v1.6.0
+**Version**: v1.7.0
 **Last Updated**: 2026-03-29

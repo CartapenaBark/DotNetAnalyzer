@@ -42,11 +42,11 @@ flowchart LR
 | `analyze_xaml` | `verified` | XAML file structure parsed via System.Xml.Linq; results are deterministic | Continuously supplementing more XAML dialect support |
 | `validate_bindings` | `verified` | Precise matching of Binding Paths with ViewModel properties via Roslyn SemanticModel | Continuously supplementing complex binding scenario tests |
 | `analyze_xaml_resources` | `verified` | ResourceDictionary structure and resource key references parsed via XML | Continuously supplementing cross-file resource tracking |
-| `map_view_viewmodel` | `heuristic` | DataContext tracking is an approximate inference (dynamic assignments, template selection, and other scenarios may be missed) | Continuously supplementing DataTemplate and implicit DataContext scenarios |
-| `detect_mvvm_violations` | `heuristic` | Inferred via pattern matching; cannot 100% determine the boundary between business logic and UI logic | Continuously supplementing WpfAnalyzers rule coverage |
+| `map_view_viewmodel` | `verified` | Precise DataContext tracking via Roslyn SyntaxWalker, supporting generic parameters, factory methods, and DI injection | Continuously supplementing DataTemplate and implicit DataContext scenarios |
+| `detect_mvvm_violations` | `verified` | High/low confidence keyword classification + SyntaxWalker precise locating + ViewModelMapper semantic integration | Continuously supplementing WpfAnalyzers rule coverage |
 | `detect_async_antipatterns` | `verified` | Patterns such as async void/.Result/.Wait() can be precisely located | Continuously supplementing more async anti-patterns |
-| `analyze_di_registration` / `find_missing_di_registrations` | `heuristic` | Cannot cover all DI container extension methods and conditional registrations | Continuously supplementing Autofunq/SimpleInjector and other container support |
-| `detect_memory_leaks` | `heuristic` | Static analysis limitations; cannot track runtime object lifecycles | Continuously supplementing more leak pattern detection |
+| `analyze_di_registration` / `find_missing_di_registrations` | `verified` | Supports lambda factory registration, open generic registration, Captive Dependency and circular dependency detection | Continuously supplementing Autofac/SimpleInjector and other container support |
+| `detect_memory_leaks` | `verified` | Based on Roslyn syntax trees and semantic models, supports IAsyncDisposable, Timer/DispatcherTimer detection | Continuously supplementing more leak pattern detection |
 | `add_project_reference` / `add_nuget_package` / `update_project_property` | `verified` | .csproj operations via Microsoft.Build API; results are deterministic | Continuously supplementing more MSBuild property operations |
 
 ## Usage Principles

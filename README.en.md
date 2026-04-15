@@ -128,6 +128,24 @@ bash scripts/validate-ci-cd.sh
 dotnet tool install --global DotNetAnalyzer --add-source ./Bin/nupkg --version 1.7.0
 ```
 
+#### Option 3: Claude Code Plugin (Recommended) ✨
+
+DotNetAnalyzer is available as a Claude Code plugin that auto-registers all 93 MCP tools on install.
+
+```bash
+# 1. Install the global tool
+dotnet tool install --global DotNetAnalyzer
+
+# 2. Add the Marketplace in Claude Code
+/plugin marketplace add CartapenaBark/DotNetAnalyzer
+```
+
+Once installed, Claude Code automatically discovers .NET projects and triggers the corresponding analysis.
+
+**3 Commands**: `/netan:analyze` (project analysis), `/netan:security` (security scanning), `/netan:report` (quality report)
+
+**5 Smart Skills**: project structure, symbol navigation, code quality, security dependencies, refactoring — AI auto-triggers based on context.
+
 ### Update
 
 ```bash

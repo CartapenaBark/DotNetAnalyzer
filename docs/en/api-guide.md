@@ -111,6 +111,8 @@ mindmap
 
 ### Prerequisites
 
+> **Tip**: You can also install via the Claude Code Plugin for one-click setup. See [DotNetAnalyzer Plugin](https://github.com/CartapenaBark/dotnet-analyzer-plugin).
+
 1. **Install DotNetAnalyzer**:
    ```bash
    dotnet tool install --global DotNetAnalyzer

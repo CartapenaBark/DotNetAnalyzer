@@ -128,6 +128,24 @@ bash scripts/validate-ci-cd.sh
 dotnet tool install --global DotNetAnalyzer --add-source ./Bin/nupkg --version 1.6.0
 ```
 
+#### 方式三：Claude Code Plugin（推荐）✨
+
+DotNetAnalyzer 已发布为 Claude Code 插件，安装后自动注册 93 个 MCP 工具。
+
+```bash
+# 1. 安装全局工具
+dotnet tool install --global DotNetAnalyzer
+
+# 2. 在 Claude Code 中添加 Marketplace
+/plugin marketplace add CartapenaBark/dotnet-analyzer-plugin
+```
+
+安装后，Claude Code 自动发现 .NET 项目并触发对应分析。
+
+**3 个命令**: `/netan:analyze`（项目分析）、`/netan:security`（安全扫描）、`/netan:report`（质量报告）
+
+**5 个智能技能**: 项目结构、符号导航、代码质量、安全依赖、重构操作 — AI 根据上下文自动触发。
+
 ### 更新
 
 ```bash

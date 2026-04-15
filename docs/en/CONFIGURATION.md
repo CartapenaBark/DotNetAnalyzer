@@ -317,6 +317,15 @@ An object of environment variables (optional).
 }
 ```
 
+#### Option 3: Claude Code Plugin (Auto-register)
+
+Install the DotNetAnalyzer Plugin to automatically register the MCP server without manual `.mcp.json` configuration.
+
+1. Install the global tool: `dotnet tool install --global DotNetAnalyzer`
+2. Add the Marketplace in Claude Code: `/plugin marketplace add CartapenaBark/dotnet-analyzer-plugin`
+
+Plugin MCP declarations have lower priority than user project configurations. If a project already has `.mcp.json` declaring the same MCP server, the user configuration takes priority.
+
 ## Claude Code Integration
 
 ### Project-Level Configuration

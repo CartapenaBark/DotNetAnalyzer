@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/CartapenaBark/DotNetAnalyzer/schema/dotnet-analyzer.schema.json",
+  "title": "DotNetAnalyzer Configuration",
+  "description": "Configuration file for DotNetAnalyzer MCP server analysis rules and thresholds",
+  "type": "object",
+  "properties": {
+    "Analyzer": {
+      "$ref": "#/definitions/AnalyzerOptions"
+    }
+  },
+  "definitions": {
+    "AnalyzerOptions": {
+      "type": "object",
+      "description": "Top-level analyzer configuration",
+      "properties": {
+        "rules": {
+          "$ref": "#/definitions/RulesOptions"
+        },
+        "mvvm": {
+          "$ref": "#/definitions/MvvmOptions"
+        },
+        "di": {
+          "$ref": "#/definitions/DiOptions"
+        },
+        "thresholds": {
+          "$ref": "#/definitions/ThresholdsOptions"
+        }
+      }
+    },
+    "RulesOptions": {
+      "type": "object",
+      "description": "Rule exclusion and severity override settings",
+      "properties": {
+        "exclude": {
+          "type": "array",
+          "description": "Rule IDs to exclude from analysis",
+          "items": {
+            "type": "string"
+          },
+          "examples": ["MVVM001", "MEM002", "SEC001"]
+        },
+        "severity": {
+          "type": "object",
+          "description": "Severity level overrides per rule ID",
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["Critical", "High", "Medium", "Low", "Info", "Warning"]
+          },
+          "examples": {
+            "MEM002": "Info",
+            "ASYNC001": "Low"
+          }
+        }
+      }
+    },
+    "MvvmOptions": {
+      "type": "object",
+      "description": "MVVM pattern detection settings",
+      "properties": {
+        "viewModelSuffixes": {
+          "type": "array",
+          "description": "Custom ViewModel naming suffixes",
+          "items": { "type": "string" },
+          "default": ["ViewModel"],
+          "examples": [["ViewModel", "Vm"]]
+        },
+        "additionalUiNamespaces": {
+          "type": "array",
+          "description": "Additional namespaces to treat as UI namespaces",
+          "items": { "type": "string" },
+          "examples": [["System.Windows.Controls", "System.Windows.Interactivity"]]
+        },
+        "excludedBusinessIndicators": {
+          "type": "array",
+          "description": "Business logic indicator keywords to exclude from MVVM001 detection",
+          "items": { "type": "string" },
+          "examples": [["async", "Task.Run"]]
+        }
+      }
+    },
+    "DiOptions": {
+      "type": "object",
+      "description": "Dependency injection analysis settings",
+      "properties": {
+        "captiveDependency": {
+          "type": "boolean",
+          "description": "Enable DI004 Captive Dependency detection",
+          "default": true
+        }
+      }
+    },
+    "ThresholdsOptions": {
+      "type": "object",
+      "description": "Detection threshold settings",
+      "properties": {
+        "maxCyclomaticComplexity": {
+          "type": "integer",
+          "description": "Cyclomatic complexity threshold for code smell detection",
+          "default": 15,
+          "minimum": 1
+        },
+        "maxMethodLines": {
+          "type": "integer",
+          "description": "Maximum method line count threshold",
+          "default": 50,
+          "minimum": 1
+        },
+        "maxClassLines": {
+          "type": "integer",
+          "description": "Maximum class line count threshold",
+          "default": 500,
+          "minimum": 1
+        }
+      }
+    }
+  }
+}

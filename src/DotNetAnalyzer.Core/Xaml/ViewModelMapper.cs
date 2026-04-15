@@ -2,6 +2,8 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using DotNetAnalyzer.Core.Xaml.Models;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
 
 namespace DotNetAnalyzer.Core.Xaml;
@@ -26,17 +28,17 @@ public sealed partial class ViewModelMapper
         RegexOptions.Compiled | RegexOptions.IgnoreCase)]
     private static partial Regex ViewSuffixRegex();
 
-    // 匹配 DataContext 赋值模式: DataContext = new SomeViewModel()
-    [GeneratedRegex(
-        @"DataContext\s*=\s*new\s+([A-Za-z_][A-Za-z0-9_]*)",
-        RegexOptions.Compiled)]
-    private static partial Regex DataContextAssignmentRegex();
-
     // 匹配 DataType="{x:Type ...}" 中的类型名
     [GeneratedRegex(
         @"x:Type\s+(\w+):(\w+)",
         RegexOptions.Compiled)]
     private static partial Regex DataTypeTypeRegex();
+
+    // 匹配 clr-namespace URI 中的命名空间
+    [GeneratedRegex(
+        @"clr-namespace:([^;]+)",
+        RegexOptions.Compiled)]
+    private static partial Regex ClrNamespaceRegex();
 
     private readonly ILogger<ViewModelMapper> _logger;
     private readonly XamlParser _xamlParser;
@@ -151,9 +153,6 @@ public sealed partial class ViewModelMapper
             // 没有 x:Class 的 XAML 文件（如 ResourceDictionary）跳过
             return null;
         }
-
-        var viewFilePath = xamlInfo.FilePath;
-        var viewClassName = xamlInfo.ClassAttribute;
 
         // 策略 1: 从 x:DataType 推断
         var dataTypeMapping = TryMapFromDataType(
@@ -298,6 +297,7 @@ public sealed partial class ViewModelMapper
 
     /// <summary>
     /// 策略 3: 从 code-behind 中的 DataContext 赋值推断
+    /// 使用 Roslyn SyntaxWalker 精确分析赋值表达式
     /// </summary>
     private static async Task<ViewViewModelPair?> TryMapFromCodeBehindAsync(
         XamlDocumentInfo xamlInfo,
@@ -324,34 +324,23 @@ public sealed partial class ViewModelMapper
 
         var root = await codeBehindDoc.GetSyntaxRootAsync(ct)
             .ConfigureAwait(false);
-        if (root == null)
+        var semanticModel = await codeBehindDoc.GetSemanticModelAsync(ct)
+            .ConfigureAwait(false);
+        if (root == null || semanticModel == null)
         {
             return null;
         }
 
-        // 在 code-behind 中查找 DataContext = new SomeViewModel() 模式
-        var assignmentMatches = DataContextAssignmentRegex()
-            .Matches(root.ToFullString());
+        var compilation = semanticModel.Compilation;
 
-        foreach (Match match in assignmentMatches)
+        // 使用 SyntaxWalker 遍历赋值表达式
+        var walker = new DataContextAssignmentWalker();
+        walker.Visit(root);
+
+        foreach (var assignment in walker.DataContextAssignments)
         {
-            if (!match.Success)
-            {
-                continue;
-            }
-
-            var viewModelName = match.Groups[1].Value;
-
-            // 在编译中查找该类型的完全限定名
-            var compilation = await project.GetCompilationAsync(ct)
-                .ConfigureAwait(false);
-            if (compilation == null)
-            {
-                continue;
-            }
-
-            var viewModelType = FindTypeBySimpleName(
-                compilation, viewModelName);
+            var viewModelType = ResolveAssignmentType(
+                assignment.Right, semanticModel);
             if (viewModelType == null)
             {
                 continue;
@@ -361,8 +350,7 @@ public sealed partial class ViewModelMapper
             {
                 ViewFilePath = xamlInfo.FilePath,
                 ViewClassName = className,
-                ViewModelClassName =
-                    viewModelType.ToDisplayString(),
+                ViewModelClassName = viewModelType.ToDisplayString(),
                 ViewModelFilePath = FindTypeFilePath(
                     project, viewModelType),
                 MappingSource = "DataContext"
@@ -373,7 +361,75 @@ public sealed partial class ViewModelMapper
     }
 
     /// <summary>
+    /// 解析赋值右侧表达式的类型
+    /// </summary>
+    private static INamedTypeSymbol? ResolveAssignmentType(
+        ExpressionSyntax expression,
+        SemanticModel semanticModel)
+    {
+        switch (expression)
+        {
+            case ObjectCreationExpressionSyntax objectCreation:
+                // DataContext = new MyViewModel()
+                var typeInfo = semanticModel.GetTypeInfo(objectCreation);
+                return typeInfo.Type as INamedTypeSymbol;
+
+            case InvocationExpressionSyntax invocation:
+                // DataContext = serviceProvider.GetRequiredService<T>()
+                // DataContext = factory.CreateViewModel()
+                var symbolInfo = semanticModel.GetSymbolInfo(invocation);
+                if (symbolInfo.Symbol is IMethodSymbol methodSymbol)
+                {
+                    return methodSymbol.ReturnType as INamedTypeSymbol;
+                }
+
+                break;
+
+            case IdentifierNameSyntax identifier:
+                // DataContext = _viewModel (追踪字段声明到初始赋值链)
+                var identifierSymbol = semanticModel.GetSymbolInfo(identifier);
+                if (identifierSymbol.Symbol is IFieldSymbol fieldSymbol)
+                {
+                    // 检查字段声明中的初始值
+                    foreach (var decl in fieldSymbol.DeclaringSyntaxReferences)
+                    {
+                        var declRoot = decl.SyntaxTree
+                            .GetRoot();
+                        if (declRoot == null)
+                        {
+                            continue;
+                        }
+
+                        var node = declRoot.FindNode(decl.Span);
+                        if (node is not VariableDeclaratorSyntax declarator)
+                        {
+                            continue;
+                        }
+
+                        if (declarator.Initializer?.Value is not null)
+                        {
+                            var resolved = ResolveAssignmentType(
+                                declarator.Initializer.Value, semanticModel);
+                            if (resolved != null)
+                            {
+                                return resolved;
+                            }
+                        }
+                    }
+                }
+
+                // 直接作为类型名称查找
+                return FindTypeBySimpleName(
+                    semanticModel.Compilation,
+                    identifier.Identifier.Text);
+        }
+
+        return null;
+    }
+
+    /// <summary>
     /// 策略 4: 通过命名约定推断 ViewModel
+    /// 增加类型存在性验证
     /// </summary>
     private static ViewViewModelPair? TryMapByConvention(
         XamlDocumentInfo xamlInfo,
@@ -408,18 +464,33 @@ public sealed partial class ViewModelMapper
                 ? viewModelShortName
                 : $"{namespacePrefix}.{viewModelShortName}";
 
-        return new ViewViewModelPair
+        // 验证推断的 ViewModel 类型是否在编译中实际存在
+        var compilation = project.GetCompilationAsync().GetAwaiter().GetResult();
+        if (compilation != null)
         {
-            ViewFilePath = xamlInfo.FilePath,
-            ViewClassName = className,
-            ViewModelClassName = viewModelFull,
-            ViewModelFilePath = null,
-            MappingSource = "Convention"
-        };
+            var type = FindTypeBySimpleName(compilation, viewModelFull);
+            if (type == null)
+            {
+                // 类型不存在，不产出映射
+                return null;
+            }
+
+            return new ViewViewModelPair
+            {
+                ViewFilePath = xamlInfo.FilePath,
+                ViewClassName = className,
+                ViewModelClassName = type.ToDisplayString(),
+                ViewModelFilePath = FindTypeFilePath(project, type),
+                MappingSource = "Convention"
+            };
+        }
+
+        return null;
     }
 
     /// <summary>
     /// 更新命名空间前缀映射表
+    /// 支持 clr-namespace URI 解析
     /// </summary>
     private static void UpdateNamespacePrefixMap(
         IReadOnlyList<XamlNamespaceDeclaration> namespaces,
@@ -427,13 +498,22 @@ public sealed partial class ViewModelMapper
     {
         foreach (var ns in namespaces)
         {
-            // 更新已有前缀或添加新前缀
-            prefixMap[ns.Prefix] = ns.Uri;
+            // 支持 clr-namespace URI: clr-namespace:MyApp.ViewModels
+            var clrMatch = ClrNamespaceRegex().Match(ns.Uri);
+            if (clrMatch.Success)
+            {
+                prefixMap[ns.Prefix] = clrMatch.Groups[1].Value;
+            }
+            else
+            {
+                // 原有行为：直接使用 URI 作为命名空间
+                prefixMap[ns.Prefix] = ns.Uri;
+            }
         }
     }
 
     /// <summary>
-    /// 通过简单名称在编译中查找类型
+    /// 通过简单名称在编译中递归搜索类型
     /// </summary>
     private static INamedTypeSymbol? FindTypeBySimpleName(
         Compilation compilation,
@@ -446,12 +526,13 @@ public sealed partial class ViewModelMapper
             return type;
         }
 
-        // 在全局命名空间中搜索
-        return compilation.GlobalNamespace
-            .GetNamespaceMembers()
-            .SelectMany(ns => ns.GetMembers(simpleName))
-            .FirstOrDefault(m => m is INamedTypeSymbol)
-            as INamedTypeSymbol;
+        // 使用 Roslyn 递归搜索所有命名空间
+        var candidates = compilation.GetSymbolsWithName(
+            simpleName, SymbolFilter.Type);
+
+        return candidates
+            .OfType<INamedTypeSymbol>()
+            .FirstOrDefault();
     }
 
     /// <summary>
@@ -481,6 +562,28 @@ public sealed partial class ViewModelMapper
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// 遍历语法树查找 DataContext 赋值表达式
+    /// </summary>
+    private sealed class DataContextAssignmentWalker : CSharpSyntaxWalker
+    {
+        public List<AssignmentExpressionSyntax> DataContextAssignments { get; }
+            = [];
+
+        public override void VisitAssignmentExpression(
+            AssignmentExpressionSyntax node)
+        {
+            // 匹配 DataContext = ...
+            if (node.Left is IdentifierNameSyntax identifier &&
+                identifier.Identifier.Text == "DataContext")
+            {
+                DataContextAssignments.Add(node);
+            }
+
+            base.VisitAssignmentExpression(node);
+        }
     }
 
     /// <summary>

@@ -60,6 +60,15 @@ internal sealed class Program
         builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
         builder.Configuration.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
 
+        // Per-project 配置：用户级（最低优先级）
+        var userConfigPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            ".dotnet-analyzer", "config.json");
+        if (File.Exists(userConfigPath))
+        {
+            builder.Configuration.AddJsonFile(userConfigPath, optional: true, reloadOnChange: true);
+        }
+
         // 配置日志
         builder.Logging.AddConsole();
         builder.Logging.SetMinimumLevel(LogLevel.Information);
@@ -75,6 +84,8 @@ internal sealed class Program
             .Bind(builder.Configuration.GetSection("Security"));
         builder.Services.AddOptions<DependencyHealthOptions>()
             .Bind(builder.Configuration.GetSection("DependencyHealth"));
+        builder.Services.AddOptions<AnalyzerOptions>()
+            .Bind(builder.Configuration.GetSection("Analyzer"));
 
         // 注册 HttpClient 用于 NuGet API 调用（带超时配置）
         builder.Services.AddSingleton(

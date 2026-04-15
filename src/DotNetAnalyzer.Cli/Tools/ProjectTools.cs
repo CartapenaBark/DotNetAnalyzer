@@ -2,9 +2,11 @@ using System.ComponentModel;
 using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using DotNetAnalyzer.Core.Abstractions;
+using DotNetAnalyzer.Core.Configuration;
 using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Core.Roslyn;
 using DotNetAnalyzer.Resources;
+using Microsoft.Extensions.Options;
 using ModelContextProtocol.Server;
 
 namespace DotNetAnalyzer.Cli.Tools;
@@ -381,5 +383,51 @@ public static class ProjectTools
             }
         }
         return null;
+    }
+
+    /// <summary>
+    /// 获取当前分析器的有效配置（合并 appsettings.json + 用户级 + 项目级）
+    /// </summary>
+    /// <param name="analyzerOptions">分析器配置选项</param>
+    /// <returns>有效配置的 JSON 字符串</returns>
+    [McpServerTool, Description("Get the effective analyzer configuration with source attribution")]
+    public static string GetAnalyzerConfig(
+        IOptions<AnalyzerOptions> analyzerOptions)
+    {
+        var opts = analyzerOptions?.Value ?? new AnalyzerOptions();
+        var config = new
+        {
+            success = true,
+            config = new
+            {
+                rules = new
+                {
+                    exclude = opts.Rules.Exclude,
+                    severity = opts.Rules.Severity,
+                    source = "merged"
+                },
+                mvvm = new
+                {
+                    viewModelSuffixes = opts.Mvvm.ViewModelSuffixes,
+                    additionalUiNamespaces = opts.Mvvm.AdditionalUiNamespaces,
+                    excludedBusinessIndicators = opts.Mvvm.ExcludedBusinessIndicators,
+                    source = "merged"
+                },
+                di = new
+                {
+                    captiveDependency = opts.Di.CaptiveDependency,
+                    source = "merged"
+                },
+                thresholds = new
+                {
+                    maxCyclomaticComplexity = opts.Thresholds.MaxCyclomaticComplexity,
+                    maxMethodLines = opts.Thresholds.MaxMethodLines,
+                    maxClassLines = opts.Thresholds.MaxClassLines,
+                    source = "merged"
+                }
+            }
+        };
+
+        return JsonSerializer.Serialize(config, JsonOptions.Default);
     }
 }

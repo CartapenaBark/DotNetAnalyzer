@@ -31,8 +31,8 @@
     <PackageReference Include="NuGet.Protocol" Version="6.12.1" />
 
     <!-- 其他依赖 -->
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
-    <PackageReference Include="ModelContextProtocol" Version="0.8.0-preview.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
+    <PackageReference Include="ModelContextProtocol" Version="1.2.0" />
   </ItemGroup>
 
 

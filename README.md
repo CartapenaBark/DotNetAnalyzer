@@ -30,7 +30,7 @@ Claude Code 是一个强大的 AI 编程助手，但对于 .NET 代码的理解�
 
 ## 🎯 核心功能
 
-**当前版本 (v1.6.0)** 提供 **92 个 MCP 工具**，覆盖代码分析、重构、代码质量、架构规则检查、反编译、安全漏洞检测、依赖健康度分析、性能优化、XAML 分析、桌面模式检测与项目文件操作能力；所有分析能力均已达到 verified 级别。
+**当前版本 (v1.7.0)** 提供 **93 个 MCP 工具**，覆盖代码分析、重构、代码质量、架构规则检查、反编译、安全漏洞检测、依赖健康度分析、性能优化、XAML 分析、桌面模式检测与项目文件操作能力；所有分析能力均已达到 verified 级别。
 
 ### 功能概览
 
@@ -75,7 +75,7 @@ DotNetAnalyzer 采用分层架构设计，通过 MCP 协议连接 Claude Code �
 **核心组件**：
 - `WorkspaceManager` - LRU 缓存项目，并发加载控制
 - `CompilationCache` - 编译结果缓存，自动失效
-- `ToolRegistry` - 92 个 MCP 工具的注册和调用
+- `ToolRegistry` - 93 个 MCP 工具的注册和调用
 - `RefactoringEngine` - 重构操作执行引擎
 - `PathValidator` - 路径安全验证
 - `ArchitectureRuleEngine` - 架构规则检查引擎
@@ -301,7 +301,7 @@ dotnet pack src/DotNetAnalyzer.Cli/DotNetAnalyzer.Cli.csproj -c Release --no-bui
 
 ## 🗺️ 开发路线图
 
-当前公开 **92 个 MCP 工具**，所有分析能力均已达到 verified 级别。
+当前公开 **93 个 MCP 工具**，所有分析能力均已达到 verified 级别。
 
 | 能力域 | 状态 | 工具数 |
 |-------|------|--------|

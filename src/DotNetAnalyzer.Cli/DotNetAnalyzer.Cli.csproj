@@ -22,9 +22,9 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-analyzer</ToolCommandName>
     <PackageId>DotNetAnalyzer</PackageId>
-    <Version>1.6.0</Version>
+    <Version>1.7.0</Version>
     <Authors>CartapenaBark</Authors>
-    <Description>MCP server with 92 tools for .NET code analysis, refactoring, code generation, quality analysis, architecture validation, security detection, dependency health, performance optimization, XAML analysis, desktop pattern detection, and project file manipulation</Description>
+    <Description>MCP server with 93 tools for .NET code analysis, refactoring, code generation, quality analysis, architecture validation, security detection, dependency health, performance optimization, XAML analysis, desktop pattern detection, and project file manipulation</Description>
     <PackageTags>mcp;roslyn;code-analysis;claude;dotnet</PackageTags>
     <PackageProjectUrl>https://github.com/CartapenaBark/DotNetAnalyzer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/CartapenaBark/DotNetAnalyzer</RepositoryUrl>
@@ -32,6 +32,26 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes><![CDATA[
+      v1.7.0 - Analysis Precision, Config Infrastructure & DI Enhancement
+
+      🎯 ANALYSIS PRECISION:
+        • ViewModelMapper rewritten with SyntaxWalker for precise DataContext tracking
+        • MVVM detector enhanced with high/low confidence keyword classification
+        • Memory leak detector expanded: IAsyncDisposable, Timer/DispatcherTimer
+        • DI analyzer enhanced: lambda factories, open generics, captive/circular dependency
+        • All analysis capabilities converged to verified level
+
+      🏗️ INFRASTRUCTURE:
+        • MCP SDK upgraded to 1.2.0
+        • Per-project configuration system (AnalyzerOptions)
+        • get_analyzer_config MCP tool (returns effective config with source annotation)
+        • CredibilityAnnotation model added to all desktop tool responses
+
+      📊 STATISTICS:
+        • 93 MCP tools (+1 config tool)
+        • 0 warnings, 0 errors build baseline
+        • All desktop detectors support rules.exclude configuration
+
       v1.3.0 - Security Detection, Dependency Health & Performance Optimization
 
       🚀 MAJOR NEW FEATURES:
@@ -265,7 +285,7 @@
   <ItemGroup>
     <!-- Microsoft.Extensions.* 包 - 统一版本 -->
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.5" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
   </ItemGroup>
 

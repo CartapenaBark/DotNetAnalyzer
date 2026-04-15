@@ -467,4 +467,189 @@ public class MemoryLeakDetectorTests
     }
 
     #endregion
+
+    #region MEM004: IAsyncDisposable
+
+    [Fact]
+    public async Task DetectAsync_IAsyncDisposableFieldNotDisposed_Warns()
+    {
+        var source = """
+            using System;
+            using System.IO;
+            using System.Threading.Tasks;
+
+            public class ResourceHolder
+            {
+                private readonly FileStream _stream = new FileStream("test.txt", FileMode.Open);
+                private readonly MemoryStream _memory = new MemoryStream();
+
+                public void Close()
+                {
+                    // Missing: await _stream.DisposeAsync();
+                    // Missing: await _memory.DisposeAsync();
+                }
+            }
+            """;
+
+        var project = await CreateProjectAsync(source);
+        var warnings = await _detector.DetectAsync(project);
+
+        warnings.Should().Contain(w =>
+            w.Pattern == MemoryLeakPattern.UndisposedResource &&
+            w.Name == "IAsyncDisposable 未 DisposeAsync" &&
+            w.SymbolName == "_stream");
+        warnings.Should().Contain(w =>
+            w.Pattern == MemoryLeakPattern.UndisposedResource &&
+            w.Name == "IAsyncDisposable 未 DisposeAsync" &&
+            w.SymbolName == "_memory");
+    }
+
+    [Fact]
+    public async Task DetectAsync_IAsyncDisposableDisposed_NoWarning()
+    {
+        var source = """
+            using System;
+            using System.IO;
+            using System.Threading.Tasks;
+
+            public class ProperHolder : IAsyncDisposable
+            {
+                private readonly FileStream _stream = new FileStream("test.txt", FileMode.Open);
+
+                public async ValueTask DisposeAsync()
+                {
+                    await _stream.DisposeAsync();
+                }
+            }
+            """;
+
+        var project = await CreateProjectAsync(source);
+        var warnings = await _detector.DetectAsync(project);
+
+        warnings.Should().NotContain(w =>
+            w.SymbolName == "_stream");
+    }
+
+    [Fact]
+    public async Task DetectAsync_UsingVarAsync_NoWarning()
+    {
+        var source = """
+            using System;
+            using System.IO;
+
+            public class ModernHolder
+            {
+                public async Task ProcessAsync()
+                {
+                    await using var stream = new FileStream("test.txt", FileMode.Open);
+                    var data = stream.ReadByte();
+                }
+            }
+            """;
+
+        var project = await CreateProjectAsync(source);
+        var warnings = await _detector.DetectAsync(project);
+
+        warnings.Should().BeEmpty();
+    }
+
+    #endregion
+
+    #region MEM005: Timer/DispatcherTimer
+
+    [Fact]
+    public async Task DetectAsync_TimerNotDisposed_Warns()
+    {
+        var source = """
+            using System;
+            using System.Threading;
+
+            public class PollingService
+            {
+                private readonly Timer _timer;
+
+                public PollingService()
+                {
+                    _timer = new Timer(_ => { }, null, TimeSpan.FromSeconds(5));
+                }
+
+                public void Stop()
+                {
+                    // Missing: _timer.Dispose();
+                }
+            }
+            """;
+
+        var project = await CreateProjectAsync(source);
+        var warnings = await _detector.DetectAsync(project);
+
+        warnings.Should().Contain(w =>
+            w.Pattern == MemoryLeakPattern.UndisposedResource &&
+            w.Name == "Timer 未 Dispose" &&
+            w.SymbolName == "_timer");
+    }
+
+    [Fact]
+    public async Task DetectAsync_TimerDisposed_NoWarning()
+    {
+        var source = """
+            using System;
+            using System.Threading;
+
+            public class ProperPollingService : IDisposable
+            {
+                private readonly Timer _timer;
+
+                public ProperPollingService()
+                {
+                    _timer = new Timer(_ => { }, null, TimeSpan.FromSeconds(5));
+                }
+
+                public void Dispose()
+                {
+                    _timer.Dispose();
+                }
+            }
+            """;
+
+        var project = await CreateProjectAsync(source);
+        var warnings = await _detector.DetectAsync(project);
+
+        warnings.Should().NotContain(w =>
+            w.SymbolName == "_timer");
+    }
+
+    [Fact]
+    public async Task DetectAsync_DispatcherTimerStoppedAndDisposed_NoWarning()
+    {
+        var source = """
+            using System;
+            using System.Windows.Threading;
+
+            public class TimerHolder : IDisposable
+            {
+                private readonly DispatcherTimer _timer;
+
+                public TimerHolder()
+                {
+                    _timer = new DispatcherTimer();
+                    _timer.Interval = TimeSpan.FromSeconds(1);
+                }
+
+                public void Dispose()
+                {
+                    _timer.Stop();
+                    _timer.Dispose();
+                }
+            }
+            """;
+
+        var project = await CreateProjectAsync(source);
+        var warnings = await _detector.DetectAsync(project);
+
+        warnings.Should().NotContain(w =>
+            w.SymbolName == "_timer");
+    }
+
+    #endregion
 }

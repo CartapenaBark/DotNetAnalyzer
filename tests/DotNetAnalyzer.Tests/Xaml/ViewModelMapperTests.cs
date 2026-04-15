@@ -125,7 +125,9 @@ public class ViewModelMapperTests : IDisposable
             {
                 ["MainWindow.xaml"] = xaml,
                 ["MainWindow.xaml.cs"] =
-                    "namespace MyApp { public partial class MainWindow { } }"
+                    "namespace MyApp { public partial class MainWindow { } }",
+                ["MainViewModel.cs"] =
+                    "namespace MyApp { public class MainViewModel { } }"
             });
 
         // 先验证 XamlParser 能正常解析
@@ -135,7 +137,7 @@ public class ViewModelMapperTests : IDisposable
         parsed.RootElement.Should().Be("Window");
 
         var project = CreateProjectWithFiles(
-            dir, ["MainWindow.xaml", "MainWindow.xaml.cs"]);
+            dir, ["MainWindow.xaml", "MainWindow.xaml.cs", "MainViewModel.cs"]);
 
         // 诊断：确认项目中的文档数
         var xamlDocCount = project.Documents

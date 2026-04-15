@@ -2,8 +2,10 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using DotNetAnalyzer.Core.Analysis.Desktop;
 using DotNetAnalyzer.Core.Analysis.Desktop.Models;
+using DotNetAnalyzer.Core.Configuration;
 using FluentAssertions;
 using Xunit;
 
@@ -22,7 +24,8 @@ public class MvvmViolationDetectorTests
     public MvvmViolationDetectorTests()
     {
         _detector = new MvvmViolationDetector(
-            NullLogger<MvvmViolationDetector>.Instance);
+            NullLogger<MvvmViolationDetector>.Instance,
+            Options.Create(new AnalyzerOptions()));
     }
 
     #region 辅助方法
@@ -301,6 +304,148 @@ public class MvvmViolationDetectorTests
         var violations = await _detector.DetectAsync(project);
 
         // Assert
+        violations.Should().BeEmpty();
+    }
+
+    #endregion
+
+    #region 关键词分级与配置排除
+
+    [Fact]
+    public async Task DetectAsync_HighConfidenceIndicator_ReportsWarning()
+    {
+        var source = """
+            using System;
+            using System.Data.SqlClient;
+
+            public partial class OrderView
+            {
+                public void ProcessOrder()
+                {
+                    var conn = new SqlConnection("...");
+                    conn.Open();
+                    var cmd = new SqlCommand("SELECT * FROM Orders", conn);
+                    var reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Console.WriteLine(reader["Name"]);
+                    }
+                }
+            }
+            """;
+
+        var project = await CreateProjectAsync(source, "OrderView.xaml.cs");
+        var violations = await _detector.DetectAsync(project);
+
+        violations.Should().Contain(v =>
+            v.RuleId == "MVVM001" &&
+            v.Severity == MvvmViolationSeverity.Warning &&
+            v.Message.Contains("高置信度"));
+    }
+
+    [Fact]
+    public async Task DetectAsync_LowConfidenceIndicator_ReportsInformation()
+    {
+        var source = """
+            using System;
+            using System.Threading.Tasks;
+
+            public partial class DataView
+            {
+                public async void LoadData()
+                {
+                    await Task.Run(() =>
+                    {
+                        for (int i = 0; i < 10; i++)
+                        {
+                            Console.WriteLine("Processing item " + i);
+                        }
+                    });
+                }
+            }
+            """;
+
+        var project = await CreateProjectAsync(source, "DataView.xaml.cs");
+        var violations = await _detector.DetectAsync(project);
+
+        violations.Should().Contain(v =>
+            v.RuleId == "MVVM001" &&
+            v.Severity == MvvmViolationSeverity.Information &&
+            v.Message.Contains("低置信度"));
+    }
+
+    [Fact]
+    public async Task DetectAsync_ExcludedIndicators_NoViolation()
+    {
+        var options = new AnalyzerOptions
+        {
+            Mvvm = new MvvmOptions
+            {
+                ExcludedBusinessIndicators = ["Task.Run"]
+            }
+        };
+
+        var detector = new MvvmViolationDetector(
+            NullLogger<MvvmViolationDetector>.Instance,
+            Options.Create(options));
+
+        var source = """
+            using System;
+            using System.Threading.Tasks;
+
+            public partial class ReportView
+            {
+                public void GenerateReport()
+                {
+                    Task.Run(() =>
+                    {
+                        for (int i = 0; i < 100; i++)
+                        {
+                            Console.WriteLine("Line " + i);
+                        }
+                    });
+                }
+            }
+            """;
+
+        var project = await CreateProjectAsync(source, "ReportView.xaml.cs");
+        var violations = await detector.DetectAsync(project);
+
+        violations.Should().NotContain(v => v.RuleId == "MVVM001");
+    }
+
+    [Fact]
+    public async Task DetectAsync_ExcludedRule_NoViolation()
+    {
+        var options = new AnalyzerOptions
+        {
+            Rules = new RulesOptions
+            {
+                Exclude = ["MVVM001"]
+            }
+        };
+
+        var detector = new MvvmViolationDetector(
+            NullLogger<MvvmViolationDetector>.Instance,
+            Options.Create(options));
+
+        var source = """
+            using System;
+            using System.Data.SqlClient;
+
+            public partial class BadView
+            {
+                public void DoWork()
+                {
+                    var cmd = new SqlCommand("SELECT 1");
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            """;
+
+        var project = await CreateProjectAsync(source, "BadView.xaml.cs");
+        var violations = await detector.DetectAsync(project);
+
         violations.Should().BeEmpty();
     }
 

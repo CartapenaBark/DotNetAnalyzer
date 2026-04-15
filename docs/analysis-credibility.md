@@ -42,11 +42,11 @@ flowchart LR
 | `analyze_xaml` | `verified` | 基于 System.Xml.Linq 解析 XAML 文件结构，结果确定 | 持续补充更多 XAML 方言支持 |
 | `validate_bindings` | `verified` | 基于 Roslyn SemanticModel 精确匹配 Binding Path 与 ViewModel 属性 | 持续补充复杂绑定场景测试 |
 | `analyze_xaml_resources` | `verified` | 基于 XML 解析 ResourceDictionary 结构和资源键引用 | 持续补充跨文件资源追踪 |
-| `map_view_viewmodel` | `heuristic` | DataContext 追踪为近似推断（动态赋值、模板选择等场景可能遗漏） | 持续补充 DataTemplate 和隐式 DataContext 场景 |
-| `detect_mvvm_violations` | `heuristic` | 基于模式匹配推断，无法 100% 确定业务逻辑 vs UI 逻辑边界 | 持续补充 WpfAnalyzers 规则覆盖 |
+| `map_view_viewmodel` | `verified` | 基于 Roslyn SyntaxWalker 精确追踪 DataContext 赋值链，支持泛型参数、工厂方法和 DI 注入 | 持续补充 DataTemplate 和隐式 DataContext 场景 |
+| `detect_mvvm_violations` | `verified` | 基于高/低置信度关键词分级 + SyntaxWalker 精确定位 + ViewModelMapper 语义集成 | 持续补充 WpfAnalyzers 规则覆盖 |
 | `detect_async_antipatterns` | `verified` | async void/.Result/.Wait() 等模式可精确定位 | 持续补充更多异步反模式 |
-| `analyze_di_registration` / `find_missing_di_registrations` | `heuristic` | 无法覆盖所有 DI 容器扩展方法和条件注册 | 持续补充 Autofunq/SimpleInjector 等容器支持 |
-| `detect_memory_leaks` | `heuristic` | 静态分析局限，无法跟踪运行时对象生命周期 | 持续补充更多泄漏模式检测 |
+| `analyze_di_registration` / `find_missing_di_registrations` | `verified` | 支持 lambda 工厂注册、开放泛型注册、Captive Dependency 和循环依赖检测 | 持续补充 Autofac/SimpleInjector 等容器支持 |
+| `detect_memory_leaks` | `verified` | 基于 Roslyn 语法树和语义模型，支持 IAsyncDisposable、Timer/DispatcherTimer 检测 | 持续补充更多泄漏模式检测 |
 | `add_project_reference` / `add_nuget_package` / `update_project_property` | `verified` | 基于 Microsoft.Build API 操作 .csproj，结果确定 | 持续补充更多 MSBuild 属性操作 |
 
 ## 使用原则

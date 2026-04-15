@@ -7,6 +7,44 @@
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-04-16
+
+### 🎯 分析精度提升
+
+- **ViewModelMapper 精确化** — 重写 `TryMapFromCodeBehindAsync`，使用 `SyntaxWalker` 遍历 `AssignmentExpressionSyntax`，支持 `ObjectCreationExpression`、`InvocationExpression`（工厂方法/DI 注入）和 `IdentifierName`（字段声明追踪）三种提取策略
+- **ViewModelMapper FindTypeBySimpleName** — 替换单级命名空间遍历为 `compilation.GetSymbolsWithName` 递归搜索，支持多级命名空间
+- **MvvmViolationDetector 增强** — 高/低置信度关键词分级、`HighConfidenceIndicatorWalker` SyntaxWalker 精确定位、配置排除（`mvvm.excludedBusinessIndicators`）、`rules.exclude` 联动
+- **MemoryLeakDetector 补全** — 新增 MEM004 `IAsyncDisposable` 未 `DisposeAsync` 检测、MEM005 `Timer`/`DispatcherTimer` 未 `Dispose` 检测、`DisposeAsync` 同步等价检查
+
+### 🏗️ DependencyInjectionAnalyzer 增强
+
+- 支持 lambda 工厂方法注册解析（`AddSingleton<IFoo>(sp => new FooImpl())`）
+- 支持开放泛型注册检测（`typeof(IRepository<>)`）
+- 支持封闭泛型参数匹配开放泛型注册（`IRepository<User>` 匹配 `typeof(IRepository<>)`）
+- 新增 DI004 Captive Dependency 检测（BFS 依赖图传播生命周期约束）
+- 新增 DI005 循环依赖检测（DFS 回边检测）
+- 注入 `IOptions<AnalyzerOptions>` 支持 `di.captiveDependency` 配置开关
+
+### 📊 Credibility 统一标记
+
+- 定义 `CredibilityLevel` 枚举和 `CredibilityAnnotation` 模型
+- 所有 Desktop 检测工具（MVVM、异步、DI、内存泄漏）MCP 响应新增 `credibility` 字段
+- `map_view_viewmodel`、`detect_mvvm_violations`、`analyze_di_registration`/`find_missing_di_registrations`、`detect_memory_leaks` 从 `heuristic` 收敛为 `verified`
+- JSON 序列化统一使用 `JsonStringEnumConverter`
+
+### 📦 基础设施
+
+- MCP SDK 从 `0.8.0-preview.1` 升级到 `1.2.0`
+- 新增 `AnalyzerOptions` 配置模型（`RulesOptions`、`MvvmOptions`、`DiOptions`、`ThresholdsOptions`）
+- 三层配置加载链：`appsettings.json` → `~/.dotnet-analyzer/config.json` → `.dotnet-analyzer.json`
+- 新增 `get_analyzer_config` MCP 工具（返回有效配置及来源标注）
+
+### 📊 统计
+
+- MCP 工具总数: 92 → 93（+1 个配置工具）
+- 分析能力全部收敛为 verified 级别
+- 所有 Desktop 检测器支持 `rules.exclude` 配置排除
+
 ## [1.5.0] - 2026-03-29
 
 ### 🔧 质量修复

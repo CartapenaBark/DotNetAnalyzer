@@ -27,6 +27,7 @@ public sealed partial class MemoryLeakDetector
     private static readonly HashSet<string> s_disposeMethodNames =
     [
         "Dispose",
+        "DisposeAsync",
         "OnDestroy",
         "OnClosed",
         "Unloaded",
@@ -81,6 +82,8 @@ public sealed partial class MemoryLeakDetector
             DetectUnsubscribedEvents(root, filePath, warnings);
             DetectUndisposedResources(root, semanticModel, filePath, warnings);
             DetectStaticEventHolders(root, semanticModel, filePath, warnings);
+            DetectAsyncDisposableNotDisposed(root, semanticModel, filePath, warnings);
+            DetectTimerNotDisposed(root, semanticModel, filePath, warnings);
         }
 
         Log.DetectionCompleted(_logger, warnings.Count);
@@ -199,11 +202,14 @@ public sealed partial class MemoryLeakDetector
         string filePath,
         List<MemoryLeakWarning> warnings)
     {
-        var iDisposableType = semanticModel.Compilation.GetTypeByMetadataName("System.IDisposable");
+        var iDisposableType = semanticModel.Compilation
+            .GetTypeByMetadataName("System.IDisposable");
+        var iAsyncDisposableType = semanticModel.Compilation
+            .GetTypeByMetadataName("System.IAsyncDisposable");
 
-        foreach (var typeDecl in root.DescendantNodes().OfType<TypeDeclarationSyntax>())
+        foreach (var typeDecl in root.DescendantNodes()
+            .OfType<TypeDeclarationSyntax>())
         {
-            // 检查类本身是否实现了 IDisposable
             var classSymbol = semanticModel.GetDeclaredSymbol(typeDecl);
             if (classSymbol == null)
             {
@@ -211,13 +217,11 @@ public sealed partial class MemoryLeakDetector
             }
 
             var implementsDisposable = classSymbol.AllInterfaces.Any(
-                iface => iDisposableType != null &&
-                         SymbolEqualityComparer.Default.Equals(iface, iDisposableType));
+                iface => iface.Name is "IDisposable" or "IAsyncDisposable");
 
-            // 检查类是否有 Dispose 方法
             var hasDisposeMethod = typeDecl.DescendantNodes()
                 .OfType<MethodDeclarationSyntax>()
-                .Any(m => m.Identifier.ValueText.Equals("Dispose", StringComparison.Ordinal));
+                .Any(m => m.Identifier.ValueText is "Dispose" or "DisposeAsync");
 
             if (implementsDisposable || hasDisposeMethod)
             {
@@ -505,25 +509,26 @@ public sealed partial class MemoryLeakDetector
     }
 
     /// <summary>
-    /// 判断类型是否实现了 IDisposable 接口。
+    /// 判断类型是否实现了 IDisposable 或 IAsyncDisposable 接口。
     /// </summary>
-    private static bool IsDisposableType(ITypeSymbol? type, ITypeSymbol? iDisposableType)
+    private static bool IsDisposableType(
+        ITypeSymbol? type,
+        ITypeSymbol? iDisposableType)
     {
-        if (type == null || iDisposableType == null)
+        if (type == null)
         {
             return false;
         }
 
-        // 直接比较
-        if (SymbolEqualityComparer.Default.Equals(type, iDisposableType))
+        if (iDisposableType != null &&
+            SymbolEqualityComparer.Default.Equals(type, iDisposableType))
         {
             return true;
         }
 
-        // 检查接口实现
         foreach (var iface in type.AllInterfaces)
         {
-            if (SymbolEqualityComparer.Default.Equals(iface, iDisposableType))
+            if (iface.Name is "IDisposable" or "IAsyncDisposable")
             {
                 return true;
             }
@@ -544,12 +549,14 @@ public sealed partial class MemoryLeakDetector
                 continue;
             }
 
-            foreach (var invocation in method.DescendantNodes().OfType<InvocationExpressionSyntax>())
+            foreach (var invocation in method.DescendantNodes()
+                .OfType<InvocationExpressionSyntax>())
             {
                 if (invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
                     memberAccess.Expression is IdentifierNameSyntax identifier &&
-                    identifier.Identifier.ValueText.Equals(fieldName, StringComparison.Ordinal) &&
-                    memberAccess.Name.Identifier.ValueText.Equals("Dispose", StringComparison.Ordinal))
+                    identifier.Identifier.ValueText.Equals(
+                        fieldName, StringComparison.Ordinal) &&
+                    memberAccess.Name.Identifier.ValueText is "Dispose" or "DisposeAsync")
                 {
                     return true;
                 }
@@ -603,7 +610,7 @@ public sealed partial class MemoryLeakDetector
             if (invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
                 memberAccess.Expression is IdentifierNameSyntax identifier &&
                 identifier.Identifier.ValueText.Equals(varName, StringComparison.Ordinal) &&
-                memberAccess.Name.Identifier.ValueText.Equals("Dispose", StringComparison.Ordinal))
+                memberAccess.Name.Identifier.ValueText is "Dispose" or "DisposeAsync")
             {
                 return true;
             }
@@ -630,6 +637,228 @@ public sealed partial class MemoryLeakDetector
                 identifier2.Identifier.ValueText.Equals(varName, StringComparison.Ordinal))
             {
                 return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// MEM004: 检测 IAsyncDisposable 字段未在清理路径中调用 DisposeAsync。
+    /// 如果字段也实现了 IDisposable 且 Dispose 已被调用，则不报告。
+    /// </summary>
+    private static void DetectAsyncDisposableNotDisposed(
+        SyntaxNode root,
+        SemanticModel semanticModel,
+        string filePath,
+        List<MemoryLeakWarning> warnings)
+    {
+        foreach (var typeDecl in root.DescendantNodes()
+            .OfType<TypeDeclarationSyntax>())
+        {
+            foreach (var field in typeDecl.DescendantNodes()
+                .OfType<FieldDeclarationSyntax>())
+            {
+                foreach (var variable in field.Declaration.Variables)
+                {
+                    var typeInfo = semanticModel.GetTypeInfo(
+                        field.Declaration.Type);
+                    if (typeInfo.Type == null)
+                    {
+                        continue;
+                    }
+
+                    var hasAsyncDisposable = typeInfo.Type.AllInterfaces
+                        .Any(i => i.Name == "IAsyncDisposable");
+
+                    if (!hasAsyncDisposable)
+                    {
+                        continue;
+                    }
+
+                    var fieldName = variable.Identifier.ValueText;
+
+                    // 如果同步 Dispose 也被调用了，视为已释放
+                    if (IsDisposedInCleanup(typeDecl, fieldName))
+                    {
+                        continue;
+                    }
+
+                    var lineSpan = field.GetLocation().GetLineSpan();
+                    warnings.Add(new MemoryLeakWarning
+                    {
+                        Pattern = MemoryLeakPattern.UndisposedResource,
+                        Name = "IAsyncDisposable 未 DisposeAsync",
+                        Message =
+                            $"字段 '{fieldName}' 实现了 IAsyncDisposable，" +
+                            "但未在清理方法中调用 DisposeAsync()",
+                        FilePath = filePath,
+                        StartLine = lineSpan.StartLinePosition.Line,
+                        StartColumn = lineSpan.StartLinePosition.Character,
+                        SymbolName = fieldName,
+                        Remediation =
+                            $"在清理方法中调用 await {fieldName}.DisposeAsync()"
+                    });
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// MEM005: 检测 Timer/DispatcherTimer 字段未在清理路径中调用 Dispose()。
+    /// </summary>
+    private static void DetectTimerNotDisposed(
+        SyntaxNode root,
+        SemanticModel semanticModel,
+        string filePath,
+        List<MemoryLeakWarning> warnings)
+    {
+        foreach (var typeDecl in root.DescendantNodes()
+            .OfType<TypeDeclarationSyntax>())
+        {
+            foreach (var field in typeDecl.DescendantNodes()
+                .OfType<FieldDeclarationSyntax>())
+            {
+                foreach (var variable in field.Declaration.Variables)
+                {
+                    var typeInfo = semanticModel.GetTypeInfo(
+                        field.Declaration.Type);
+                    if (typeInfo.Type == null)
+                    {
+                        continue;
+                    }
+
+                    var typeName = typeInfo.Type.Name;
+                    var isTimer = typeName is "Timer" or "DispatcherTimer" or
+                        "System.Timers.Timer" or
+                        "System.Windows.Threading.DispatcherTimer";
+
+                    if (!isTimer)
+                    {
+                        continue;
+                    }
+
+                    var fieldName = variable.Identifier.ValueText;
+                    var isDisposed = IsDisposedInCleanup(
+                        typeDecl, fieldName);
+                    var isStopped = IsTimerStoppedInCleanup(
+                        typeDecl, fieldName);
+
+                    if (isDisposed)
+                    {
+                        continue;
+                    }
+
+                    var lineSpan = field.GetLocation().GetLineSpan();
+                    var needStop = typeName.Contains("DispatcherTimer");
+
+                    warnings.Add(new MemoryLeakWarning
+                    {
+                        Pattern = MemoryLeakPattern.UndisposedResource,
+                        Name = "Timer 未 Dispose",
+                        Message =
+                            $"Timer 字段 '{fieldName}' ({typeName}) " +
+                            "未在清理方法中调用 Dispose()" +
+                            (needStop ? " 和 Stop()" : ""),
+                        FilePath = filePath,
+                        StartLine = lineSpan.StartLinePosition.Line,
+                        StartColumn = lineSpan.StartLinePosition.Character,
+                        SymbolName = fieldName,
+                        Remediation = needStop
+                            ? $"在清理方法中调用 {fieldName}.Stop() " +
+                              $"和 {fieldName}.Dispose()"
+                            : $"在清理方法中调用 {fieldName}.Dispose()"
+                    });
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 判断字段是否在清理方法中通过 await DisposeAsync 释放。
+    /// </summary>
+    private static bool IsAsyncDisposedInCleanup(
+        TypeDeclarationSyntax typeDecl,
+        string fieldName)
+    {
+        foreach (var method in typeDecl.DescendantNodes()
+            .OfType<MethodDeclarationSyntax>())
+        {
+            if (!s_disposeMethodNames.Contains(
+                method.Identifier.ValueText))
+            {
+                continue;
+            }
+
+            foreach (var invocation in method.DescendantNodes()
+                .OfType<InvocationExpressionSyntax>())
+            {
+                if (invocation.Expression is
+                    MemberAccessExpressionSyntax memberAccess &&
+                    memberAccess.Expression is
+                        IdentifierNameSyntax identifier &&
+                    identifier.Identifier.ValueText.Equals(
+                        fieldName, StringComparison.Ordinal) &&
+                    memberAccess.Name.Identifier.ValueText ==
+                        "DisposeAsync")
+                {
+                    return true;
+                }
+            }
+
+            // 检查 await using 模式
+            foreach (var usingStmt in method.DescendantNodes()
+                .OfType<UsingStatementSyntax>())
+            {
+                if (usingStmt.Declaration != null &&
+                    usingStmt.Declaration.Variables.Any(
+                        v => v.Identifier.ValueText.Equals(
+                            fieldName, StringComparison.Ordinal)))
+                {
+                    return true;
+                }
+
+                if (usingStmt.Expression is IdentifierNameSyntax id &&
+                    id.Identifier.ValueText.Equals(
+                        fieldName, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 判断 Timer 是否在清理方法中调用了 Stop()。
+    /// </summary>
+    private static bool IsTimerStoppedInCleanup(
+        TypeDeclarationSyntax typeDecl,
+        string fieldName)
+    {
+        foreach (var method in typeDecl.DescendantNodes()
+            .OfType<MethodDeclarationSyntax>())
+        {
+            if (!s_disposeMethodNames.Contains(
+                method.Identifier.ValueText))
+            {
+                continue;
+            }
+
+            foreach (var invocation in method.DescendantNodes()
+                .OfType<InvocationExpressionSyntax>())
+            {
+                if (invocation.Expression is
+                    MemberAccessExpressionSyntax memberAccess &&
+                    memberAccess.Expression is
+                        IdentifierNameSyntax identifier &&
+                    identifier.Identifier.ValueText.Equals(
+                        fieldName, StringComparison.Ordinal) &&
+                    memberAccess.Name.Identifier.ValueText == "Stop")
+                {
+                    return true;
+                }
             }
         }
 

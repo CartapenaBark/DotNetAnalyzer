@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Text.Json;
 using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Analysis.Desktop;
+using DotNetAnalyzer.Core.Analysis.Desktop.Models;
 using DotNetAnalyzer.Core.Json;
 using DotNetAnalyzer.Resources;
 using ModelContextProtocol.Server;
@@ -44,6 +45,11 @@ public static class DesktopTools
             {
                 projectPath,
                 totalViolations = violations.Count,
+                credibility = new CredibilityAnnotation
+                {
+                    Level = CredibilityLevel.Verified,
+                    Description = "基于 Roslyn 语法树和语义模型的精确分析"
+                },
                 violations
             });
         }
@@ -84,6 +90,11 @@ public static class DesktopTools
             {
                 projectPath,
                 totalIssues = issues.Count,
+                credibility = new CredibilityAnnotation
+                {
+                    Level = CredibilityLevel.Verified,
+                    Description = "async void/.Result/.Wait() 等模式可精确定位"
+                },
                 issues
             });
         }
@@ -125,6 +136,11 @@ public static class DesktopTools
                 projectPath,
                 result.TotalRegistrations,
                 result.TotalMissing,
+                credibility = new CredibilityAnnotation
+                {
+                    Level = CredibilityLevel.Verified,
+                    Description = "基于 Roslyn 语法分析提取 DI 注册信息"
+                },
                 registrations = result.Registrations,
                 missingRegistrations = result.MissingRegistrations
             });
@@ -166,6 +182,11 @@ public static class DesktopTools
             {
                 projectPath,
                 totalMissing = result.TotalMissing,
+                credibility = new CredibilityAnnotation
+                {
+                    Level = CredibilityLevel.Verified,
+                    Description = "基于 Roslyn 语义模型分析构造函数依赖"
+                },
                 missingRegistrations = result.MissingRegistrations
             });
         }
@@ -206,6 +227,11 @@ public static class DesktopTools
             {
                 projectPath,
                 totalWarnings = warnings.Count,
+                credibility = new CredibilityAnnotation
+                {
+                    Level = CredibilityLevel.Verified,
+                    Description = "基于 Roslyn 语法树和语义模型的静态分析"
+                },
                 warnings
             });
         }

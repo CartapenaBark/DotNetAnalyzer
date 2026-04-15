@@ -2,8 +2,10 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using DotNetAnalyzer.Core.Analysis.Desktop;
 using DotNetAnalyzer.Core.Analysis.Desktop.Models;
+using DotNetAnalyzer.Core.Configuration;
 using FluentAssertions;
 using Xunit;
 
@@ -13,7 +15,8 @@ namespace DotNetAnalyzer.Tests.Analysis.Desktop;
 /// DependencyInjectionAnalyzer 单元测试。
 /// </summary>
 /// <remarks>
-/// 覆盖 DI 注册收集、缺少注册检测、空项目和多种构造函数场景。
+/// 覆盖 DI 注册收集、lambda 工厂注册、开放泛型匹配、
+/// Captive Dependency（DI004）、循环依赖（DI005）和配置开关。
 /// </remarks>
 public class DependencyInjectionAnalyzerTests
 {
@@ -22,7 +25,8 @@ public class DependencyInjectionAnalyzerTests
     public DependencyInjectionAnalyzerTests()
     {
         _analyzer = new DependencyInjectionAnalyzer(
-            NullLogger<DependencyInjectionAnalyzer>.Instance);
+            NullLogger<DependencyInjectionAnalyzer>.Instance,
+            Options.Create(new AnalyzerOptions()));
     }
 
     #region 辅助方法
@@ -80,7 +84,6 @@ public class DependencyInjectionAnalyzerTests
     public async Task AnalyzeAsync_WithRegistrations_ReturnsRegistrations()
     {
         // Arrange
-        // 使用 AddSingleton 和 AddScoped 分别注册两个服务
         var source = """
             public class Startup
             {
@@ -127,7 +130,6 @@ public class DependencyInjectionAnalyzerTests
     public async Task AnalyzeAsync_MissingRegistration_DetectsMissing()
     {
         // Arrange
-        // MyService 已注册，但其构造函数需要 IEmailService（未注册）
         var source = """
             public class Startup
             {
@@ -167,7 +169,6 @@ public class DependencyInjectionAnalyzerTests
     public async Task AnalyzeAsync_AllRegistered_NoMissing()
     {
         // Arrange
-        // MyService 和 IRepository 都已注册，MyService 构造函数依赖 IRepository
         var source = """
             public class Startup
             {
@@ -199,7 +200,7 @@ public class DependencyInjectionAnalyzerTests
         // Act
         var result = await _analyzer.AnalyzeAsync(project);
 
-        // Assert — IRepository 已注册，MyService 不应报告缺少依赖
+        // Assert
         result.TotalMissing.Should().Be(0);
         result.MissingRegistrations.Should().BeEmpty();
     }
@@ -211,8 +212,6 @@ public class DependencyInjectionAnalyzerTests
     [Fact]
     public async Task AnalyzeAsync_EmptyProject_ReturnsEmptyResults()
     {
-        // Arrange
-        // 空类，不包含任何 DI 注册或构造函数
         var source = """
             public class Empty { }
             """;
@@ -232,9 +231,6 @@ public class DependencyInjectionAnalyzerTests
     [Fact]
     public async Task AnalyzeAsync_ParameterlessConstructor_NoMissingForIt()
     {
-        // Arrange
-        // MyService 同时有无参数构造函数和带参数构造函数。
-        // IEmailService 未注册，但 MyService 可以通过无参数构造函数实例化。
         var source = """
             public class Startup
             {
@@ -249,7 +245,6 @@ public class DependencyInjectionAnalyzerTests
             public class MyService : IMyService
             {
                 public MyService() { }
-
                 public MyService(IEmailService emailService) { }
             }
             public class ServiceCollection { }
@@ -266,10 +261,395 @@ public class DependencyInjectionAnalyzerTests
         // Act
         var result = await _analyzer.AnalyzeAsync(project);
 
-        // Assert — 带参构造函数中 IEmailService 未注册仍会被报告
+        // Assert
         result.TotalRegistrations.Should().Be(1);
         result.MissingRegistrations.Should().Contain(m =>
             m.ServiceType == "IEmailService");
+    }
+
+    #endregion
+
+    #region Lambda 工厂方法注册
+
+    [Fact]
+    public async Task AnalyzeAsync_LambdaObjectCreation_RegistersImplementation()
+    {
+        // Arrange
+        // services.AddSingleton<IFoo>(sp => new FooImpl())
+        var source = """
+            using System;
+
+            public class Startup
+            {
+                public void ConfigureService(IServiceCollection services)
+                {
+                    services.AddSingleton<IFoo>(sp => new FooImpl());
+                }
+            }
+
+            public interface IFoo { }
+            public class FooImpl : IFoo { }
+            public class ServiceCollection { }
+            public static class ServiceCollectionExtensions
+            {
+                public static ServiceCollection AddSingleton<TService>(this ServiceCollection s, Func<IServiceProvider, TService> f) => s;
+                public static ServiceCollection AddScoped<TService>(this ServiceCollection s, Func<IServiceProvider, TService> f) => s;
+                public static ServiceCollection AddTransient<TService>(this ServiceCollection s, Func<IServiceProvider, TService> f) => s;
+            }
+            """;
+
+        var project = await CreateProjectAsync(source);
+
+        // Act
+        var result = await _analyzer.AnalyzeAsync(project);
+
+        // Assert
+        result.TotalRegistrations.Should().Be(1);
+        result.Registrations[0].ServiceType.Should().Be("IFoo");
+        result.Registrations[0].ImplementationType.Should().Be("FooImpl");
+        result.Registrations[0].Lifetime.Should().Be(DiLifetime.Singleton);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_LambdaBlockBody_ReturnCreation_RegistersImplementation()
+    {
+        // Arrange
+        // services.AddScoped<IBar>(sp => { return new BarImpl(); })
+        var source = """
+            using System;
+
+            public class Startup
+            {
+                public void ConfigureService(IServiceCollection services)
+                {
+                    services.AddScoped<IBar>(sp => { return new BarImpl(); });
+                }
+            }
+
+            public interface IBar { }
+            public class BarImpl : IBar { }
+            public class ServiceCollection { }
+            public static class ServiceCollectionExtensions
+            {
+                public static ServiceCollection AddSingleton<TService>(this ServiceCollection s, Func<IServiceProvider, TService> f) => s;
+                public static ServiceCollection AddScoped<TService>(this ServiceCollection s, Func<IServiceProvider, TService> f) => s;
+                public static ServiceCollection AddTransient<TService>(this ServiceCollection s, Func<IServiceProvider, TService> f) => s;
+            }
+            """;
+
+        var project = await CreateProjectAsync(source);
+
+        // Act
+        var result = await _analyzer.AnalyzeAsync(project);
+
+        // Assert
+        result.TotalRegistrations.Should().Be(1);
+        result.Registrations[0].ImplementationType.Should().Be("BarImpl");
+        result.Registrations[0].Lifetime.Should().Be(DiLifetime.Scoped);
+    }
+
+    #endregion
+
+    #region 开放泛型注册检测
+
+    [Fact]
+    public async Task AnalyzeAsync_OpenGenericRegistration_MarksAsOpenGeneric()
+    {
+        // Arrange
+        // services.AddScoped(typeof(IRepository<>), typeof(Repository<>))
+        var source = """
+            public class Startup
+            {
+                public void ConfigureService(IServiceCollection services)
+                {
+                    services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+                }
+            }
+
+            public interface IRepository<T> { }
+            public class Repository<T> : IRepository<T> { }
+            public class ServiceCollection { }
+            public static class ServiceCollectionExtensions
+            {
+                public static ServiceCollection AddSingleton(this ServiceCollection s, Type t1, Type t2) => s;
+                public static ServiceCollection AddScoped(this ServiceCollection s, Type t1, Type t2) => s;
+                public static ServiceCollection AddTransient(this ServiceCollection s, Type t1, Type t2) => s;
+            }
+            """;
+
+        var project = await CreateProjectAsync(source);
+
+        // Act
+        var result = await _analyzer.AnalyzeAsync(project);
+
+        // Assert
+        result.TotalRegistrations.Should().Be(1);
+        result.Registrations[0].ServiceType.Should().Contain("IRepository<>");
+        result.Registrations[0].IsOpenGeneric.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_ClosedGenericMatchesOpenGeneric_NoMissing()
+    {
+        // Arrange
+        // 开放泛型注册 typeof(IRepository<>)，OrderService 构造函数需要 IRepository<Order>
+        var source = """
+            public class Startup
+            {
+                public void ConfigureService(IServiceCollection services)
+                {
+                    services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+                    services.AddScoped<OrderService>();
+                }
+            }
+
+            public interface IRepository<T> { }
+            public class Repository<T> : IRepository<T> { }
+            public class Order { }
+            public class OrderService
+            {
+                public OrderService(IRepository<Order> orderRepo) { }
+            }
+            public class ServiceCollection { }
+            public static class ServiceCollectionExtensions
+            {
+                public static ServiceCollection AddSingleton(this ServiceCollection s, Type t1, Type t2) => s;
+                public static ServiceCollection AddScoped(this ServiceCollection s, Type t1, Type t2) => s;
+                public static ServiceCollection AddTransient(this ServiceCollection s, Type t1, Type t2) => s;
+                public static ServiceCollection AddScoped<TService>(this ServiceCollection s) => s;
+            }
+            """;
+
+        var project = await CreateProjectAsync(source);
+
+        // Act
+        var result = await _analyzer.AnalyzeAsync(project);
+
+        // Assert — IRepository<Order> 应匹配开放泛型 IRepository<>
+        result.TotalMissing.Should().Be(0);
+    }
+
+    #endregion
+
+    #region Captive Dependency（DI004）
+
+    [Fact]
+    public async Task AnalyzeAsync_SingletonDependsOnScoped_DetectsCaptive()
+    {
+        // Arrange
+        // Singleton MySingletonService 依赖 Scoped MyScopedService
+        var source = """
+            public class Startup
+            {
+                public void ConfigureService(IServiceCollection services)
+                {
+                    services.AddSingleton<MySingletonService>();
+                    services.AddScoped<MyScopedService>();
+                }
+            }
+
+            public class MySingletonService
+            {
+                public MySingletonService(MyScopedService scoped) { }
+            }
+            public class MyScopedService { }
+            public class ServiceCollection { }
+            public static class ServiceCollectionExtensions
+            {
+                public static ServiceCollection AddSingleton<TService>(this ServiceCollection s) => s;
+                public static ServiceCollection AddScoped<TService>(this ServiceCollection s) => s;
+                public static ServiceCollection AddTransient<TService>(this ServiceCollection s) => s;
+            }
+            """;
+
+        var project = await CreateProjectAsync(source);
+
+        // Act
+        var result = await _analyzer.AnalyzeAsync(project);
+
+        // Assert
+        result.CaptiveDependencies.Should().Contain(c =>
+            c.HolderType == "MySingletonService" &&
+            c.CapturedDependency == "MyScopedService");
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_SingletonDependsOnSingleton_NoCaptive()
+    {
+        // Arrange
+        // Singleton 依赖 Singleton — 不是 Captive Dependency
+        var source = """
+            public class Startup
+            {
+                public void ConfigureService(IServiceCollection services)
+                {
+                    services.AddSingleton<ServiceA>();
+                    services.AddSingleton<ServiceB>();
+                }
+            }
+
+            public class ServiceA
+            {
+                public ServiceA(ServiceB b) { }
+            }
+            public class ServiceB { }
+            public class ServiceCollection { }
+            public static class ServiceCollectionExtensions
+            {
+                public static ServiceCollection AddSingleton<TService>(this ServiceCollection s) => s;
+                public static ServiceCollection AddScoped<TService>(this ServiceCollection s) => s;
+                public static ServiceCollection AddTransient<TService>(this ServiceCollection s) => s;
+            }
+            """;
+
+        var project = await CreateProjectAsync(source);
+
+        // Act
+        var result = await _analyzer.AnalyzeAsync(project);
+
+        // Assert
+        result.CaptiveDependencies.Should().BeEmpty();
+    }
+
+    #endregion
+
+    #region 循环依赖检测（DI005）
+
+    [Fact]
+    public async Task AnalyzeAsync_CircularDependency_DetectsCycle()
+    {
+        // Arrange
+        // ServiceA → ServiceB → ServiceA（循环）
+        var source = """
+            public class Startup
+            {
+                public void ConfigureService(IServiceCollection services)
+                {
+                    services.AddSingleton<ServiceA>();
+                    services.AddSingleton<ServiceB>();
+                }
+            }
+
+            public class ServiceA
+            {
+                public ServiceA(ServiceB b) { }
+            }
+            public class ServiceB
+            {
+                public ServiceB(ServiceA a) { }
+            }
+            public class ServiceCollection { }
+            public static class ServiceCollectionExtensions
+            {
+                public static ServiceCollection AddSingleton<TService>(this ServiceCollection s) => s;
+                public static ServiceCollection AddScoped<TService>(this ServiceCollection s) => s;
+                public static ServiceCollection AddTransient<TService>(this ServiceCollection s) => s;
+            }
+            """;
+
+        var project = await CreateProjectAsync(source);
+
+        // Act
+        var result = await _analyzer.AnalyzeAsync(project);
+
+        // Assert
+        result.CircularDependencies.Should().NotBeEmpty();
+        var cycle = result.CircularDependencies[0];
+        cycle.DependencyChain.Should().Contain("ServiceA");
+        cycle.DependencyChain.Should().Contain("ServiceB");
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_NoCircularDependency_NoCycle()
+    {
+        // Arrange
+        // ServiceA → ServiceB → ServiceC（单向链，无循环）
+        var source = """
+            public class Startup
+            {
+                public void ConfigureService(IServiceCollection services)
+                {
+                    services.AddSingleton<ServiceA>();
+                    services.AddSingleton<ServiceB>();
+                    services.AddSingleton<ServiceC>();
+                }
+            }
+
+            public class ServiceA
+            {
+                public ServiceA(ServiceB b) { }
+            }
+            public class ServiceB
+            {
+                public ServiceB(ServiceC c) { }
+            }
+            public class ServiceC { }
+            public class ServiceCollection { }
+            public static class ServiceCollectionExtensions
+            {
+                public static ServiceCollection AddSingleton<TService>(this ServiceCollection s) => s;
+                public static ServiceCollection AddScoped<TService>(this ServiceCollection s) => s;
+                public static ServiceCollection AddTransient<TService>(this ServiceCollection s) => s;
+            }
+            """;
+
+        var project = await CreateProjectAsync(source);
+
+        // Act
+        var result = await _analyzer.AnalyzeAsync(project);
+
+        // Assert
+        result.CircularDependencies.Should().BeEmpty();
+    }
+
+    #endregion
+
+    #region 配置开关
+
+    [Fact]
+    public async Task AnalyzeAsync_CaptiveDependencyDisabled_NoCaptiveResults()
+    {
+        // Arrange
+        var options = new AnalyzerOptions
+        {
+            Di = new DiOptions { CaptiveDependency = false }
+        };
+
+        var analyzer = new DependencyInjectionAnalyzer(
+            NullLogger<DependencyInjectionAnalyzer>.Instance,
+            Options.Create(options));
+
+        var source = """
+            public class Startup
+            {
+                public void ConfigureService(IServiceCollection services)
+                {
+                    services.AddSingleton<MySingletonService>();
+                    services.AddScoped<MyScopedService>();
+                }
+            }
+
+            public class MySingletonService
+            {
+                public MySingletonService(MyScopedService scoped) { }
+            }
+            public class MyScopedService { }
+            public class ServiceCollection { }
+            public static class ServiceCollectionExtensions
+            {
+                public static ServiceCollection AddSingleton<TService>(this ServiceCollection s) => s;
+                public static ServiceCollection AddScoped<TService>(this ServiceCollection s) => s;
+                public static ServiceCollection AddTransient<TService>(this ServiceCollection s) => s;
+            }
+            """;
+
+        var project = await CreateProjectAsync(source);
+
+        // Act
+        var result = await analyzer.AnalyzeAsync(project);
+
+        // Assert — Captive Dependency 检测已禁用
+        result.CaptiveDependencies.Should().BeEmpty();
     }
 
     #endregion

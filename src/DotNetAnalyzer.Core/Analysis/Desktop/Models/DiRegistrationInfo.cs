@@ -19,6 +19,9 @@ public sealed class DiRegistrationInfo
 
     /// <summary>注册所在行号。</summary>
     public int Line { get; init; }
+
+    /// <summary>是否为开放泛型注册（如 typeof(IRepository&lt;&gt;)）。</summary>
+    public bool IsOpenGeneric { get; init; }
 }
 
 /// <summary>

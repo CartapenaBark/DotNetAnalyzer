@@ -1,6 +1,7 @@
 using System.Text.Json;
 using DotNetAnalyzer.Core.Abstractions;
 using DotNetAnalyzer.Core.Analysis.Desktop;
+using DotNetAnalyzer.Core.Configuration;
 using DotNetAnalyzer.Cli.Tools;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
@@ -8,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -86,7 +88,8 @@ public class DesktopToolsTests
         var project = await CreateProjectAsync(source);
         var workspaceMock = CreateMockWorkspaceManager(project);
         var detector = new MvvmViolationDetector(
-            NullLogger<MvvmViolationDetector>.Instance);
+            NullLogger<MvvmViolationDetector>.Instance,
+            Options.Create(new AnalyzerOptions()));
 
         // Act
         var json = await DesktopTools.DetectMvvmViolations(
@@ -110,7 +113,8 @@ public class DesktopToolsTests
                 It.IsAny<string>()))
             .ReturnsAsync((Project)null!);
         var detector = new MvvmViolationDetector(
-            NullLogger<MvvmViolationDetector>.Instance);
+            NullLogger<MvvmViolationDetector>.Instance,
+            Options.Create(new AnalyzerOptions()));
 
         // Act
         var json = await DesktopTools.DetectMvvmViolations(
@@ -161,7 +165,9 @@ public class DesktopToolsTests
         var project = await CreateProjectAsync(source);
         var workspaceMock = CreateMockWorkspaceManager(project);
         var analyzer = new DependencyInjectionAnalyzer(
-            NullLogger<DependencyInjectionAnalyzer>.Instance);
+            NullLogger<DependencyInjectionAnalyzer>.Instance,
+            Microsoft.Extensions.Options.Options.Create(
+                new DotNetAnalyzer.Core.Configuration.AnalyzerOptions()));
 
         // Act
         var json = await DesktopTools.AnalyzeDiRegistration(
@@ -188,7 +194,9 @@ public class DesktopToolsTests
         var project = await CreateProjectAsync(source);
         var workspaceMock = CreateMockWorkspaceManager(project);
         var analyzer = new DependencyInjectionAnalyzer(
-            NullLogger<DependencyInjectionAnalyzer>.Instance);
+            NullLogger<DependencyInjectionAnalyzer>.Instance,
+            Microsoft.Extensions.Options.Options.Create(
+                new DotNetAnalyzer.Core.Configuration.AnalyzerOptions()));
 
         // Act
         var json = await DesktopTools.FindMissingDiRegistrations(
@@ -228,6 +236,71 @@ public class DesktopToolsTests
         doc.RootElement.GetProperty("data")
             .GetProperty("totalWarnings")
             .GetInt32().Should().Be(0);
+    }
+
+    #endregion
+
+    #region Credibility 标记
+
+    [Fact]
+    public async Task DetectMvvmViolations_ResponseContainsCredibility()
+    {
+        var source = "public class Empty { }";
+        var project = await CreateProjectAsync(source);
+        var workspaceMock = CreateMockWorkspaceManager(project);
+        var analyzer = new MvvmViolationDetector(
+            NullLogger<MvvmViolationDetector>.Instance,
+            Microsoft.Extensions.Options.Options.Create(
+                new DotNetAnalyzer.Core.Configuration.AnalyzerOptions()));
+
+        var json = await DesktopTools.DetectMvvmViolations(
+            workspaceMock.Object, analyzer, "/Test.csproj");
+
+        var doc = JsonDocument.Parse(json);
+        doc.RootElement.GetProperty("data")
+            .GetProperty("credibility")
+            .GetProperty("level")
+            .GetString().Should().Be("Verified");
+    }
+
+    [Fact]
+    public async Task DetectMemoryLeaks_ResponseContainsCredibility()
+    {
+        var source = "public class Empty { }";
+        var project = await CreateProjectAsync(source);
+        var workspaceMock = CreateMockWorkspaceManager(project);
+        var analyzer = new MemoryLeakDetector(
+            NullLogger<MemoryLeakDetector>.Instance);
+
+        var json = await DesktopTools.DetectMemoryLeaks(
+            workspaceMock.Object, analyzer, "/Test.csproj");
+
+        var doc = JsonDocument.Parse(json);
+        doc.RootElement.GetProperty("data")
+            .GetProperty("credibility")
+            .GetProperty("level")
+            .GetString().Should().Be("Verified");
+    }
+
+    [Fact]
+    public async Task AnalyzeDiRegistration_ResponseContainsCredibility()
+    {
+        var source = "public class Empty { }";
+        var project = await CreateProjectAsync(source);
+        var workspaceMock = CreateMockWorkspaceManager(project);
+        var analyzer = new DependencyInjectionAnalyzer(
+            NullLogger<DependencyInjectionAnalyzer>.Instance,
+            Microsoft.Extensions.Options.Options.Create(
+                new DotNetAnalyzer.Core.Configuration.AnalyzerOptions()));
+
+        var json = await DesktopTools.AnalyzeDiRegistration(
+            workspaceMock.Object, analyzer, "/Test.csproj");
+
+        var doc = JsonDocument.Parse(json);
+        doc.RootElement.GetProperty("data")
+            .GetProperty("credibility")
+            .GetProperty("level")
+            .GetString().Should().Be("Verified");
     }
 
     #endregion

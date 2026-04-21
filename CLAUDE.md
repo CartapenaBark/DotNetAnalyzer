@@ -38,4 +38,4 @@ DotNetAnalyzer — .NET MCP 服务器，通过 Roslyn API 使 Claude Code 分析
 
 ## 相关文档
 
-@README.md | @docs/CODING_STANDARDS.md | @docs/development-workflow.md | @docs/api-guide.md | @CONFIGURATION.md | @CHANGELOG.md | @docs/analysis-credibility.md | @eng/product-metadata.json | https://github.com/CartapenaBark/DotNetAnalyzer/tree/develop/.claude-plugin
+@README.md | @docs/CODING_STANDARDS.md | @docs/development-workflow.md | @docs/api-guide.md | @CONFIGURATION.md | @CHANGELOG.md | @docs/analysis-credibility.md | @eng/product-metadata.json | https://github.com/CartapenaBark/DotNetAnalyzer/tree/develop/plugin

@@ -39,3 +39,18 @@ DotNetAnalyzer — .NET MCP 服务器，通过 Roslyn API 使 Claude Code 分析
 ## 相关文档
 
 @README.md | @docs/CODING_STANDARDS.md | @docs/development-workflow.md | @docs/api-guide.md | @CONFIGURATION.md | @CHANGELOG.md | @docs/analysis-credibility.md | @eng/product-metadata.json | https://github.com/CartapenaBark/DotNetAnalyzer/tree/develop/plugin
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in this repo's GitHub Issues (CartapenaBark/DotNetAnalyzer), managed with the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Five canonical triage roles use their default label strings (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Domain docs use a multi-context layout: a root `GLOSSARY-MAP.md` points at one `GLOSSARY.md` per sub-project. See `docs/agents/domain.md`.
+
